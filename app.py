@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+import json
+import logging
+import sys
+import traceback
+import time
+from uuid import uuid4
+from pathlib import Path
+
 import gradio as gr
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from credit_assistant.credit_engine import INCOME_WEIGHTS, ClientProfile
 from credit_assistant.service import (
@@ -10,7 +21,47 @@ from credit_assistant.service import (
 )
 
 
+ERROR_LOG = Path("runtime_errors.log")
+logging.basicConfig(
+    filename=ERROR_LOG,
+    level=logging.ERROR,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    force=True,
+)
+LOGGER = logging.getLogger("credit_assistant_app")
+
+
+class TeeStream:
+    def __init__(self, *streams) -> None:
+        self.streams = streams
+
+    def write(self, data: str) -> int:
+        for stream in self.streams:
+            stream.write(data)
+            stream.flush()
+        return len(data)
+
+    def flush(self) -> None:
+        for stream in self.streams:
+            stream.flush()
+
+
+_stderr_log = ERROR_LOG.open("a", encoding="utf-8")
+sys.stderr = TeeStream(sys.stderr, _stderr_log)
 INDEX = build_default_index()
+
+
+def format_exception(title: str) -> str:
+    traceback_text = traceback.format_exc()
+    LOGGER.error("%s\n%s", title, traceback_text)
+    return f"""## Eroare in aplicatie
+
+**Context:** {title}
+
+```text
+{traceback_text}
+```
+"""
 
 
 def analyze_client(
@@ -32,57 +83,88 @@ def analyze_client(
     income_increase_after_delay_pct: float,
     is_pep: bool,
     aml_risk: str,
-    is_non_eu: bool,
-    married_to_ro_citizen: bool,
-    owns_property_in_ro: bool,
-    local_contract_months: int,
-    sector: str,
-    current_job_tenure_months: int,
-    previous_job_tenure_months: int,
-    gap_days_between_jobs: int,
     use_llm: bool,
+    *optional_values,
 ) -> str:
-    profile = ClientProfile(
-        age=int(age),
-        term_months=int(term_months),
-        fico=int(fico),
-        monthly_income=float(monthly_income),
-        income_type=income_type,
-        existing_monthly_debts=float(existing_monthly_debts),
-        requested_amount=float(requested_amount),
-        requested_monthly_payment=float(requested_monthly_payment),
-        annual_interest_pct=float(annual_interest_pct),
-        currency=currency,
-        income_currency=income_currency,
-        variable_rate=bool(variable_rate),
-        active_delay_days=int(active_delay_days),
-        historical_90_delay_last_year=bool(historical_90_delay_last_year),
-        historical_90_debt_settled=bool(historical_90_debt_settled),
-        income_increase_after_delay_pct=float(income_increase_after_delay_pct),
-        is_pep=bool(is_pep),
-        aml_risk=aml_risk,
-        is_non_eu=bool(is_non_eu),
-        married_to_ro_citizen=bool(married_to_ro_citizen),
-        owns_property_in_ro=bool(owns_property_in_ro),
-        local_contract_months=int(local_contract_months),
-        sector=sector,
-        current_job_tenure_months=int(current_job_tenure_months),
-        previous_job_tenure_months=int(previous_job_tenure_months),
-        gap_days_between_jobs=int(gap_days_between_jobs),
-    )
-    return build_analysis_markdown(profile, INDEX, use_llm=bool(use_llm))
+    try:
+        defaults = [
+            False,  # is_non_eu
+            False,  # married_to_ro_citizen
+            False,  # owns_property_in_ro
+            0,  # local_contract_months
+            "Altul",  # sector
+            12,  # current_job_tenure_months
+            0,  # previous_job_tenure_months
+            0,  # gap_days_between_jobs
+        ]
+        values = list(optional_values) + defaults[len(optional_values) :]
+        (
+            is_non_eu,
+            married_to_ro_citizen,
+            owns_property_in_ro,
+            local_contract_months,
+            sector,
+            current_job_tenure_months,
+            previous_job_tenure_months,
+            gap_days_between_jobs,
+        ) = values[:8]
+
+        profile = ClientProfile(
+            age=int(age),
+            term_months=int(term_months),
+            fico=int(fico),
+            monthly_income=float(monthly_income),
+            income_type=income_type,
+            existing_monthly_debts=float(existing_monthly_debts),
+            requested_amount=float(requested_amount),
+            requested_monthly_payment=float(requested_monthly_payment),
+            annual_interest_pct=float(annual_interest_pct),
+            currency=currency,
+            income_currency=income_currency,
+            variable_rate=bool(variable_rate),
+            active_delay_days=int(active_delay_days),
+            historical_90_delay_last_year=bool(historical_90_delay_last_year),
+            historical_90_debt_settled=bool(historical_90_debt_settled),
+            income_increase_after_delay_pct=float(income_increase_after_delay_pct),
+            is_pep=bool(is_pep),
+            aml_risk=aml_risk,
+            is_non_eu=bool(is_non_eu),
+            married_to_ro_citizen=bool(married_to_ro_citizen),
+            owns_property_in_ro=bool(owns_property_in_ro),
+            local_contract_months=int(local_contract_months),
+            sector=str(sector),
+            current_job_tenure_months=int(current_job_tenure_months),
+            previous_job_tenure_months=int(previous_job_tenure_months),
+            gap_days_between_jobs=int(gap_days_between_jobs),
+        )
+        return build_analysis_markdown(profile, INDEX, use_llm=bool(use_llm))
+    except Exception:
+        return format_exception("Evaluare client")
 
 
 def ask_policy(question: str, use_llm: bool) -> str:
-    if not question.strip():
-        return "Scrie o intrebare despre manual."
-    return answer_policy_question(question, INDEX, use_llm=bool(use_llm))
+    try:
+        if not question.strip():
+            return "Scrie o intrebare despre manual."
+        return answer_policy_question(question, INDEX, use_llm=bool(use_llm))
+    except Exception:
+        return format_exception("Intrebare despre manual")
+
+
+def read_error_log() -> str:
+    if not ERROR_LOG.exists():
+        return "Nu exista erori inregistrate in runtime_errors.log."
+    content = ERROR_LOG.read_text(encoding="utf-8", errors="replace").strip()
+    if not content:
+        return "Fisierul runtime_errors.log este gol."
+    return f"```text\n{content[-5000:]}\n```"
 
 
 with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
     gr.Markdown(
         "# Asistent de Creditare RAG NovaTech\n"
-        "Prototip educational: evalueaza un client fictiv folosind manualul NovaTech si afiseaza fragmentele recuperate din corpus."
+        "Prototip educational: evalueaza un client fictiv folosind manualul NovaTech si afiseaza fragmentele recuperate din corpus.\n\n"
+        "**Diagnostic activ:** erorile serverului se pot vedea direct la `/runtime-errors`."
     )
 
     with gr.Tab("Analiza client"):
@@ -120,18 +202,6 @@ with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
                 aml_risk = gr.Radio(label="Risc AML", choices=["Scazut", "Standard", "Ridicat"], value="Standard")
                 use_llm_analysis = gr.Checkbox(label="Foloseste rezumat LLM daca este configurat", value=False)
 
-        with gr.Accordion("Date suplimentare pentru exceptii si cetateni non-UE", open=False):
-            with gr.Row():
-                is_non_eu = gr.Checkbox(label="Cetatean non-UE", value=False)
-                married_to_ro_citizen = gr.Checkbox(label="Casatorit cu cetatean roman", value=False)
-                owns_property_in_ro = gr.Checkbox(label="Detine proprietate in Romania", value=False)
-                local_contract_months = gr.Number(label="Vechime contract local (luni)", value=0, precision=0)
-            with gr.Row():
-                sector = gr.Radio(label="Sector activitate", choices=["IT", "Altul"], value="Altul")
-                current_job_tenure_months = gr.Number(label="Vechime job curent (luni)", value=12, precision=0)
-                previous_job_tenure_months = gr.Number(label="Vechime job anterior (luni)", value=0, precision=0)
-                gap_days_between_jobs = gr.Number(label="Pauza intre joburi (zile)", value=0, precision=0)
-
         analyze_button = gr.Button("Evalueaza clientul", variant="primary")
         analysis_output = gr.Markdown()
         analyze_button.click(
@@ -155,14 +225,6 @@ with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
                 income_increase_after_delay_pct,
                 is_pep,
                 aml_risk,
-                is_non_eu,
-                married_to_ro_citizen,
-                owns_property_in_ro,
-                local_contract_months,
-                sector,
-                current_job_tenure_months,
-                previous_job_tenure_months,
-                gap_days_between_jobs,
                 use_llm_analysis,
             ],
             outputs=analysis_output,
@@ -179,10 +241,121 @@ with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
         answer_output = gr.Markdown()
         ask_button.click(ask_policy, inputs=[question, use_llm_question], outputs=answer_output)
 
+    with gr.Tab("Diagnostic"):
+        gr.Markdown(
+            "Daca apare doar toast-ul rosu `Error`, apasa aici ca sa vezi ultima eroare salvata de server."
+        )
+        diagnostics_button = gr.Button("Afiseaza ultima eroare")
+        diagnostics_output = gr.Markdown()
+        diagnostics_button.click(read_error_log, inputs=[], outputs=diagnostics_output)
+
     gr.Markdown(
         "Nota: proiect demonstrativ pentru disertatie. Manualul NovaTech este fictiv si rezultatele nu sunt consultanta financiara."
     )
 
 
+def get_runtime_errors_text() -> str:
+    if not ERROR_LOG.exists():
+        return "Nu exista runtime_errors.log."
+    content = ERROR_LOG.read_text(encoding="utf-8", errors="replace").strip()
+    return content or "runtime_errors.log este gol."
+
+
+def create_server() -> FastAPI:
+    server = FastAPI()
+
+    @server.middleware("http")
+    async def gradio_predict_compatibility(request: Request, call_next):
+        if request.url.path.rstrip("/") in {"/run/predict", "/api/predict"}:
+            body = await request.body()
+            try:
+                payload = json.loads(body.decode("utf-8")) if body else {}
+                if isinstance(payload, dict):
+                    payload.setdefault("session_hash", f"server-{uuid4().hex}")
+                    payload.setdefault("event_id", f"server-{uuid4().hex}")
+                    data_len = len(payload.get("data", [])) if isinstance(payload.get("data"), list) else "non-list"
+                    LOGGER.error(
+                        "Predict request path=%s fn_index=%s data_len=%s",
+                        request.url.path,
+                        payload.get("fn_index"),
+                        data_len,
+                    )
+                    body = json.dumps(payload).encode("utf-8")
+            except Exception:
+                LOGGER.error("Nu pot procesa corpul requestului predict.\n%s", traceback.format_exc())
+
+            async def receive():
+                return {"type": "http.request", "body": body, "more_body": False}
+
+            request = Request(request.scope, receive)
+
+        return await call_next(request)
+
+    @server.get("/runtime-errors", response_class=PlainTextResponse)
+    def runtime_errors_endpoint() -> str:
+        return get_runtime_errors_text()
+
+    @server.post("/run/predict/")
+    @server.post("/run/predict")
+    async def run_predict_compatibility(request: Request):
+        started = time.perf_counter()
+        payload = await request.json()
+        fn_index = int(payload.get("fn_index", 0))
+        data = payload.get("data", [])
+        if not isinstance(data, list):
+            data = []
+
+        LOGGER.error(
+            "Compat /run/predict fn_index=%s data_len=%s",
+            fn_index,
+            len(data),
+        )
+
+        if fn_index == 0:
+            defaults = [
+                35,
+                60,
+                720,
+                15000,
+                "Salariu - contract nedeterminat",
+                0,
+                100000,
+                0,
+                10,
+                "RON",
+                "RON",
+                False,
+                0,
+                False,
+                False,
+                0,
+                False,
+                "Standard",
+                False,
+            ]
+            args = data + defaults[len(data) :]
+            output = analyze_client(*args[:19])
+        elif fn_index == 1:
+            defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?", False]
+            args = data + defaults[len(data) :]
+            output = ask_policy(str(args[0]), bool(args[1]))
+        elif fn_index == 2:
+            output = read_error_log()
+        else:
+            output = f"## Eroare\nfn_index necunoscut: {fn_index}"
+
+        duration = time.perf_counter() - started
+        return JSONResponse(
+            {
+                "data": [output],
+                "is_generating": False,
+                "duration": duration,
+                "average_duration": duration,
+            }
+        )
+
+    return gr.mount_gradio_app(server, demo, path="/")
+
+
 if __name__ == "__main__":
-    demo.launch(server_name="127.0.0.1", server_port=7860)
+    uvicorn.run(create_server(), host="127.0.0.1", port=7860)

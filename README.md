@@ -1,10 +1,10 @@
 # Asistent de Creditare RAG NovaTech
 
-Prototip educational pentru disertatie: un asistent care citeste manualul fictiv `Manual_Extins_Creditare_NovaTech_v3.docx`, recupereaza fragmente relevante cu RAG si evalueaza clienti prin reguli explicabile.
+Prototip educational pentru disertatie: un asistent care citeste manualul fictiv `Manual_Extins_Creditare_NovaTech_v3.docx`, include optional `Regulamentul_BNR_nr_17_2012.pdf`, recupereaza fragmente relevante cu RAG si evalueaza clienti prin reguli explicabile.
 
 ## Ce face
 
-- indexeaza manualul NovaTech in fragmente cautabile;
+- indexeaza manualul NovaTech si Regulamentul BNR nr. 17/2012 in fragmente cautabile;
 - aplica reguli de eligibilitate: varsta, FICO, intarzieri, PEP/AML, cetateni non-UE;
 - calculeaza venitul eligibil prin ponderile din manual;
 - calculeaza GMI si suma maxima recomandata prin formula de anuitate;
@@ -37,6 +37,8 @@ Aplicatia porneste local la:
 ```text
 http://127.0.0.1:7860
 ```
+
+Daca adaugi sau modifici documente din corpus, opreste si reporneste aplicatia. Indexul RAG se construieste la pornire.
 
 ## Testare
 

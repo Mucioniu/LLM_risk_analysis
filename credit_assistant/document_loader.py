@@ -93,10 +93,26 @@ def chunk_paragraphs(
 
 def load_documents(paths: Iterable[Path]) -> list[DocumentChunk]:
     chunks: list[DocumentChunk] = []
+    skipped: list[str] = []
     for path in paths:
-        paragraphs = paragraphs_from_file(path)
+        try:
+            paragraphs = paragraphs_from_file(path)
+        except RuntimeError as exc:
+            skipped.append(f"{path.name}: {exc}")
+            continue
         chunks.extend(chunk_paragraphs(paragraphs, path.name))
     if not chunks:
         raise ValueError("Nu am gasit continut text in documentele incarcate.")
+    for message in skipped:
+        chunks.append(
+            DocumentChunk(
+                source="Sistem",
+                location="avertisment incarcare corpus",
+                text=(
+                    "Document omis la indexare. "
+                    f"{message}. Ruleaza `python -m pip install -r requirements.txt` "
+                    "si reporneste aplicatia pentru citirea PDF-urilor."
+                ),
+            )
+        )
     return chunks
-
