@@ -1,0 +1,29 @@
+[
+  {
+    "nume": "Programator IT",
+    "varsta": 30,
+    "fico": 720,
+    "venit_lunar": 15000,
+    "tip_venit": "Salariu - contract nedeterminat",
+    "durata_luni": 60,
+    "rata_dorita_din_anexa": 4000,
+    "observatie": "In UI introdu suma solicitata. Pentru rata de 4000 RON/luna, suma echivalenta depinde de dobanda."
+  },
+  {
+    "nume": "Pensionar 67 ani",
+    "varsta": 67,
+    "fico": 690,
+    "venit_lunar": 4500,
+    "tip_venit": "Pensie permanenta",
+    "durata_luni": 60
+  },
+  {
+    "nume": "Consultant PFA",
+    "varsta": 35,
+    "fico": 680,
+    "venit_lunar": 10000,
+    "tip_venit": "PFA/PFI",
+    "durata_luni": 60
+  }
+]
+
