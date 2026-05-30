@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import subprocess
 import sys
 import traceback
 import time
@@ -29,6 +31,70 @@ logging.basicConfig(
     force=True,
 )
 LOGGER = logging.getLogger("credit_assistant_app")
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 7860
+
+
+def close_existing_server_processes(port: int = SERVER_PORT) -> None:
+    """Close stale Windows listeners on the app port before Uvicorn binds it."""
+    if os.name != "nt":
+        return
+
+    current_pid = os.getpid()
+    try:
+        result = subprocess.run(
+            ["netstat", "-ano", "-p", "tcp"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except Exception:
+        LOGGER.error("Nu pot verifica procesele active pe portul %s.\n%s", port, traceback.format_exc())
+        return
+
+    if result.returncode != 0:
+        LOGGER.error("netstat a esuat la verificarea portului %s: %s", port, result.stderr.strip())
+        return
+
+    listener_pids: set[int] = set()
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) < 5 or parts[0].upper() != "TCP":
+            continue
+
+        local_address = parts[1]
+        state = parts[-2].upper()
+        pid_text = parts[-1]
+        if state != "LISTENING":
+            continue
+        if not local_address.endswith(f":{port}"):
+            continue
+        if not pid_text.isdigit():
+            continue
+
+        pid = int(pid_text)
+        if pid != current_pid:
+            listener_pids.add(pid)
+
+    for pid in sorted(listener_pids):
+        LOGGER.warning("Inchid proces existent pe portul %s: PID %s", port, pid)
+        kill_result = subprocess.run(
+            ["taskkill", "/PID", str(pid), "/F"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        if kill_result.returncode != 0:
+            LOGGER.error(
+                "Nu am putut inchide PID %s pe portul %s: %s",
+                pid,
+                port,
+                kill_result.stderr.strip() or kill_result.stdout.strip(),
+            )
 
 
 class TeeStream:
@@ -159,10 +225,10 @@ def read_error_log() -> str:
     return f"```text\n{content[-5000:]}\n```"
 
 
-with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
+with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
     gr.Markdown(
         "# Asistent de Creditare RAG NovaTech\n"
-        "Prototip educational: evalueaza un client fictiv folosind manualul NovaTech si afiseaza fragmentele recuperate din corpus.\n\n"
+        "Evalueaza un client fictiv folosind manualul NovaTech si afiseaza fragmentele recuperate din corpus.\n\n"
         "**Diagnostic activ:** erorile serverului se pot vedea direct la `/runtime-errors`."
     )
 
@@ -354,4 +420,5 @@ def create_server() -> FastAPI:
 
 
 if __name__ == "__main__":
-    uvicorn.run(create_server(), host="127.0.0.1", port=7860)
+    close_existing_server_processes()
+    uvicorn.run(create_server(), host=SERVER_HOST, port=SERVER_PORT)

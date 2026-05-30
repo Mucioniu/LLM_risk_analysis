@@ -7,20 +7,17 @@ from .llm import optional_llm_summary
 from .rag import RagIndex, format_sources
 
 
-DEFAULT_DOCX = Path("Manual_Extins_Creditare_NovaTech_v3.docx")
 DEFAULT_PDF = Path("Manual_Extins_Creditare_NovaTech_v3.pdf")
-BNR_REGULATION_PDF = Path("Regulamentul_BNR_nr_17_2012.pdf")
+BNR_REGULATION_MD = Path("Regulamentul_BNR_nr_17_2012.md")
 
 
 def default_corpus_paths() -> list[Path]:
     paths: list[Path] = []
-    if DEFAULT_DOCX.exists():
-        paths.append(DEFAULT_DOCX)
-    elif DEFAULT_PDF.exists():
+    if DEFAULT_PDF.exists():
         paths.append(DEFAULT_PDF)
 
-    if BNR_REGULATION_PDF.exists():
-        paths.append(BNR_REGULATION_PDF)
+    if BNR_REGULATION_MD.exists():
+        paths.append(BNR_REGULATION_MD)
 
     if not paths:
         raise FileNotFoundError("Nu gasesc documente de creditare in directorul proiectului.")

@@ -52,6 +52,9 @@ def paragraphs_from_file(path: Path) -> list[str]:
         return read_docx_paragraphs(path)
     if suffix == ".pdf":
         return read_pdf_pages(path)
+    if suffix in {".txt", ".md"}:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        return [block.strip() for block in text.split("\n\n") if block.strip()]
     raise ValueError(f"Format nesuportat: {path}")
 
 
