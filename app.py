@@ -83,7 +83,6 @@ def analyze_client(
     income_increase_after_delay_pct: float,
     is_pep: bool,
     aml_risk: str,
-    use_llm: bool,
     *optional_values,
 ) -> str:
     try:
@@ -137,7 +136,7 @@ def analyze_client(
             previous_job_tenure_months=int(previous_job_tenure_months),
             gap_days_between_jobs=int(gap_days_between_jobs),
         )
-        return build_analysis_markdown(profile, INDEX, use_llm=bool(use_llm))
+        return build_analysis_markdown(profile, INDEX, use_llm=True)
     except Exception:
         return format_exception("Evaluare client")
 
@@ -200,7 +199,6 @@ with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
                 )
                 is_pep = gr.Checkbox(label="Client PEP", value=False)
                 aml_risk = gr.Radio(label="Risc AML", choices=["Scazut", "Standard", "Ridicat"], value="Standard")
-                use_llm_analysis = gr.Checkbox(label="Foloseste rezumat LLM daca este configurat", value=False)
 
         analyze_button = gr.Button("Evalueaza clientul", variant="primary")
         analysis_output = gr.Markdown()
@@ -225,7 +223,6 @@ with gr.Blocks(title="Asistent de Creditare RAG NovaTech") as demo:
                 income_increase_after_delay_pct,
                 is_pep,
                 aml_risk,
-                use_llm_analysis,
             ],
             outputs=analysis_output,
         )
@@ -331,10 +328,9 @@ def create_server() -> FastAPI:
                 0,
                 False,
                 "Standard",
-                False,
             ]
             args = data + defaults[len(data) :]
-            output = analyze_client(*args[:19])
+            output = analyze_client(*args[:18])
         elif fn_index == 1:
             defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?", False]
             args = data + defaults[len(data) :]

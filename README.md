@@ -9,7 +9,7 @@ Prototip educational pentru disertatie: un asistent care citeste manualul fictiv
 - calculeaza venitul eligibil prin ponderile din manual;
 - calculeaza GMI si suma maxima recomandata prin formula de anuitate;
 - afiseaza citari din manual pentru decizie;
-- poate folosi optional un LLM, daca setezi o cheie API compatibila.
+- foloseste un LLM local prin Ollama pentru redactarea rezultatului final al evaluarii.
 
 ## Pasi recomandati pentru proiect
 
@@ -46,17 +46,21 @@ Daca adaugi sau modifici documente din corpus, opreste si reporneste aplicatia. 
 python -m unittest discover tests
 ```
 
-## LLM optional
+## LLM local
 
-Fara cheie API, aplicatia functioneaza in mod determinist si extractiv. Pentru rezumat generativ, seteaza:
+Pentru evaluarea clientului, aplicatia foloseste LLM-ul local pentru prezentarea rezultatului calculat si a surselor RAG. Recomandat pentru demo:
 
 ```powershell
-$env:OPENAI_API_KEY="cheia-ta"
-$env:OPENAI_MODEL="gpt-4o-mini"
+ollama pull qwen3:8b
+$env:OPENAI_BASE_URL="http://localhost:11434/v1"
+$env:OPENAI_API_KEY="ollama"
+$env:OPENAI_MODEL="qwen3:8b"
+$env:OPENAI_TIMEOUT_SECONDS="180"
+$env:OPENAI_MAX_TOKENS="1800"
 python app.py
 ```
 
-Poti seta si `OPENAI_BASE_URL` daca folosesti un endpoint compatibil.
+Calculele raman verificabile in cod, iar LLM-ul primeste valorile calculate si fragmentele RAG pentru a redacta raspunsul final.
 
 ## Structura
 
