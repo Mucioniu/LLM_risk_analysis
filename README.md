@@ -1,6 +1,6 @@
 # Asistent de Creditare RAG NovaTech
 
-Prototip educational pentru disertatie: un asistent care citeste manualul fictiv `Manual_Extins_Creditare_NovaTech_v3.docx`, include optional `Regulamentul_BNR_nr_17_2012.pdf`, recupereaza fragmente relevante cu RAG si evalueaza clienti prin reguli explicabile.
+Prototip educational pentru disertatie: un asistent care citeste manualul fictiv `Manual_Extins_Creditare_NovaTech_v3.pdf`, include `Regulamentul_BNR_nr_17_2012.md`, recupereaza fragmente relevante cu RAG si evalueaza clienti prin reguli explicabile.
 
 ## Ce face
 
@@ -46,6 +46,28 @@ Daca adaugi sau modifici documente din corpus, opreste si reporneste aplicatia. 
 python -m unittest discover tests
 ```
 
+## Metrici de evaluare
+
+Aplicatia include tabul `Metrici`, care ruleaza cazuri sintetice din `examples/evaluation_cases.json`.
+
+Pentru sectiunea `Intrebari despre manual`, sunt calculate:
+
+- `retrieval_hit_at_5` - verifica daca sursele asteptate apar intre primele 5 fragmente RAG;
+- `acoperire_cuvinte_cheie` - masoara cate concepte asteptate apar in raspunsul LLM;
+- `raspuns_lipsa_info` - verifica daca modelul recunoaste explicit informatia lipsa;
+- `prezenta_surse_rag` - verifica daca raspunsul include fragmente/surse;
+- `format_markdown` - verifica lizibilitatea raspunsului: heading-uri, linii noi, fara `***` sau text de gandire.
+
+Pentru sectiunea `Analiza client`, sunt calculate:
+
+- `consistenta_decizie` - compara decizia din raspuns cu decizia asteptata si cu motorul determinist;
+- `consistenta_valori_numerice` - verifica daca valorile financiare calculate apar in raspuns;
+- `sectiuni_obligatorii` - verifica prezenta sectiunilor cerute in raport;
+- `prezenta_surse_rag` - verifica includerea surselor RAG;
+- `format_markdown` - verifica structura si lizibilitatea raspunsului.
+
+Raportul afiseaza scor mediu total, scor pe sectiuni, latenta si detaliu pe fiecare caz.
+
 ## LLM local
 
 Pentru evaluarea clientului, aplicatia foloseste LLM-ul local pentru prezentarea rezultatului calculat si a surselor RAG. Recomandat pentru demo:
@@ -69,7 +91,9 @@ Calculele raman verificabile in cod, iar LLM-ul primeste valorile calculate si f
 - `credit_assistant/rag.py` - index TF-IDF si cautare;
 - `credit_assistant/credit_engine.py` - reguli si formule de creditare;
 - `credit_assistant/service.py` - legatura dintre evaluator si RAG;
-- `tests/test_credit_engine.py` - teste de baza.
+- `credit_assistant/evaluation.py` - metrici si rulare seturi sintetice;
+- `examples/evaluation_cases.json` - exemple sintetice pentru evaluare;
+- `tests/` - teste de baza pentru motor si metrici.
 
 ## Nota
 

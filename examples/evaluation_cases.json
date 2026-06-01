@@ -1,0 +1,98 @@
+{
+  "policy_questions": [
+    {
+      "id": "q_income_weights",
+      "question": "Care sunt ponderile veniturilor pentru PFA, dividende si chirii?",
+      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
+      "expected_keywords": ["PFA", "75", "dividende", "60", "chirii", "50"],
+      "expect_missing": false
+    },
+    {
+      "id": "q_gmi_formula",
+      "question": "Cum se calculeaza GMI si care este limita folosita pentru gradul maxim de indatorare?",
+      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf", "Regulamentul_BNR_nr_17_2012.md"],
+      "expected_keywords": ["GMI", "rate", "venit", "40"],
+      "expect_missing": false
+    },
+    {
+      "id": "q_pep_aml",
+      "question": "Ce se intampla daca solicitantul este PEP sau are risc AML ridicat?",
+      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
+      "expected_keywords": ["PEP", "AML", "manual", "conformitate"],
+      "expect_missing": false
+    },
+    {
+      "id": "q_missing_policy",
+      "question": "Care este politica NovaTech pentru credite agricole acordate fermelor comerciale?",
+      "expected_source_contains": [],
+      "expected_keywords": ["lipseste"],
+      "expect_missing": true
+    }
+  ],
+  "client_cases": [
+    {
+      "id": "c_salary_approved",
+      "expected_decision": "APROBAT",
+      "profile": {
+        "age": 35,
+        "term_months": 60,
+        "fico": 720,
+        "monthly_income": 15000,
+        "income_type": "Salariu - contract nedeterminat",
+        "existing_monthly_debts": 0,
+        "requested_amount": 100000,
+        "requested_monthly_payment": 0,
+        "annual_interest_pct": 10,
+        "currency": "RON",
+        "income_currency": "RON",
+        "variable_rate": false
+      }
+    },
+    {
+      "id": "c_pfa_rejected_gmi",
+      "expected_decision": "RESPINS",
+      "profile": {
+        "age": 35,
+        "term_months": 60,
+        "fico": 680,
+        "monthly_income": 10000,
+        "income_type": "PFA/PFI",
+        "existing_monthly_debts": 0,
+        "requested_amount": 0,
+        "requested_monthly_payment": 3500,
+        "annual_interest_pct": 10
+      }
+    },
+    {
+      "id": "c_pep_manual",
+      "expected_decision": "ANALIZA MANUALA",
+      "profile": {
+        "age": 42,
+        "term_months": 48,
+        "fico": 710,
+        "monthly_income": 12000,
+        "income_type": "Salariu - contract nedeterminat",
+        "existing_monthly_debts": 500,
+        "requested_amount": 50000,
+        "requested_monthly_payment": 0,
+        "annual_interest_pct": 10,
+        "is_pep": true
+      }
+    },
+    {
+      "id": "c_fico_rejected",
+      "expected_decision": "RESPINS",
+      "profile": {
+        "age": 30,
+        "term_months": 36,
+        "fico": 600,
+        "monthly_income": 9000,
+        "income_type": "Salariu - contract nedeterminat",
+        "existing_monthly_debts": 0,
+        "requested_amount": 30000,
+        "requested_monthly_payment": 0,
+        "annual_interest_pct": 10
+      }
+    }
+  ]
+}

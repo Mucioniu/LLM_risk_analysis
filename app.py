@@ -21,6 +21,7 @@ from credit_assistant.service import (
     build_analysis_markdown,
     build_default_index,
 )
+from credit_assistant.evaluation import run_evaluation_suite, summarize_evaluation_markdown
 
 
 ERROR_LOG = Path("runtime_errors.log")
@@ -225,6 +226,30 @@ def read_error_log() -> str:
     return f"```text\n{content[-5000:]}\n```"
 
 
+def nonnegative_int(value, default: int) -> int:
+    try:
+        return max(0, int(float(value)))
+    except (TypeError, ValueError):
+        return default
+
+
+def run_metrics(max_policy_cases: int, max_client_cases: int) -> str:
+    try:
+        policy_limit = nonnegative_int(max_policy_cases, 2)
+        client_limit = nonnegative_int(max_client_cases, 2)
+        if policy_limit == 0 and client_limit == 0:
+            return "Alege cel putin un caz de evaluare."
+
+        results = run_evaluation_suite(
+            INDEX,
+            max_policy_cases=policy_limit,
+            max_client_cases=client_limit,
+        )
+        return summarize_evaluation_markdown(results)
+    except Exception:
+        return format_exception("Evaluare metrici")
+
+
 with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
     gr.Markdown(
         "# Asistent de Creditare RAG NovaTech\n"
@@ -302,6 +327,30 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
         ask_button = gr.Button("Cauta in manual", variant="primary")
         answer_output = gr.Markdown()
         ask_button.click(ask_policy, inputs=[question], outputs=answer_output)
+
+    with gr.Tab("Metrici"):
+        gr.Markdown(
+            "Ruleaza un set sintetic de evaluare pentru RAG si LLM. "
+            "Cazurile sunt definite in `examples/evaluation_cases.json`."
+        )
+        with gr.Row():
+            max_policy_cases = gr.Number(
+                label="Cazuri pentru Intrebari despre manual",
+                value=2,
+                precision=0,
+            )
+            max_client_cases = gr.Number(
+                label="Cazuri pentru Analiza client",
+                value=2,
+                precision=0,
+            )
+        metrics_button = gr.Button("Ruleaza metricile", variant="primary")
+        metrics_output = gr.Markdown()
+        metrics_button.click(
+            run_metrics,
+            inputs=[max_policy_cases, max_client_cases],
+            outputs=metrics_output,
+        )
 
     with gr.Tab("Diagnostic"):
         gr.Markdown(
@@ -397,6 +446,10 @@ def create_server() -> FastAPI:
             args = data + defaults[len(data) :]
             output = ask_policy(str(args[0]))
         elif fn_index == 2:
+            defaults = [2, 2]
+            args = data + defaults[len(data) :]
+            output = run_metrics(int(args[0]), int(args[1]))
+        elif fn_index == 3:
             output = read_error_log()
         else:
             output = f"## Eroare\nfn_index necunoscut: {fn_index}"
