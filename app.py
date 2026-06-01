@@ -207,11 +207,11 @@ def analyze_client(
         return format_exception("Evaluare client")
 
 
-def ask_policy(question: str, use_llm: bool) -> str:
+def ask_policy(question: str) -> str:
     try:
         if not question.strip():
             return "Scrie o intrebare despre manual."
-        return answer_policy_question(question, INDEX, use_llm=bool(use_llm))
+        return answer_policy_question(question, INDEX, use_llm=True)
     except Exception:
         return format_exception("Intrebare despre manual")
 
@@ -299,10 +299,9 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
             value="Care sunt ponderile veniturilor si cum se calculeaza GMI?",
             lines=3,
         )
-        use_llm_question = gr.Checkbox(label="Foloseste LLM daca este configurat", value=False)
         ask_button = gr.Button("Cauta in manual", variant="primary")
         answer_output = gr.Markdown()
-        ask_button.click(ask_policy, inputs=[question, use_llm_question], outputs=answer_output)
+        ask_button.click(ask_policy, inputs=[question], outputs=answer_output)
 
     with gr.Tab("Diagnostic"):
         gr.Markdown(
@@ -311,10 +310,6 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
         diagnostics_button = gr.Button("Afiseaza ultima eroare")
         diagnostics_output = gr.Markdown()
         diagnostics_button.click(read_error_log, inputs=[], outputs=diagnostics_output)
-
-    gr.Markdown(
-        "Nota: proiect demonstrativ pentru disertatie. Manualul NovaTech este fictiv si rezultatele nu sunt consultanta financiara."
-    )
 
 
 def get_runtime_errors_text() -> str:
@@ -398,9 +393,9 @@ def create_server() -> FastAPI:
             args = data + defaults[len(data) :]
             output = analyze_client(*args[:18])
         elif fn_index == 1:
-            defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?", False]
+            defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?"]
             args = data + defaults[len(data) :]
-            output = ask_policy(str(args[0]), bool(args[1]))
+            output = ask_policy(str(args[0]))
         elif fn_index == 2:
             output = read_error_log()
         else:
