@@ -40,6 +40,44 @@ http://127.0.0.1:7860
 
 Daca adaugi sau modifici documente din corpus, opreste si reporneste aplicatia. Indexul RAG se construieste la pornire.
 
+## Acces public temporar
+
+Adresa `http://127.0.0.1:7860` functioneaza doar pe calculatorul local. Pentru a trimite aplicatia unei persoane aflate in alta retea, foloseste un tunel public temporar prin Cloudflare Tunnel.
+
+Instaleaza `cloudflared` o singura data:
+
+```powershell
+winget install Cloudflare.cloudflared
+```
+
+Apoi porneste aplicatia publica:
+
+```powershell
+.\start_public_cloudflare.ps1
+```
+
+In cazul in care PowerShell blocheaza rularea scripturilor, foloseste varianta `.bat`:
+
+```powershell
+.\start_public_cloudflare.bat
+```
+
+Terminalul va afisa un URL de forma:
+
+```text
+https://exemplu.trycloudflare.com
+```
+
+Acela este linkul pe care il poti trimite profesorului. Linkul ramane activ cat timp terminalul si calculatorul tau sunt pornite.
+
+Pentru acces doar in reteaua locala, poti porni serverul cu:
+
+```powershell
+$env:SERVER_HOST="0.0.0.0"
+$env:SERVER_PORT="7860"
+D:\CondaEnvs\disertatie\python.exe app.py
+```
+
 ## Testare
 
 ```powershell

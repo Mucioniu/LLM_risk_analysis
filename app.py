@@ -32,8 +32,17 @@ logging.basicConfig(
     force=True,
 )
 LOGGER = logging.getLogger("credit_assistant_app")
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 7860
+
+
+def env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+
+
+SERVER_HOST = os.getenv("SERVER_HOST", "127.0.0.1")
+SERVER_PORT = env_int("SERVER_PORT", 7860)
 
 
 def close_existing_server_processes(port: int = SERVER_PORT) -> None:
@@ -208,6 +217,14 @@ def analyze_client(
         return format_exception("Evaluare client")
 
 
+def show_analyze_loading() -> str:
+    return (
+        "## Se proceseaza evaluarea...\n\n"
+        "Aplic regulile de creditare, recuperez fragmentele RAG relevante si generez raspunsul cu LLM-ul local. "
+        "Prima evaluare dupa pornire poate dura putin mai mult."
+    )
+
+
 def ask_policy(question: str) -> str:
     try:
         if not question.strip():
@@ -293,9 +310,7 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
 
         analyze_button = gr.Button("Evalueaza clientul", variant="primary")
         analysis_output = gr.Markdown()
-        analyze_button.click(
-            analyze_client,
-            inputs=[
+        analyze_inputs = [
                 age,
                 term_months,
                 fico,
@@ -314,8 +329,17 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
                 income_increase_after_delay_pct,
                 is_pep,
                 aml_risk,
-            ],
+        ]
+        analyze_button.click(
+            show_analyze_loading,
+            inputs=[],
             outputs=analysis_output,
+            show_progress="full",
+        ).then(
+            analyze_client,
+            inputs=analyze_inputs,
+            outputs=analysis_output,
+            show_progress="full",
         )
 
     with gr.Tab("Intrebari despre manual"):
@@ -326,7 +350,7 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
         )
         ask_button = gr.Button("Cauta in manual", variant="primary")
         answer_output = gr.Markdown()
-        ask_button.click(ask_policy, inputs=[question], outputs=answer_output)
+        ask_button.click(ask_policy, inputs=[question], outputs=answer_output, show_progress="full")
 
     with gr.Tab("Metrici"):
         gr.Markdown(
@@ -350,6 +374,7 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
             run_metrics,
             inputs=[max_policy_cases, max_client_cases],
             outputs=metrics_output,
+            show_progress="full",
         )
 
     with gr.Tab("Diagnostic"):
@@ -358,7 +383,10 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
         )
         diagnostics_button = gr.Button("Afiseaza ultima eroare")
         diagnostics_output = gr.Markdown()
-        diagnostics_button.click(read_error_log, inputs=[], outputs=diagnostics_output)
+        diagnostics_button.click(read_error_log, inputs=[], outputs=diagnostics_output, show_progress="full")
+
+
+demo.queue(default_concurrency_limit=1)
 
 
 def get_runtime_errors_text() -> str:
@@ -418,7 +446,33 @@ def create_server() -> FastAPI:
             len(data),
         )
 
-        if fn_index == 0:
+        if fn_index in {0, 1} and len(data) in {0, 18}:
+            if len(data) == 0:
+                output = show_analyze_loading()
+            else:
+                defaults = [
+                    35,
+                    60,
+                    720,
+                    15000,
+                    "Salariu - contract nedeterminat",
+                    0,
+                    100000,
+                    0,
+                    10,
+                    "RON",
+                    "RON",
+                    False,
+                    0,
+                    False,
+                    False,
+                    0,
+                    False,
+                    "Standard",
+                ]
+                args = data + defaults[len(data) :]
+                output = analyze_client(*args[:18])
+        elif fn_index == 0:
             defaults = [
                 35,
                 60,
@@ -441,15 +495,15 @@ def create_server() -> FastAPI:
             ]
             args = data + defaults[len(data) :]
             output = analyze_client(*args[:18])
-        elif fn_index == 1:
+        elif fn_index in {1, 2}:
             defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?"]
             args = data + defaults[len(data) :]
             output = ask_policy(str(args[0]))
-        elif fn_index == 2:
+        elif fn_index in {2, 3}:
             defaults = [2, 2]
             args = data + defaults[len(data) :]
             output = run_metrics(int(args[0]), int(args[1]))
-        elif fn_index == 3:
+        elif fn_index in {3, 4}:
             output = read_error_log()
         else:
             output = f"## Eroare\nfn_index necunoscut: {fn_index}"
