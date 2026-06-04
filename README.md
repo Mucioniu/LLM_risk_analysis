@@ -68,7 +68,7 @@ Terminalul va afisa un URL de forma:
 https://exemplu.trycloudflare.com
 ```
 
-Acela este linkul pe care il poti trimite profesorului. Linkul ramane activ cat timp terminalul si calculatorul tau sunt pornite.
+Linkul ramane activ cat timp terminalul si calculatorul sunt pornite.
 
 Pentru acces doar in reteaua locala, poti porni serverul cu:
 
