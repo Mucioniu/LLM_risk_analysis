@@ -28,7 +28,13 @@ def clean_llm_markdown(text: str) -> str:
     return "\n".join(cleaned_lines).strip()
 
 
-def optional_llm_summary(system_prompt: str, user_prompt: str) -> str | None:
+def optional_llm_summary(
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    response_format_json: bool = False,
+    max_tokens_override: int | None = None,
+) -> str | None:
     """Call an OpenAI-compatible chat endpoint when explicitly configured.
 
     The project remains functional without an API key; this is only the generative
@@ -39,18 +45,20 @@ def optional_llm_summary(system_prompt: str, user_prompt: str) -> str | None:
         return None
 
     base_url = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
-    model = os.getenv("OPENAI_MODEL", "qwen3:8b")
+    model = os.getenv("OPENAI_MODEL", "mistral-small3.1")
     timeout_seconds = float(os.getenv("OPENAI_TIMEOUT_SECONDS", "180"))
-    max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1800"))
+    max_tokens = max_tokens_override or int(os.getenv("OPENAI_MAX_TOKENS", "3000"))
     payload: dict[str, Any] = {
         "model": model,
-        "temperature": 0.2,
+        "temperature": 0.1,
         "max_tokens": max_tokens,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
     }
+    if response_format_json:
+        payload["response_format"] = {"type": "json_object"}
 
     try:
         response = httpx.post(

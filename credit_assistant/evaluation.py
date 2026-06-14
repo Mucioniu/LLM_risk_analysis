@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .credit_engine import ClientProfile, CreditEvaluation, evaluate_client
-from .service import answer_policy_question, build_analysis_markdown
+from .service import answer_policy_question, build_llm_credit_analysis
 from .rag import RagIndex
 
 
@@ -192,13 +192,26 @@ def evaluate_client_case(case: dict[str, Any], index: RagIndex) -> CaseResult:
     expected_decision = case.get("expected_decision", deterministic.decision.value)
 
     started = time.perf_counter()
-    answer = build_analysis_markdown(profile, index, use_llm=True)
+    analysis = build_llm_credit_analysis(profile, index)
+    answer = analysis.answer_markdown
     latency = time.perf_counter() - started
 
     metrics = [
-        decision_consistency(answer, expected_decision),
-        decision_consistency(answer, deterministic.decision.value),
-        numeric_consistency(answer, expected_numeric_values(profile, deterministic)),
+        MetricResult(
+            "decizie_llm_vs_asteptat",
+            1.0 if analysis.extracted.decision == expected_decision else 0.0,
+            f"LLM: {analysis.extracted.decision or 'negasit'} / asteptat: {expected_decision}",
+        ),
+        MetricResult(
+            "decizie_llm_vs_formule",
+            analysis.metric_scores.get("Decizie", 0.0),
+            f"LLM: {analysis.extracted.decision or 'negasit'} / formule: {deterministic.decision.value}",
+        ),
+        MetricResult(
+            "scor_total_llm_vs_formule",
+            analysis.metric_scores.get("scor_total_llm_vs_formule", 0.0),
+            "Comparatie pe decizie si valori financiare extrase din raspunsul LLM.",
+        ),
         required_sections_score(answer),
         source_presence(answer),
         format_score(answer),

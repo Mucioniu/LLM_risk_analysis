@@ -1,76 +1,77 @@
-# Asistent de Creditare RAG NovaTech
+# NovaTech RAG Credit Assistant
 
-Prototip educational pentru disertatie: un asistent care citeste manualul fictiv `Manual_Extins_Creditare_NovaTech_v3.pdf`, include `Regulamentul_BNR_nr_17_2012.md`, recupereaza fragmente relevante cu RAG si evalueaza clienti prin reguli explicabile.
+Educational prototype for a master's thesis: an assistant that reads the fictional `Manual_Extins_Creditare_NovaTech_v3.pdf`, includes `Regulamentul_BNR_nr_17_2012.md`, retrieves relevant fragments with RAG, and uses a local LLM to analyze credit applicants.
 
-## Ce face
+## What It Does
 
-- indexeaza manualul NovaTech si Regulamentul BNR nr. 17/2012 in fragmente cautabile;
-- aplica reguli de eligibilitate: varsta, FICO, intarzieri, PEP/AML, cetateni non-UE;
-- calculeaza venitul eligibil prin ponderile din manual;
-- calculeaza GMI si suma maxima recomandata prin formula de anuitate;
-- afiseaza citari din manual pentru decizie;
-- foloseste un LLM local prin Ollama pentru redactarea rezultatului final al evaluarii.
+- indexes the NovaTech manual and BNR Regulation no. 17/2012 into searchable chunks;
+- retrieves fragments relevant to the client profile, including rules about FICO, PEP, AML, income types, and GMI;
+- sends the client profile, numerical rules, and RAG fragments to a local LLM through Ollama;
+- receives from the LLM a structured JSON analysis containing the decision, financial values, reasons, and sources;
+- validates the JSON schema and value consistency for reporting and metrics;
+- converts the validated result into a Markdown report displayed in Gradio;
+- includes a separate comparison section between the LLM response and the reference formulas.
 
-## Pasi recomandati pentru proiect
+## Recommended Project Steps
 
-1. Pastreaza manualul fictiv ca sursa controlata pentru testare.
-2. Adauga ulterior Regulamentul BNR nr. 17/2012 in acelasi corpus, ca document separat.
-3. Ruleaza sistemul pe clienti sintetici cunoscuti, inclusiv cazurile din anexa manualului.
-4. Compara raspunsul asteptat cu decizia produsa de motorul de reguli.
-5. Foloseste RAG-ul pentru justificare si citare, nu pentru aritmetica. Calculele trebuie sa ramana deterministe.
-6. In capitolul de evaluare, masoara separat: corectitudinea regasirii fragmentelor, corectitudinea deciziei si corectitudinea calculului sumei maxime.
+1. Keep the fictional manual as a controlled source for testing.
+2. Use BNR Regulation no. 17/2012 as a separate document in the corpus.
+3. Run the system on known synthetic clients, including the cases in `examples/evaluation_cases.json`.
+4. Analyze the structured LLM response for decision, financial values, and justifications.
+5. Use RAG for justification and citation, and the JSON schema to control the response format.
+6. In the evaluation chapter, measure retrieval quality, decision consistency, numerical consistency, formatting, and latency separately.
 
-## Instalare
+## Installation
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-## Rulare
+## Running
 
 ```powershell
 python app.py
 ```
 
-Aplicatia porneste local la:
+The application starts locally at:
 
 ```text
 http://127.0.0.1:7860
 ```
 
-Daca adaugi sau modifici documente din corpus, opreste si reporneste aplicatia. Indexul RAG se construieste la pornire.
+If you add or modify documents in the corpus, stop and restart the application. The RAG index is built at startup.
 
-## Acces public temporar
+## Temporary Public Access
 
-Adresa `http://127.0.0.1:7860` functioneaza doar pe calculatorul local. Pentru a trimite aplicatia unei persoane aflate in alta retea, foloseste un tunel public temporar prin Cloudflare Tunnel.
+The address `http://127.0.0.1:7860` works only on the local machine. To share the application with someone outside your network, use a temporary public tunnel through Cloudflare Tunnel.
 
-Instaleaza `cloudflared` o singura data:
+Install `cloudflared` once:
 
 ```powershell
 winget install Cloudflare.cloudflared
 ```
 
-Apoi porneste aplicatia publica:
+Then start the public application:
 
 ```powershell
 .\start_public_cloudflare.ps1
 ```
 
-In cazul in care PowerShell blocheaza rularea scripturilor, foloseste varianta `.bat`:
+If PowerShell blocks script execution, use the `.bat` version:
 
 ```powershell
 .\start_public_cloudflare.bat
 ```
 
-Terminalul va afisa un URL de forma:
+The terminal will display a URL similar to:
 
 ```text
-https://exemplu.trycloudflare.com
+https://example.trycloudflare.com
 ```
 
-Linkul ramane activ cat timp terminalul si calculatorul sunt pornite.
+The link remains active while the terminal and computer are running.
 
-Pentru acces doar in reteaua locala, poti porni serverul cu:
+For local network access only, you can start the server with:
 
 ```powershell
 $env:SERVER_HOST="0.0.0.0"
@@ -78,61 +79,62 @@ $env:SERVER_PORT="7860"
 D:\CondaEnvs\disertatie\python.exe app.py
 ```
 
-## Testare
+## Testing
 
 ```powershell
 python -m unittest discover tests
 ```
 
-## Metrici de evaluare
+## Evaluation Metrics
 
-Aplicatia include tabul `Metrici`, care ruleaza cazuri sintetice din `examples/evaluation_cases.json`.
+The application includes a `Metrici` tab that runs synthetic cases from `examples/evaluation_cases.json`.
 
-Pentru sectiunea `Intrebari despre manual`, sunt calculate:
+For the `Intrebari despre manual` section, the following metrics are computed:
 
-- `retrieval_hit_at_5` - verifica daca sursele asteptate apar intre primele 5 fragmente RAG;
-- `acoperire_cuvinte_cheie` - masoara cate concepte asteptate apar in raspunsul LLM;
-- `raspuns_lipsa_info` - verifica daca modelul recunoaste explicit informatia lipsa;
-- `prezenta_surse_rag` - verifica daca raspunsul include fragmente/surse;
-- `format_markdown` - verifica lizibilitatea raspunsului: heading-uri, linii noi, fara `***` sau text de gandire.
+- `retrieval_hit_at_5` - checks whether the expected sources appear among the top 5 RAG fragments;
+- `acoperire_cuvinte_cheie` - measures how many expected concepts appear in the LLM answer;
+- `raspuns_lipsa_info` - checks whether the model explicitly recognizes missing information;
+- `prezenta_surse_rag` - checks whether the answer includes fragments or sources;
+- `format_markdown` - checks answer readability: headings, line breaks, no `***`, and no hidden reasoning text.
 
-Pentru sectiunea `Analiza client`, sunt calculate:
+For the `Analiza client` section, the following metrics are computed:
 
-- `consistenta_decizie` - compara decizia din raspuns cu decizia asteptata si cu motorul determinist;
-- `consistenta_valori_numerice` - verifica daca valorile financiare calculate apar in raspuns;
-- `sectiuni_obligatorii` - verifica prezenta sectiunilor cerute in raport;
-- `prezenta_surse_rag` - verifica includerea surselor RAG;
-- `format_markdown` - verifica structura si lizibilitatea raspunsului.
+- `decizie_llm_vs_asteptat` - compares the decision extracted from the LLM response with the expected decision in the synthetic dataset;
+- `decizie_llm_vs_formule` - compares the LLM decision with the reference decision calculated through formulas;
+- `scor_total_llm_vs_formule` - compares the structured financial values produced by the LLM with the reference values;
+- `sectiuni_obligatorii` - checks whether the required report sections are present;
+- `prezenta_surse_rag` - checks whether RAG sources are included;
+- `format_markdown` - checks the structure and readability of the response.
 
-Raportul afiseaza scor mediu total, scor pe sectiuni, latenta si detaliu pe fiecare caz.
+The report displays the overall average score, score by section, latency, and detailed results for each case.
 
-## LLM local
+## Local LLM
 
-Pentru evaluarea clientului, aplicatia foloseste LLM-ul local pentru prezentarea rezultatului calculat si a surselor RAG. Recomandat pentru demo:
+For client evaluation, the application uses the local LLM to generate a structured analysis of the profile, including the decision, financial calculations, reasons, and RAG sources. Recommended for the demo:
 
 ```powershell
-ollama pull qwen3:8b
+ollama pull mistral-small3.1
 $env:OPENAI_BASE_URL="http://localhost:11434/v1"
 $env:OPENAI_API_KEY="ollama"
-$env:OPENAI_MODEL="qwen3:8b"
+$env:OPENAI_MODEL="mistral-small3.1"
 $env:OPENAI_TIMEOUT_SECONDS="180"
-$env:OPENAI_MAX_TOKENS="1800"
+$env:OPENAI_MAX_TOKENS="3000"
 python app.py
 ```
 
-Calculele raman verificabile in cod, iar LLM-ul primeste valorile calculate si fragmentele RAG pentru a redacta raspunsul final.
+The LLM response is requested in structured JSON format, then validated and displayed as a Markdown report in the Gradio interface.
 
-## Structura
+## Structure
 
-- `app.py` - interfata Gradio;
-- `credit_assistant/document_loader.py` - citire DOCX/PDF si chunking;
-- `credit_assistant/rag.py` - index TF-IDF si cautare;
-- `credit_assistant/credit_engine.py` - reguli si formule de creditare;
-- `credit_assistant/service.py` - legatura dintre evaluator si RAG;
-- `credit_assistant/evaluation.py` - metrici si rulare seturi sintetice;
-- `examples/evaluation_cases.json` - exemple sintetice pentru evaluare;
-- `tests/` - teste de baza pentru motor si metrici.
+- `app.py` - Gradio interface;
+- `credit_assistant/document_loader.py` - DOCX/PDF reading and chunking;
+- `credit_assistant/rag.py` - TF-IDF index and search;
+- `credit_assistant/credit_engine.py` - reference formulas and rules used for comparison;
+- `credit_assistant/service.py` - RAG orchestration, LLM prompts, structured JSON, and validation;
+- `credit_assistant/evaluation.py` - metrics and synthetic suite execution;
+- `examples/evaluation_cases.json` - synthetic evaluation examples;
+- `tests/` - basic tests for the engine and metrics.
 
-## Nota
+## Note
 
-Manualul NovaTech este fictiv. Rezultatele sunt pentru demonstratie academica si nu reprezinta consultanta financiara sau decizie bancara reala.
+The NovaTech manual is fictional. The results are for academic demonstration only and do not represent financial advice or a real banking decision.

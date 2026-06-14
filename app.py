@@ -20,6 +20,7 @@ from credit_assistant.service import (
     answer_policy_question,
     build_analysis_markdown,
     build_default_index,
+    build_llm_credit_analysis,
 )
 from credit_assistant.evaluation import run_evaluation_suite, summarize_evaluation_markdown
 
@@ -212,15 +213,95 @@ def analyze_client(
             previous_job_tenure_months=int(previous_job_tenure_months),
             gap_days_between_jobs=int(gap_days_between_jobs),
         )
-        return build_analysis_markdown(profile, INDEX, use_llm=True)
+        return build_llm_credit_analysis(profile, INDEX).answer_markdown
     except Exception:
         return format_exception("Evaluare client")
+
+
+def analyze_client_with_comparison(
+    age: int,
+    term_months: int,
+    fico: int,
+    monthly_income: float,
+    income_type: str,
+    existing_monthly_debts: float,
+    requested_amount: float,
+    requested_monthly_payment: float,
+    annual_interest_pct: float,
+    currency: str,
+    income_currency: str,
+    variable_rate: bool,
+    active_delay_days: int,
+    historical_90_delay_last_year: bool,
+    historical_90_debt_settled: bool,
+    income_increase_after_delay_pct: float,
+    is_pep: bool,
+    aml_risk: str,
+    *optional_values,
+) -> tuple[str, str]:
+    try:
+        defaults = [
+            False,
+            False,
+            False,
+            0,
+            "Altul",
+            12,
+            0,
+            0,
+        ]
+        values = list(optional_values) + defaults[len(optional_values) :]
+        (
+            is_non_eu,
+            married_to_ro_citizen,
+            owns_property_in_ro,
+            local_contract_months,
+            sector,
+            current_job_tenure_months,
+            previous_job_tenure_months,
+            gap_days_between_jobs,
+        ) = values[:8]
+
+        profile = ClientProfile(
+            age=int(age),
+            term_months=int(term_months),
+            fico=int(fico),
+            monthly_income=float(monthly_income),
+            income_type=income_type,
+            existing_monthly_debts=float(existing_monthly_debts),
+            requested_amount=float(requested_amount),
+            requested_monthly_payment=float(requested_monthly_payment),
+            annual_interest_pct=float(annual_interest_pct),
+            currency=currency,
+            income_currency=income_currency,
+            variable_rate=bool(variable_rate),
+            active_delay_days=int(active_delay_days),
+            historical_90_delay_last_year=bool(historical_90_delay_last_year),
+            historical_90_debt_settled=bool(historical_90_debt_settled),
+            income_increase_after_delay_pct=float(income_increase_after_delay_pct),
+            is_pep=bool(is_pep),
+            aml_risk=aml_risk,
+            is_non_eu=bool(is_non_eu),
+            married_to_ro_citizen=bool(married_to_ro_citizen),
+            owns_property_in_ro=bool(owns_property_in_ro),
+            local_contract_months=int(local_contract_months),
+            sector=str(sector),
+            current_job_tenure_months=int(current_job_tenure_months),
+            previous_job_tenure_months=int(previous_job_tenure_months),
+            gap_days_between_jobs=int(gap_days_between_jobs),
+        )
+        result = build_llm_credit_analysis(profile, INDEX)
+        return result.answer_markdown, result.comparison_markdown
+    except Exception:
+        error = format_exception("Evaluare client")
+        return error, error
 
 
 def show_analyze_loading() -> str:
     return (
         "## Se proceseaza evaluarea...\n\n"
-        "Aplic regulile de creditare, recuperez fragmentele RAG relevante si generez raspunsul cu LLM-ul local. "
+        "Recuperez fragmentele RAG relevante si cer LLM-ului local sa calculeze decizia de creditare. "
+        "Apoi compar raspunsul cu formulele Python in tabul de comparatie. "
         "Prima evaluare dupa pornire poate dura putin mai mult."
     )
 
@@ -272,6 +353,9 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
         "# Asistent de Creditare RAG NovaTech\n"
         "Evalueaza un client fictiv folosind manualul NovaTech si afiseaza fragmentele recuperate din corpus.\n\n"
         "**Diagnostic activ:** erorile serverului se pot vedea direct la `/runtime-errors`."
+    )
+    last_comparison = gr.State(
+        "## Comparatie indisponibila\n\nRuleaza mai intai o analiza de client."
     )
 
     with gr.Tab("Analiza client"):
@@ -330,14 +414,9 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
                 is_pep,
                 aml_risk,
         ]
-        analyze_button.click(
+        analyze_event = analyze_button.click(
             show_analyze_loading,
             inputs=[],
-            outputs=analysis_output,
-            show_progress="full",
-        ).then(
-            analyze_client,
-            inputs=analyze_inputs,
             outputs=analysis_output,
             show_progress="full",
         )
@@ -377,13 +456,40 @@ with gr.Blocks(title="Asistent de Creditare NovaTech") as demo:
             show_progress="full",
         )
 
-    with gr.Tab("Diagnostic"):
+    with gr.Tab("Comparatie LLM vs formule"):
+        gr.Markdown(
+            "Compara ultimul raspuns calculat de LLM cu valorile calculate independent prin formule Python."
+        )
+        comparison_output = gr.Markdown(
+            "## Comparatie indisponibila\n\nRuleaza mai intai o analiza de client."
+        )
+        refresh_comparison_button = gr.Button("Afiseaza comparatia ultimei analize")
+        refresh_comparison_button.click(
+            lambda value: value,
+            inputs=[last_comparison],
+            outputs=[comparison_output],
+            show_progress="full",
+        )
+
+    with gr.Tab("Erori server"):
         gr.Markdown(
             "Daca apare doar toast-ul rosu `Error`, apasa aici ca sa vezi ultima eroare salvata de server."
         )
         diagnostics_button = gr.Button("Afiseaza ultima eroare")
         diagnostics_output = gr.Markdown()
         diagnostics_button.click(read_error_log, inputs=[], outputs=diagnostics_output, show_progress="full")
+
+    analyze_event.then(
+        analyze_client_with_comparison,
+        inputs=analyze_inputs,
+        outputs=[analysis_output, last_comparison],
+        show_progress="full",
+    ).then(
+        lambda value: value,
+        inputs=[last_comparison],
+        outputs=[comparison_output],
+        show_progress="hidden",
+    )
 
 
 demo.queue(default_concurrency_limit=1)
@@ -446,33 +552,9 @@ def create_server() -> FastAPI:
             len(data),
         )
 
-        if fn_index in {0, 1} and len(data) in {0, 18}:
-            if len(data) == 0:
-                output = show_analyze_loading()
-            else:
-                defaults = [
-                    35,
-                    60,
-                    720,
-                    15000,
-                    "Salariu - contract nedeterminat",
-                    0,
-                    100000,
-                    0,
-                    10,
-                    "RON",
-                    "RON",
-                    False,
-                    0,
-                    False,
-                    False,
-                    0,
-                    False,
-                    "Standard",
-                ]
-                args = data + defaults[len(data) :]
-                output = analyze_client(*args[:18])
-        elif fn_index == 0:
+        if fn_index == 0 and len(data) == 0:
+            response_data = [show_analyze_loading()]
+        elif fn_index == 5 and len(data) == 18:
             defaults = [
                 35,
                 60,
@@ -494,24 +576,49 @@ def create_server() -> FastAPI:
                 "Standard",
             ]
             args = data + defaults[len(data) :]
-            output = analyze_client(*args[:18])
-        elif fn_index in {1, 2}:
-            defaults = ["Care sunt ponderile veniturilor si cum se calculeaza GMI?"]
-            args = data + defaults[len(data) :]
-            output = ask_policy(str(args[0]))
-        elif fn_index in {2, 3}:
+            answer, comparison = analyze_client_with_comparison(*args[:18])
+            response_data = [answer, comparison]
+        elif fn_index == 1 and len(data) == 1:
+            response_data = [ask_policy(str(data[0]))]
+        elif fn_index == 2 and len(data) == 2:
             defaults = [2, 2]
             args = data + defaults[len(data) :]
-            output = run_metrics(int(args[0]), int(args[1]))
-        elif fn_index in {3, 4}:
-            output = read_error_log()
+            response_data = [run_metrics(int(args[0]), int(args[1]))]
+        elif fn_index in {3, 6} and len(data) == 1:
+            response_data = [str(data[0])]
+        elif fn_index == 4 and len(data) == 0:
+            response_data = [read_error_log()]
+        elif len(data) == 18:
+            defaults = [
+                35,
+                60,
+                720,
+                15000,
+                "Salariu - contract nedeterminat",
+                0,
+                100000,
+                0,
+                10,
+                "RON",
+                "RON",
+                False,
+                0,
+                False,
+                False,
+                0,
+                False,
+                "Standard",
+            ]
+            args = data + defaults[len(data) :]
+            answer, comparison = analyze_client_with_comparison(*args[:18])
+            response_data = [answer, comparison]
         else:
-            output = f"## Eroare\nfn_index necunoscut: {fn_index}"
+            response_data = [f"## Eroare\nfn_index necunoscut: {fn_index}, data_len={len(data)}"]
 
         duration = time.perf_counter() - started
         return JSONResponse(
             {
-                "data": [output],
+                "data": response_data,
                 "is_generating": False,
                 "duration": duration,
                 "average_duration": duration,
