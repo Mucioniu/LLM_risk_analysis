@@ -9,6 +9,7 @@ Educational prototype for a master's thesis: an assistant that reads the fiction
 - sends the client profile, numerical rules, and RAG fragments to a local LLM through Ollama;
 - receives from the LLM a structured JSON analysis containing the decision, financial values, reasons, and sources;
 - validates the JSON schema and value consistency for reporting and metrics;
+- validates the LLM's JSON output against deterministic Python calculations and numeric rules; if inconsistencies are found the service performs automatic self-review and (if needed) an adjudication step to correct decision or reasons;
 - converts the validated result into a Markdown report displayed in Gradio;
 - includes a separate comparison section between the LLM response and the reference formulas.
 
@@ -124,6 +125,8 @@ python app.py
 
 The LLM response is requested in structured JSON format, then validated and displayed as a Markdown report in the Gradio interface.
 
+Note on validation and robustness: the service attempts to parse and validate the LLM JSON up to three times. If the returned JSON is inconsistent with the deterministic Python evaluation, the code will (1) request an internal LLM self-review to correct numeric or decision inconsistencies, and (2) if necessary, request an adjudication step that only decides `APROBAT | RESPINS | ANALIZA MANUALA` and updates the JSON decision. These retries and reviewer/adjudicator interactions are automatic and intended to improve result consistency for evaluation and reporting.
+
 ## Structure
 
 - `app.py` - Gradio interface;
@@ -131,6 +134,7 @@ The LLM response is requested in structured JSON format, then validated and disp
 - `credit_assistant/rag.py` - TF-IDF index and search;
 - `credit_assistant/credit_engine.py` - reference formulas and rules used for comparison;
 - `credit_assistant/service.py` - RAG orchestration, LLM prompts, structured JSON, and validation;
+- `credit_assistant/service.py` - RAG orchestration, structured JSON prompts, schema validation, self-review and adjudication loops, and comparison to deterministic formulas;
 - `credit_assistant/evaluation.py` - metrics and synthetic suite execution;
 - `examples/evaluation_cases.json` - synthetic evaluation examples;
 - `tests/` - basic tests for the engine and metrics.

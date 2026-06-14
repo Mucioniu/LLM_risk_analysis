@@ -14,7 +14,11 @@ from credit_assistant.service import (
     extract_llm_decision,
     format_llm_credit_json_markdown,
     llm_json_to_extracted,
+    llm_self_review_flags_prompt,
+    llm_self_review_findings,
+    merge_llm_decision_adjudication,
     normalize_credit_markdown,
+    needs_llm_self_review,
     validate_llm_credit_json,
 )
 
@@ -248,6 +252,94 @@ GMI rezultat: (0 + 17238.49) / 15000 * 100 = 114.9%.
         self.assertEqual(extracted.decision, "RESPINS")
         self.assertEqual(extracted.weighted_income, 7500)
         self.assertEqual(extracted.gmi_pct, 46.67)
+
+    def test_self_review_detects_approved_case_with_hard_rejections(self) -> None:
+        profile = ClientProfile(
+            age=35,
+            term_months=60,
+            fico=720,
+            monthly_income=15000,
+            income_type="Salariu - contract nedeterminat",
+            existing_monthly_debts=0,
+            requested_amount=1000000,
+            requested_monthly_payment=0,
+            annual_interest_pct=10,
+        )
+        data = {
+            "decision": "APROBAT",
+            "financial": {
+                "declared_income": 15000,
+                "income_weight_pct": 100,
+                "weighted_income": 15000,
+                "max_monthly_payment": 6000,
+                "existing_monthly_debts": 0,
+                "available_payment_capacity": 6000,
+                "analyzed_monthly_payment": 17948.32,
+                "stressed_monthly_payment": 17948.32,
+                "gmi_pct": 119.65,
+                "maturity_age": 40,
+                "max_credit_amount": 150000,
+                "product_cap": 150000,
+            },
+            "calculation_details": [],
+            "rejection_reasons": [],
+            "manual_review_reasons": [],
+            "observations": [],
+            "rag_sources": [],
+        }
+
+        findings = llm_self_review_findings(profile, data)
+
+        self.assertTrue(needs_llm_self_review(profile, data))
+        self.assertTrue(any("RESPINS" in finding for finding in findings))
+        self.assertTrue(any("GMI" in finding for finding in findings))
+        self.assertTrue(any("plafon" in finding for finding in findings))
+        flags = llm_self_review_flags_prompt(profile, data)
+        self.assertIn("suma_peste_plafon_produs: 1000000.00 > 150000.00 => DA", flags)
+        self.assertIn("gmi_returnat_de_model_peste_limita: 119.65% > 40% => DA", flags)
+
+    def test_merge_llm_decision_adjudication_keeps_financial_values(self) -> None:
+        data = {
+            "decision": "APROBAT",
+            "financial": {"stressed_monthly_payment": 17298.34, "gmi_pct": 115.33},
+            "rejection_reasons": [],
+            "manual_review_reasons": [],
+            "observations": ["GMI peste limita de 40%"],
+        }
+        adjudication = {
+            "decision": "RESPINS",
+            "rejection_reasons": ["GMI peste limita de 40%."],
+            "manual_review_reasons": [],
+            "observations": [],
+        }
+
+        merged = merge_llm_decision_adjudication(data, adjudication)
+
+        self.assertEqual(merged["decision"], "RESPINS")
+        self.assertEqual(merged["financial"], data["financial"])
+        self.assertEqual(merged["rejection_reasons"], ["GMI peste limita de 40%."])
+
+    def test_merge_llm_decision_adjudication_humanizes_flag_reasons(self) -> None:
+        data = {
+            "decision": "APROBAT",
+            "financial": {},
+            "rejection_reasons": [],
+            "manual_review_reasons": [],
+            "observations": [],
+        }
+        adjudication = {
+            "decision": "RESPINS",
+            "rejection_reasons": ["suma_peste_plafon_produs"],
+            "manual_review_reasons": [],
+            "observations": [],
+        }
+
+        merged = merge_llm_decision_adjudication(data, adjudication)
+
+        self.assertEqual(
+            merged["rejection_reasons"],
+            ["Suma solicitata depaseste plafonul produsului de 150,000 RON."],
+        )
 
 
 if __name__ == "__main__":
