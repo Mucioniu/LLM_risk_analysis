@@ -114,10 +114,10 @@ The report displays the overall average score, score by section, latency, and de
 For client evaluation, the application uses the local LLM to generate a structured analysis of the profile, including the decision, financial calculations, reasons, and RAG sources. Recommended for the demo:
 
 ```powershell
-ollama pull mistral-small3.1
+ollama pull mistral-small3.2
 $env:OPENAI_BASE_URL="http://localhost:11434/v1"
 $env:OPENAI_API_KEY="ollama"
-$env:OPENAI_MODEL="mistral-small3.1"
+$env:OPENAI_MODEL="mistral-small3.2"
 $env:OPENAI_TIMEOUT_SECONDS="180"
 $env:OPENAI_MAX_TOKENS="3000"
 python app.py
