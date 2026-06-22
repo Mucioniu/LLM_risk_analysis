@@ -463,11 +463,31 @@ def calculation_guardrails_prompt() -> str:
     )
 
 
+def annuity_examples_prompt() -> str:
+    return (
+        "Exemple scurte de calibrare pentru formula anuitatii. Foloseste-le ca model de calcul, "
+        "nu copia valorile daca profilul are alte date:\n"
+        "- Exemplu rata anuitate: P=100000 RON, dobanda_anuala_pct=10, n=60 luni. "
+        "r = 10 / 100 / 12 = 0.0083333333. "
+        "(1+r)^(-n) = (1.0083333333)^(-60) = 0.6077885915. "
+        "numitor = 1 - 0.6077885915 = 0.3922114085. "
+        "numarator = P*r = 100000 * 0.0083333333 = 833.3333333. "
+        "rata = 833.3333333 / 0.3922114085 = 2124.704471, deci 2124.70 RON. "
+        "Rezultate precum 1375.49 sau 1754.89 sunt gresite pentru acest exemplu.\n"
+        "- Exemplu rata dorita: daca rata_lunara_dorita_ron=3500, rata_noua_analizata este 3500 RON; "
+        "nu recalcula anuitatea din suma solicitata.\n"
+        "- Exemplu suma maxima: capacitate_disponibila=3000 RON, r=0.0083333333, n=60. "
+        "principal = 3000 * 0.3922114085 / 0.0083333333 = 141196.107071, deci 141196.11 RON. "
+        "Daca principalul calculat depaseste 150000 RON, max_credit_amount trebuie plafonat la 150000 RON.\n"
+    )
+
+
 def calculation_trace_prompt() -> str:
     return (
         "Trasabilitate obligatorie pentru debugging:\n"
         "- calculation_details trebuie sa contina exact 4 elemente, in ordinea de mai jos.\n"
         "- Fiecare element trebuie sa includa formula=..., valori=..., rezultat=... si sa foloseasca numerele profilului.\n"
+        "- In valori scrie r ca numar zecimal, de exemplu r=0.0083333333, nu doar r=0.10/12.\n"
         "1. Rata noua analizata: formula=rata_lunara_dorita_ron daca > 0, altfel P*r/(1-(1+r)^(-n)); "
         "valori=P=..., r=..., n=..., factor_stres_valutar=...; rezultat=rata_noua_analizata=... RON, "
         "rata_dupa_stres=... RON.\n"
@@ -1199,6 +1219,7 @@ def request_llm_credit_self_review(
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n\n"
+        f"{annuity_examples_prompt()}\n"
         "Verificari declansate pe baza profilului si a JSON-ului tau anterior:\n"
         f"{findings_text}\n\n"
         f"{llm_self_review_flags_prompt(profile, first_data)}\n\n"
@@ -1755,6 +1776,7 @@ def request_freeform_credit_calculation(
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n"
+        f"{annuity_examples_prompt()}\n"
         "Include o sectiune 'Detalii calcul' cu exact 4 bullets pentru debugging, inaintea tabelului final. "
         "Fiecare bullet trebuie sa contina formula=..., valori=..., rezultat=..., pentru aceste calcule:\n"
         "- Rata noua analizata si rata dupa stres\n"
@@ -1804,6 +1826,7 @@ def request_validated_credit_json(
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n\n"
+        f"{annuity_examples_prompt()}\n"
         f"{credit_json_schema_prompt()}\n\n"
         f"Fragmente RAG disponibile:\n{sources_markdown}"
     )

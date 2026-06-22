@@ -9,6 +9,7 @@ from credit_assistant.evaluation import (
 )
 from credit_assistant.credit_engine import ClientProfile, evaluate_client
 from credit_assistant.service import (
+    annuity_examples_prompt,
     canonicalize_llm_credit_json,
     compare_llm_to_deterministic,
     credit_json_schema_prompt,
@@ -347,6 +348,15 @@ Detalii calcul
         self.assertIn("GMI rezultat", prompt)
         self.assertIn("Varsta la maturitate", prompt)
         self.assertIn("Suma maxima recomandata", prompt)
+
+    def test_annuity_examples_prompt_calibrates_base_formula(self) -> None:
+        prompt = annuity_examples_prompt()
+
+        self.assertIn("r = 10 / 100 / 12 = 0.0083333333", prompt)
+        self.assertIn("numitor = 1 - 0.6077885915 = 0.3922114085", prompt)
+        self.assertIn("2124.70 RON", prompt)
+        self.assertIn("1375.49", prompt)
+        self.assertIn("1754.89", prompt)
 
     def test_schema_validation_rejects_wrong_pfa_decision(self) -> None:
         profile = ClientProfile(

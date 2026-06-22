@@ -118,12 +118,15 @@ ollama pull mistral-small3.2
 $env:OPENAI_BASE_URL="http://localhost:11434/v1"
 $env:OPENAI_API_KEY="ollama"
 $env:OPENAI_MODEL="mistral-small3.2"
-$env:OPENAI_TIMEOUT_SECONDS="180"
+$env:OLLAMA_NATIVE_CHAT="true"
+$env:OLLAMA_NUM_CTX="8192"
+$env:OLLAMA_NUM_PREDICT="3000"
+$env:OPENAI_TIMEOUT_SECONDS="240"
 $env:OPENAI_MAX_TOKENS="3000"
 python app.py
 ```
 
-The LLM response is requested in structured JSON format, then validated and displayed as a Markdown report in the Gradio interface.
+The local LLM uses Ollama's native `/api/chat` endpoint with JSON mode and an 8192-token context. The larger context leaves enough room for the profile, numerical rules, worked annuity examples, RAG fragments, and the complete JSON response. The response is then validated and displayed as a Markdown report in the Gradio interface.
 
 Note on validation and robustness: the service attempts to parse and validate the LLM JSON up to three times. If the returned JSON is inconsistent with the deterministic Python evaluation, the code will (1) request an internal LLM self-review to correct numeric or decision inconsistencies, and (2) if necessary, request an adjudication step that only decides `APROBAT | RESPINS | ANALIZA MANUALA` and updates the JSON decision. These retries and reviewer/adjudicator interactions are automatic and intended to improve result consistency for evaluation and reporting.
 

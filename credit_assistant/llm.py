@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
@@ -35,6 +36,14 @@ def clean_llm_markdown(text: str) -> str:
     return "\n".join(cleaned_lines).strip()
 
 
+def is_ollama_endpoint(base_url: str) -> bool:
+    try:
+        parsed = urlparse(base_url)
+        return parsed.port == 11434
+    except ValueError:
+        return False
+
+
 def optional_llm_summary(
     system_prompt: str,
     user_prompt: str,
@@ -62,14 +71,19 @@ def optional_llm_summary(
         {"role": "user", "content": user_prompt},
     ]
 
-    if think_enabled:
+    use_native_ollama = env_flag(
+        "OLLAMA_NATIVE_CHAT",
+        bool(os.getenv("OLLAMA_BASE_URL")) or is_ollama_endpoint(base_url),
+    )
+    if use_native_ollama:
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", base_url).rstrip("/")
         if ollama_base_url.endswith("/v1"):
             ollama_base_url = ollama_base_url[:-3]
         default_num_predict = str(max(max_tokens, 3000)) if model.startswith("gemma4") else str(max_tokens)
-        num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "81409692" if model.startswith("gemma4") else "0"))
+        num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "8192"))
         options: dict[str, Any] = {
             "num_predict": int(os.getenv("OLLAMA_NUM_PREDICT", default_num_predict)),
+            "temperature": 0.1,
         }
         if num_ctx > 0:
             options["num_ctx"] = num_ctx
@@ -77,9 +91,10 @@ def optional_llm_summary(
             "model": model,
             "messages": messages,
             "stream": False,
-            "think": True,
             "options": options,
         }
+        if think_enabled:
+            native_payload["think"] = True
         if response_format_json:
             native_payload["format"] = "json"
         try:
@@ -96,12 +111,12 @@ def optional_llm_summary(
                 done_reason = data.get("done_reason", "necunoscut")
                 if response_format_json:
                     return (
-                        "LLM indisponibil sau configurat incorect: Gemma thinking nu a emis JSON final "
+                        "LLM indisponibil sau configurat incorect: Ollama nu a emis JSON final "
                         f"(done_reason={done_reason}). Creste OLLAMA_NUM_PREDICT/OLLAMA_NUM_CTX "
                         "sau seteaza OLLAMA_THINK=false."
                     )
                 content = str(message.get("thinking") or message.get("reasoning") or "").strip()
-            return clean_llm_markdown(content)
+            return content if response_format_json else clean_llm_markdown(content)
         except Exception as exc:
             return f"LLM indisponibil sau configurat incorect: {exc}"
 
@@ -123,6 +138,7 @@ def optional_llm_summary(
         )
         response.raise_for_status()
         data = response.json()
-        return clean_llm_markdown(data["choices"][0]["message"]["content"].strip())
+        content = data["choices"][0]["message"]["content"].strip()
+        return content if response_format_json else clean_llm_markdown(content)
     except Exception as exc:
         return f"LLM indisponibil sau configurat incorect: {exc}"
