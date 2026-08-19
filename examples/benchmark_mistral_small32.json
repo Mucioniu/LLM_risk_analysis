@@ -1,0 +1,191 @@
+[
+  {
+    "model": "mistral-small3.2",
+    "case_count": 4,
+    "average_score_total": 0.7727272727272727,
+    "decision_accuracy": 1.0,
+    "latency_seconds": 109.69574909994844,
+    "cases": [
+      {
+        "case_id": "c_salary_approved",
+        "expected_decision": "APROBAT",
+        "deterministic_decision": "APROBAT",
+        "llm_decision": "APROBAT",
+        "score_total": 0.7272727272727273,
+        "decision_score": 1.0,
+        "metrics": {
+          "Decizie": 1.0,
+          "Venit declarat": 1.0,
+          "Pondere venit": 1.0,
+          "Venit eligibil ponderat": 1.0,
+          "Capacitate maxima totala rate": 1.0,
+          "Rate existente": 1.0,
+          "Capacitate disponibila": 1.0,
+          "Rata noua analizata": 0.0,
+          "GMI rezultat": 0.0,
+          "Varsta la maturitate": 1.0,
+          "Suma maxima recomandata": 0.0,
+          "scor_total_llm_vs_formule": 0.7272727272727273
+        },
+        "latency_seconds": 36.515020999941044,
+        "extracted": {
+          "decision": "APROBAT",
+          "declared_income": 15000.0,
+          "income_weight_pct": 100.0,
+          "weighted_income": 15000.0,
+          "max_monthly_payment": 6000.0,
+          "existing_monthly_debts": 0.0,
+          "available_payment_capacity": 6000.0,
+          "stressed_monthly_payment": 926.34,
+          "gmi_pct": 6.17558,
+          "maturity_age": 40.0,
+          "max_credit_amount": 100000.0
+        },
+        "deterministic": {
+          "weighted_income": 15000.0,
+          "max_monthly_payment": 6000.0,
+          "available_payment_capacity": 6000.0,
+          "stressed_monthly_payment": 2124.704471126833,
+          "gmi_pct": 14.164696474178887,
+          "maturity_age": 40.0,
+          "max_credit_amount": 150000
+        }
+      },
+      {
+        "case_id": "c_pfa_rejected_gmi",
+        "expected_decision": "RESPINS",
+        "deterministic_decision": "RESPINS",
+        "llm_decision": "RESPINS",
+        "score_total": 0.9090909090909091,
+        "decision_score": 1.0,
+        "metrics": {
+          "Decizie": 1.0,
+          "Venit declarat": 1.0,
+          "Pondere venit": 1.0,
+          "Venit eligibil ponderat": 1.0,
+          "Capacitate maxima totala rate": 1.0,
+          "Rate existente": 1.0,
+          "Capacitate disponibila": 1.0,
+          "Rata noua analizata": 1.0,
+          "GMI rezultat": 1.0,
+          "Varsta la maturitate": 1.0,
+          "Suma maxima recomandata": 0.0,
+          "scor_total_llm_vs_formule": 0.9090909090909091
+        },
+        "latency_seconds": 24.72966610000003,
+        "extracted": {
+          "decision": "RESPINS",
+          "declared_income": 10000.0,
+          "income_weight_pct": 75.0,
+          "weighted_income": 7500.0,
+          "max_monthly_payment": 3000.0,
+          "existing_monthly_debts": 0.0,
+          "available_payment_capacity": 3000.0,
+          "stressed_monthly_payment": 3500.0,
+          "gmi_pct": 46.67,
+          "maturity_age": 40.0,
+          "max_credit_amount": 128905.6
+        },
+        "deterministic": {
+          "weighted_income": 7500.0,
+          "max_monthly_payment": 3000.0,
+          "available_payment_capacity": 3000.0,
+          "stressed_monthly_payment": 3500.0,
+          "gmi_pct": 46.666666666666664,
+          "maturity_age": 40.0,
+          "max_credit_amount": 141196.10707125568
+        }
+      },
+      {
+        "case_id": "c_pep_manual",
+        "expected_decision": "ANALIZA MANUALA",
+        "deterministic_decision": "ANALIZA MANUALA",
+        "llm_decision": "ANALIZA MANUALA",
+        "score_total": 0.7272727272727273,
+        "decision_score": 1.0,
+        "metrics": {
+          "Decizie": 1.0,
+          "Venit declarat": 1.0,
+          "Pondere venit": 1.0,
+          "Venit eligibil ponderat": 1.0,
+          "Capacitate maxima totala rate": 1.0,
+          "Rate existente": 1.0,
+          "Capacitate disponibila": 1.0,
+          "Rata noua analizata": 0.0,
+          "GMI rezultat": 0.0,
+          "Varsta la maturitate": 1.0,
+          "Suma maxima recomandata": 0.0,
+          "scor_total_llm_vs_formule": 0.7272727272727273
+        },
+        "latency_seconds": 26.626966599957086,
+        "extracted": {
+          "decision": "ANALIZA MANUALA",
+          "declared_income": 12000.0,
+          "income_weight_pct": 100.0,
+          "weighted_income": 12000.0,
+          "max_monthly_payment": 4800.0,
+          "existing_monthly_debts": 500.0,
+          "available_payment_capacity": 4300.0,
+          "stressed_monthly_payment": 967.72,
+          "gmi_pct": 12.83,
+          "maturity_age": 46.0,
+          "max_credit_amount": 50000.0
+        },
+        "deterministic": {
+          "weighted_income": 12000.0,
+          "max_monthly_payment": 4800.0,
+          "available_payment_capacity": 4300.0,
+          "stressed_monthly_payment": 1268.129171737363,
+          "gmi_pct": 14.734409764478027,
+          "maturity_age": 46.0,
+          "max_credit_amount": 150000
+        }
+      },
+      {
+        "case_id": "c_fico_rejected",
+        "expected_decision": "RESPINS",
+        "deterministic_decision": "RESPINS",
+        "llm_decision": "RESPINS",
+        "score_total": 0.7272727272727273,
+        "decision_score": 1.0,
+        "metrics": {
+          "Decizie": 1.0,
+          "Venit declarat": 1.0,
+          "Pondere venit": 1.0,
+          "Venit eligibil ponderat": 1.0,
+          "Capacitate maxima totala rate": 1.0,
+          "Rate existente": 1.0,
+          "Capacitate disponibila": 1.0,
+          "Rata noua analizata": 0.0,
+          "GMI rezultat": 0.0,
+          "Varsta la maturitate": 1.0,
+          "Suma maxima recomandata": 0.0,
+          "scor_total_llm_vs_formule": 0.7272727272727273
+        },
+        "latency_seconds": 21.823887100093998,
+        "extracted": {
+          "decision": "RESPINS",
+          "declared_income": 9000.0,
+          "income_weight_pct": 100.0,
+          "weighted_income": 9000.0,
+          "max_monthly_payment": 3600.0,
+          "existing_monthly_debts": 0.0,
+          "available_payment_capacity": 3600.0,
+          "stressed_monthly_payment": 275.84,
+          "gmi_pct": 3.06,
+          "maturity_age": 33.0,
+          "max_credit_amount": 150000.0
+        },
+        "deterministic": {
+          "weighted_income": 9000.0,
+          "max_monthly_payment": 3600.0,
+          "available_payment_capacity": 3600.0,
+          "stressed_monthly_payment": 968.0156158151277,
+          "gmi_pct": 10.755729064612531,
+          "maturity_age": 33.0,
+          "max_credit_amount": 111568.44810716971
+        }
+      }
+    ]
+  }
+]

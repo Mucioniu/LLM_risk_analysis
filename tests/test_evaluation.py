@@ -4,6 +4,7 @@ from credit_assistant.evaluation import (
     decision_consistency,
     format_score,
     keyword_coverage,
+    load_evaluation_cases,
     numeric_consistency,
     required_sections_score,
 )
@@ -27,6 +28,22 @@ from credit_assistant.service import (
 
 
 class EvaluationMetricTests(unittest.TestCase):
+    def test_evaluation_cases_are_unique_and_match_reference_engine(self) -> None:
+        cases = load_evaluation_cases()
+        policy_cases = cases["policy_questions"]
+        client_cases = cases["client_cases"]
+        all_ids = [case["id"] for case in policy_cases + client_cases]
+
+        self.assertGreaterEqual(len(policy_cases), 13)
+        self.assertGreaterEqual(len(client_cases), 22)
+        self.assertEqual(len(all_ids), len(set(all_ids)))
+
+        for case in client_cases:
+            with self.subTest(case_id=case["id"]):
+                profile = ClientProfile(**case["profile"])
+                evaluation = evaluate_client(profile)
+                self.assertEqual(evaluation.decision.value, case["expected_decision"])
+
     def test_keyword_coverage_scores_partial_match(self) -> None:
         metric = keyword_coverage("PFA are pondere 75%.", ["PFA", "75", "chirii"])
 
@@ -357,6 +374,9 @@ Detalii calcul
         self.assertIn("2124.70 RON", prompt)
         self.assertIn("1375.49", prompt)
         self.assertIn("1754.89", prompt)
+        self.assertIn("(1+r)^(-36)=0.7417397035", prompt)
+        self.assertIn("P=30000 inseamna 3 * 322.671872 = 968.015616 RON", prompt)
+        self.assertIn("valabila numai pentru capacitate=3000 si n=60", prompt)
 
     def test_schema_validation_rejects_wrong_pfa_decision(self) -> None:
         profile = ClientProfile(

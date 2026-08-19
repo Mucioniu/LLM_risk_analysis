@@ -89,6 +89,9 @@ python -m unittest discover tests
 ## Evaluation Metrics
 
 The application includes a `Metrici` tab that runs synthetic cases from `examples/evaluation_cases.json`.
+The suite contains 13 policy questions and 22 client-analysis cases covering approvals, rejections,
+manual review, income weighting, GMI, FICO, AML/PEP, payment delays, residency, stress scenarios,
+product limits, maturity age, and documented policy exceptions.
 
 For the `Intrebari despre manual` section, the following metrics are computed:
 
