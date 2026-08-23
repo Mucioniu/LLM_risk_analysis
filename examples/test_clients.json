@@ -1,0 +1,28 @@
+[
+  {
+    "name": "IT programmer",
+    "age": 30,
+    "fico": 720,
+    "monthly_income": 15000,
+    "income_type": "Salary - permanent contract",
+    "term_months": 60,
+    "desired_payment_from_annex": 4000,
+    "note": "Enter the requested amount in the UI. For a payment of 4000 RON/month, the equivalent amount depends on the interest rate."
+  },
+  {
+    "name": "67-year-old pensioner",
+    "age": 67,
+    "fico": 690,
+    "monthly_income": 4500,
+    "income_type": "Pension",
+    "term_months": 60
+  },
+  {
+    "name": "Self-employed consultant",
+    "age": 35,
+    "fico": 680,
+    "monthly_income": 10000,
+    "income_type": "Self-employment/liberal professions",
+    "term_months": 60
+  }
+]

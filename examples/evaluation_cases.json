@@ -2,106 +2,106 @@
   "policy_questions": [
     {
       "id": "q_income_weights",
-      "question": "Care sunt ponderile veniturilor pentru PFA, dividende si chirii?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["PFA", "75", "dividende", "60", "chirii", "50"],
+      "question": "What income weights apply to self-employment/liberal professions, dividends, and rental income?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["self-employment", "75", "dividends", "60", "rental", "50"],
       "expect_missing": false
     },
     {
-      "id": "q_gmi_formula",
-      "question": "Cum se calculeaza GMI si care este limita folosita pentru gradul maxim de indatorare?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf", "Regulamentul_BNR_nr_17_2012.md"],
-      "expected_keywords": ["GMI", "rate", "venit", "40"],
+      "id": "q_dti_formula",
+      "question": "How is DTI calculated, and what limit applies to the maximum debt-to-income ratio?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf", "NBR_Regulation_No_17_2012.md"],
+      "expected_keywords": ["DTI", "payments", "income", "40"],
       "expect_missing": false
     },
     {
       "id": "q_pep_aml",
-      "question": "Ce se intampla daca solicitantul este PEP sau are risc AML ridicat?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["PEP", "AML", "manual", "conformitate"],
+      "question": "What happens if the applicant is a PEP or has a high AML risk?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["PEP", "AML", "manual", "compliance"],
       "expect_missing": false
     },
     {
       "id": "q_product_limits",
-      "question": "Care sunt suma minima, suma maxima si durata maxima pentru creditul NovaFlex?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
+      "question": "What are the minimum amount, maximum amount, and maximum term for the NovaFlex loan?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
       "expected_keywords": ["NovaFlex", "5.000", "150.000", "60"],
       "expect_missing": false
     },
     {
       "id": "q_currency_interest_stress",
-      "question": "Ce teste de stres se aplica unui credit EUR cu venit in RON si unui credit cu dobanda variabila?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["EUR", "RON", "15", "variabila", "2", "GMI"],
+      "question": "What stress tests apply to a EUR loan with income in RON and to a variable-rate loan?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["EUR", "RON", "15", "variable", "2", "DTI"],
       "expect_missing": false
     },
     {
       "id": "q_income_exclusions",
-      "question": "Ce venituri au pondere 0% si sunt excluse, inclusiv tichete, pariuri si cripto-active?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["0", "tichete", "pariuri", "cripto", "Day Trading"],
+      "question": "Which income types have a 0% weight and are excluded, including vouchers, gambling, and crypto-assets?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["0", "vouchers", "gambling", "crypto", "Day Trading"],
       "expect_missing": false
     },
     {
       "id": "q_fico_bands",
-      "question": "Cum sunt tratate scorurile FICO sub 620 si intervalul 620-649 Gray Zone?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["FICO", "620", "649", "Gray Zone", "manual", "respins"],
+      "question": "How are FICO scores below 620 and the 620-649 Gray Zone handled?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["FICO", "620", "649", "Gray Zone", "manual", "rejected"],
       "expect_missing": false
     },
     {
       "id": "q_non_eu_conditions",
-      "question": "Ce conditii cumulative trebuie sa indeplineasca un solicitant non-UE privind casatoria, proprietatea si contractul local?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["non-UE", "casatorit", "proprietate", "contract", "24"],
+      "question": "What cumulative conditions must a non-EU applicant meet regarding marriage, property ownership, and a local employment contract?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["non-EU", "married", "property", "contract", "24"],
       "expect_missing": false
     },
     {
       "id": "q_active_delay_bands",
-      "question": "Cum sunt tratate intarzierile active de pana la 15 zile, intre 16 si 30 de zile si peste 30 de zile?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["15", "16", "30", "manual", "respingere"],
+      "question": "How are active payment delays of up to 15 days, 16 to 30 days, and more than 30 days handled?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["15", "16", "30", "manual", "rejection"],
       "expect_missing": false
     },
     {
       "id": "q_historical_delay_exception",
-      "question": "Care este exceptia pentru o intarziere istorica de peste 90 de zile daca datoria a fost stinsa si venitul a crescut?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["90", "stinsa", "50", "manual"],
+      "question": "What exception applies to a historical payment delay of more than 90 days if the debt was settled and income increased?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["90", "settled", "50", "manual"],
       "expect_missing": false
     },
     {
       "id": "q_life_insurance_age",
-      "question": "Cand este necesara polita de asigurare de viata in functie de varsta clientului?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
-      "expected_keywords": ["62", "asigurare", "viata"],
+      "question": "When is life insurance required based on the client's age?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
+      "expected_keywords": ["62", "insurance", "life"],
       "expect_missing": false
     },
     {
       "id": "q_it_tenure_exception",
-      "question": "Care sunt conditiile exceptiei E-3.1 pentru un angajat din IT cu vechime mica la locul actual?",
-      "expected_source_contains": ["Manual_Extins_Creditare_NovaTech_v3.pdf"],
+      "question": "What are the conditions for exception E-3.1 for an IT employee with short tenure in their current job?",
+      "expected_source_contains": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
       "expected_keywords": ["E-3.1", "IT", "3", "24", "30"],
       "expect_missing": false
     },
     {
       "id": "q_missing_policy",
-      "question": "Care este politica NovaTech pentru credite agricole acordate fermelor comerciale?",
+      "question": "What is NovaTech's policy for agricultural loans granted to commercial farms?",
       "expected_source_contains": [],
-      "expected_keywords": ["lipseste"],
+      "expected_keywords": ["missing"],
       "expect_missing": true
     }
   ],
   "client_cases": [
     {
       "id": "c_salary_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 35,
         "term_months": 60,
         "fico": 720,
         "monthly_income": 15000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 100000,
         "requested_monthly_payment": 0,
@@ -112,14 +112,14 @@
       }
     },
     {
-      "id": "c_pfa_rejected_gmi",
-      "expected_decision": "RESPINS",
+      "id": "c_self_employment_rejected_dti",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 35,
         "term_months": 60,
         "fico": 680,
         "monthly_income": 10000,
-        "income_type": "PFA/PFI",
+        "income_type": "Self-employment/liberal professions",
         "existing_monthly_debts": 0,
         "requested_amount": 0,
         "requested_monthly_payment": 3500,
@@ -128,13 +128,13 @@
     },
     {
       "id": "c_pep_manual",
-      "expected_decision": "ANALIZA MANUALA",
+      "expected_decision": "MANUAL REVIEW",
       "profile": {
         "age": 42,
         "term_months": 48,
         "fico": 710,
         "monthly_income": 12000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 500,
         "requested_amount": 50000,
         "requested_monthly_payment": 0,
@@ -144,13 +144,13 @@
     },
     {
       "id": "c_fico_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 30,
         "term_months": 36,
         "fico": 600,
         "monthly_income": 9000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 30000,
         "requested_monthly_payment": 0,
@@ -159,13 +159,13 @@
     },
     {
       "id": "c_fixed_term_salary_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 32,
         "term_months": 48,
         "fico": 700,
         "monthly_income": 12000,
-        "income_type": "Salariu - contract determinat",
+        "income_type": "Salary - fixed-term contract",
         "existing_monthly_debts": 400,
         "requested_amount": 50000,
         "requested_monthly_payment": 0,
@@ -174,13 +174,13 @@
     },
     {
       "id": "c_dividends_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 45,
         "term_months": 36,
         "fico": 705,
         "monthly_income": 20000,
-        "income_type": "Dividende",
+        "income_type": "Dividends",
         "existing_monthly_debts": 300,
         "requested_amount": 40000,
         "requested_monthly_payment": 0,
@@ -189,13 +189,13 @@
     },
     {
       "id": "c_fico_gray_manual",
-      "expected_decision": "ANALIZA MANUALA",
+      "expected_decision": "MANUAL REVIEW",
       "profile": {
         "age": 40,
         "term_months": 48,
         "fico": 635,
         "monthly_income": 14000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 200,
         "requested_amount": 40000,
         "requested_monthly_payment": 0,
@@ -204,29 +204,29 @@
     },
     {
       "id": "c_aml_manual",
-      "expected_decision": "ANALIZA MANUALA",
+      "expected_decision": "MANUAL REVIEW",
       "profile": {
         "age": 38,
         "term_months": 48,
         "fico": 710,
         "monthly_income": 13000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 45000,
         "requested_monthly_payment": 0,
         "annual_interest_pct": 9,
-        "aml_risk": "Ridicat"
+        "aml_risk": "High"
       }
     },
     {
       "id": "c_active_delay_technical_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 34,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 11000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 300,
         "requested_amount": 25000,
         "requested_monthly_payment": 0,
@@ -236,13 +236,13 @@
     },
     {
       "id": "c_active_delay_manual",
-      "expected_decision": "ANALIZA MANUALA",
+      "expected_decision": "MANUAL REVIEW",
       "profile": {
         "age": 34,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 11000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 300,
         "requested_amount": 25000,
         "requested_monthly_payment": 0,
@@ -252,13 +252,13 @@
     },
     {
       "id": "c_active_delay_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 34,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 11000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 300,
         "requested_amount": 25000,
         "requested_monthly_payment": 0,
@@ -268,13 +268,13 @@
     },
     {
       "id": "c_historical_delay_exception_manual",
-      "expected_decision": "ANALIZA MANUALA",
+      "expected_decision": "MANUAL REVIEW",
       "profile": {
         "age": 36,
         "term_months": 48,
         "fico": 690,
         "monthly_income": 12000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 200,
         "requested_amount": 35000,
         "requested_monthly_payment": 0,
@@ -286,13 +286,13 @@
     },
     {
       "id": "c_historical_delay_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 36,
         "term_months": 48,
         "fico": 690,
         "monthly_income": 12000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 200,
         "requested_amount": 35000,
         "requested_monthly_payment": 0,
@@ -304,13 +304,13 @@
     },
     {
       "id": "c_non_eu_eligible_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 39,
         "term_months": 48,
         "fico": 710,
         "monthly_income": 14000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 500,
         "requested_amount": 45000,
         "requested_monthly_payment": 0,
@@ -323,13 +323,13 @@
     },
     {
       "id": "c_non_eu_ineligible_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 39,
         "term_months": 48,
         "fico": 710,
         "monthly_income": 14000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 500,
         "requested_amount": 45000,
         "requested_monthly_payment": 0,
@@ -342,13 +342,13 @@
     },
     {
       "id": "c_eur_variable_stress_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 37,
         "term_months": 48,
         "fico": 700,
         "monthly_income": 10000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 700,
         "requested_amount": 0,
         "requested_monthly_payment": 3200,
@@ -360,13 +360,13 @@
     },
     {
       "id": "c_income_excluded_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 33,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 15000,
-        "income_type": "Venit exclus de manual",
+        "income_type": "Income excluded by policy manual",
         "existing_monthly_debts": 0,
         "requested_amount": 10000,
         "requested_monthly_payment": 0,
@@ -375,13 +375,13 @@
     },
     {
       "id": "c_maturity_age_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 68,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 12000,
-        "income_type": "Pensie permanenta",
+        "income_type": "Pension",
         "existing_monthly_debts": 0,
         "requested_amount": 20000,
         "requested_monthly_payment": 0,
@@ -390,13 +390,13 @@
     },
     {
       "id": "c_amount_above_cap_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 40,
         "term_months": 60,
         "fico": 730,
         "monthly_income": 22000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 160000,
         "requested_monthly_payment": 0,
@@ -405,13 +405,13 @@
     },
     {
       "id": "c_capacity_exhausted_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 41,
         "term_months": 36,
         "fico": 700,
         "monthly_income": 5000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 2200,
         "requested_amount": 10000,
         "requested_monthly_payment": 0,
@@ -420,13 +420,13 @@
     },
     {
       "id": "c_it_tenure_exception_approved",
-      "expected_decision": "APROBAT",
+      "expected_decision": "APPROVED",
       "profile": {
         "age": 29,
         "term_months": 36,
         "fico": 710,
         "monthly_income": 9000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 20000,
         "requested_monthly_payment": 0,
@@ -439,13 +439,13 @@
     },
     {
       "id": "c_term_above_limit_rejected",
-      "expected_decision": "RESPINS",
+      "expected_decision": "REJECTED",
       "profile": {
         "age": 35,
         "term_months": 72,
         "fico": 710,
         "monthly_income": 15000,
-        "income_type": "Salariu - contract nedeterminat",
+        "income_type": "Salary - permanent contract",
         "existing_monthly_debts": 0,
         "requested_amount": 20000,
         "requested_monthly_payment": 0,

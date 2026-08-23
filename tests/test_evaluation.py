@@ -45,30 +45,33 @@ class EvaluationMetricTests(unittest.TestCase):
                 self.assertEqual(evaluation.decision.value, case["expected_decision"])
 
     def test_keyword_coverage_scores_partial_match(self) -> None:
-        metric = keyword_coverage("PFA are pondere 75%.", ["PFA", "75", "chirii"])
+        metric = keyword_coverage(
+            "Self-employment income has a 75% weight.",
+            ["self-employment", "75", "rental"],
+        )
 
-        self.assertEqual(metric.name, "acoperire_cuvinte_cheie")
+        self.assertEqual(metric.name, "keyword_coverage")
         self.assertAlmostEqual(metric.score, 2 / 3)
 
     def test_format_score_detects_clean_markdown(self) -> None:
-        metric = format_score("## Raspuns\n\n- element")
+        metric = format_score("## Answer\n\n- item")
 
         self.assertEqual(metric.score, 1.0)
 
     def test_numeric_consistency_ignores_spaces(self) -> None:
-        metric = numeric_consistency("Venit: 15,000.00 RON", ["15,000.00"])
+        metric = numeric_consistency("Income: 15,000.00 RON", ["15,000.00"])
 
         self.assertEqual(metric.score, 1.0)
 
     def test_decision_consistency(self) -> None:
-        metric = decision_consistency("## Decizie: APROBAT", "APROBAT")
+        metric = decision_consistency("## Decision: APPROVED", "APPROVED")
 
         self.assertEqual(metric.score, 1.0)
 
     def test_required_sections_score(self) -> None:
         text = (
-            "Decizie\nCalcul financiar\nMotive de respingere\n"
-            "Motive de analiza manuala\nObservatii\nSurse RAG folosite"
+            "Decision\nFinancial calculation\nRejection reasons\n"
+            "Manual review reasons\nNotes\nRAG sources used"
         )
         metric = required_sections_score(text)
 
@@ -76,52 +79,52 @@ class EvaluationMetricTests(unittest.TestCase):
 
     def test_extract_llm_decision_from_markdown_table(self) -> None:
         text = """
-## Decizie: APROBAT
+## Decision: APPROVED
 
-### Calcul financiar
+### Financial calculation
 
-| Indicator | Valoare |
+| Indicator | Value |
 |---|---:|
-| Venit declarat | 15,000.00 RON/luna |
-| Pondere venit | 100% |
-| Venit eligibil ponderat | 15,000.00 RON/luna |
-| GMI rezultat | 14.16% |
+| Declared income | 15,000.00 RON/month |
+| Income weight | 100% |
+| Weighted eligible income | 15,000.00 RON/month |
+| DTI | 14.16% |
 """
 
         extracted = extract_llm_decision(text)
 
-        self.assertEqual(extracted.decision, "APROBAT")
+        self.assertEqual(extracted.decision, "APPROVED")
         self.assertEqual(extracted.declared_income, 15000)
         self.assertEqual(extracted.income_weight_pct, 100)
         self.assertEqual(extracted.weighted_income, 15000)
-        self.assertEqual(extracted.gmi_pct, 14.16)
+        self.assertEqual(extracted.dti_pct, 14.16)
 
     def test_extract_llm_decision_from_mistral_plain_table(self) -> None:
         text = """
-Decizie
-Aprobat
+Decision
+Approved
 
-Calcul financiar
-Eticheta	Valoare
-Venit declarat (RON)	15000.0
-Pondere venit (%)	100%
-Venit eligibil ponderat (RON)	15000.0
-Capacitate maxima totala rate (40% GMI) (RON)	6000.0
-Rate existente (RON)	0.0
-Capacitate disponibila pentru rata noua (RON)	6000.0
-Rata noua analizata (RON)	2124.70
-Rata noua dupa stres (RON)	2124.70
-GMI rezultat (%)	14.16%
-Varsta la maturitate	40
-Suma maxima recomandata prin GMI si plafon produs (RON)	150000
+Financial calculation
+Label	Value
+Declared income (RON)	15000.0
+Income weight (%)	100%
+Weighted eligible income (RON)	15000.0
+Maximum total payment capacity (40% DTI) (RON)	6000.0
+Existing payments (RON)	0.0
+Available capacity for the new payment (RON)	6000.0
+Analyzed new payment (RON)	2124.70
+Analyzed new payment after stress (RON)	2124.70
+DTI (%)	14.16%
+Age at maturity	40
+Maximum recommended amount through DTI and product cap (RON)	150000
 """
 
         normalized = normalize_credit_markdown(text)
         extracted = extract_llm_decision(normalized)
 
-        self.assertIn("## Decizie: APROBAT", normalized)
-        self.assertIn("| Venit declarat (RON) | 15000.0 |", normalized)
-        self.assertEqual(extracted.decision, "APROBAT")
+        self.assertIn("## Decision: APPROVED", normalized)
+        self.assertIn("| Declared income (RON) | 15000.0 |", normalized)
+        self.assertEqual(extracted.decision, "APPROVED")
         self.assertEqual(extracted.declared_income, 15000)
         self.assertEqual(extracted.income_weight_pct, 100)
         self.assertEqual(extracted.max_monthly_payment, 6000)
@@ -130,34 +133,34 @@ Suma maxima recomandata prin GMI si plafon produs (RON)	150000
 
     def test_extract_llm_decision_from_mistral_malformed_financial_rows(self) -> None:
         text = """
-Decizie: RESPINS
-Calcul financiar
-Eticheta	Valoare
-Venit declarat	15000.0 RON
-Pondere venit	100%
-Venit eligibil ponderat	15000.0 RON
-Capacitate maxima totala rate (40% GMI)	6000.0 RON
-Rate existente	0.0 RON
-Capacitate disponibila pentru rata noua	6000.0 RON
-Rata noua analizata	17,238.49 RON
-dupa stres daca se aplica
-| | GMI rezultat | 42.8% | | Varsta la maturitate | 80 ani | | Suma maxima recomandata prin GMI | 150,000 RON | | plafon produs | 150,000 RON |
-Detalii calcul
-Varsta la maturitate: 35 + 60/12 = 80 ani.
-GMI rezultat: (0 + 17238.49) / 15000 * 100 = 114.9%.
+Decision: REJECTED
+Financial calculation
+Label	Value
+Declared income	15000.0 RON
+Income weight	100%
+Weighted eligible income	15000.0 RON
+Maximum total payment capacity (40% DTI)	6000.0 RON
+Existing payments	0.0 RON
+Available capacity for the new payment	6000.0 RON
+Analyzed new payment	17,238.49 RON
+after stress if applicable
+| | DTI | 42.8% | | Age at maturity | 80 years | | Maximum recommended amount through DTI | 150,000 RON | | product cap | 150,000 RON |
+Calculation details
+Age at maturity: 35 + 60/12 = 80 years.
+DTI: (0 + 17238.49) / 15000 * 100 = 114.9%.
 """
 
         normalized = normalize_credit_markdown(text)
         extracted = extract_llm_decision(normalized)
 
         self.assertNotIn("35601280", normalized)
-        self.assertEqual(extracted.decision, "RESPINS")
+        self.assertEqual(extracted.decision, "REJECTED")
         self.assertEqual(extracted.declared_income, 15000)
         self.assertEqual(extracted.income_weight_pct, 100)
         self.assertEqual(extracted.stressed_monthly_payment, 17238.49)
-        self.assertEqual(extracted.gmi_pct, 42.8)
+        self.assertEqual(extracted.dti_pct, 42.8)
         self.assertEqual(extracted.maturity_age, 80)
-        self.assertEqual(extracted.max_credit_amount, 150000)
+        self.assertEqual(extracted.maximum_amount_by_dti, 150000)
 
     def test_compare_llm_to_deterministic_scores_matching_values(self) -> None:
         profile = ClientProfile(
@@ -165,7 +168,7 @@ GMI rezultat: (0 + 17238.49) / 15000 * 100 = 114.9%.
             term_months=60,
             fico=720,
             monthly_income=15000,
-            income_type="Salariu - contract nedeterminat",
+            income_type="Salary - permanent contract",
             existing_monthly_debts=0,
             requested_amount=100000,
             requested_monthly_payment=0,
@@ -173,111 +176,111 @@ GMI rezultat: (0 + 17238.49) / 15000 * 100 = 114.9%.
         )
         deterministic = evaluate_client(profile)
         text = f"""
-## Decizie: APROBAT
+## Decision: APPROVED
 
-| Indicator | Valoare |
+| Indicator | Value |
 |---|---:|
-| Venit declarat | 15,000.00 RON/luna |
-| Pondere venit | 100% |
-| Venit eligibil ponderat | 15,000.00 RON/luna |
-| Capacitate maxima totala rate (40% GMI) | 6,000.00 RON/luna |
-| Rate existente | 0.00 RON/luna |
-| Capacitate disponibila pentru rata noua | 6,000.00 RON/luna |
-| Rata noua analizata, dupa stres daca se aplica | {deterministic.stressed_monthly_payment:,.2f} RON/luna |
-| GMI rezultat | {deterministic.gmi * 100:.2f}% |
-| Varsta la maturitate | 40.0 ani |
-| Suma maxima recomandata prin GMI si plafon produs | 150,000.00 RON |
+| Declared income | 15,000.00 RON/month |
+| Income weight | 100% |
+| Weighted eligible income | 15,000.00 RON/month |
+| Maximum total payment capacity (40% DTI) | 6,000.00 RON/month |
+| Existing payments | 0.00 RON/month |
+| Available capacity for the new payment | 6,000.00 RON/month |
+| Analyzed new payment after stress | {deterministic.stressed_monthly_payment:,.2f} RON/month |
+| DTI | {deterministic.dti * 100:.2f}% |
+| Age at maturity | 40.0 years |
+| Maximum recommended amount through DTI and product cap | 150,000.00 RON |
 """
         extracted = extract_llm_decision(text)
 
         _, metrics = compare_llm_to_deterministic(profile, deterministic, extracted)
 
-        self.assertEqual(metrics["scor_total_llm_vs_formule"], 1.0)
+        self.assertEqual(metrics["overall_llm_vs_formulas_score"], 1.0)
 
     def test_extract_json_object_from_fenced_response(self) -> None:
-        data = extract_json_object('```json\n{"decision": "RESPINS", "financial": {}}\n```')
+        data = extract_json_object('```json\n{"decision": "REJECTED", "financial": {}}\n```')
 
         self.assertIsNotNone(data)
-        self.assertEqual(data["decision"], "RESPINS")
+        self.assertEqual(data["decision"], "REJECTED")
 
-    def test_canonicalize_translated_json_response(self) -> None:
+    def test_canonicalize_json_response(self) -> None:
         raw = {
-            "decizia": "RESPINS",
-            "detalii_financiare": {
-                "venit_ponderat": 7500,
-                "capacitate_plata_disponibila": 3000,
-                "rata_ceruta": 3500,
-                "gmi": "46.67%",
-                "max_credite": 42000,
+            "decision": "REJECTED",
+            "financial": {
+                "weighted_income": 7500,
+                "available_payment_capacity": 3000,
+                "analyzed_monthly_payment": 3500,
+                "dti_pct": "46.67%",
+                "maximum_amount_by_dti": 42000,
             },
-            "motiv": "GMI depaseste limita de 40%.",
-            "sursa": [{"text": "Manual_Extins_Creditare_NovaTech_v3.pdf"}],
+            "rejection_reasons": ["DTI exceeds the 40% limit."],
+            "rag_sources": ["NovaTech_Extended_Credit_Manual_v3.pdf"],
         }
 
         data = canonicalize_llm_credit_json(raw)
 
         self.assertIsNotNone(data)
         assert data is not None
-        self.assertEqual(data["decision"], "RESPINS")
+        self.assertEqual(data["decision"], "REJECTED")
         financial = data["financial"]
         self.assertEqual(financial["weighted_income"], 7500)
         self.assertEqual(financial["analyzed_monthly_payment"], 3500)
         self.assertEqual(financial["stressed_monthly_payment"], 3500)
-        self.assertEqual(financial["gmi_pct"], 46.67)
-        self.assertEqual(data["rejection_reasons"], ["GMI depaseste limita de 40%."])
+        self.assertEqual(financial["dti_pct"], 46.67)
+        self.assertEqual(data["rejection_reasons"], ["DTI exceeds the 40% limit."])
 
     def test_canonicalize_markdown_response_without_json(self) -> None:
         text = """
-| Indicator | Valoare |
+| Indicator | Value |
 |---|---:|
-| Decizie | RESPINS |
-| Venit declarat | 10000 RON |
-| Pondere venit | 75% |
-| Venit ponderat | 7500 RON |
-| Capacitate maxima | 3000 RON |
-| Rate existente | 0 RON |
-| Capacitate plata disponibila | 3000 RON |
-| Rata ceruta | 3500 RON |
-| GMI | 46.67% |
-| Varsta maturitate | 40 ani |
-| Suma maxima credit | 141196.11 RON |
-| Plafon produs | 150000 RON |
+| Decision | REJECTED |
+| Declared income | 10000 RON |
+| Income weight | 75% |
+| Weighted eligible income | 7500 RON |
+| Maximum total payment capacity | 3000 RON |
+| Existing payments | 0 RON |
+| Available capacity for the new payment | 3000 RON |
+| Analyzed new payment | 3500 RON |
+| DTI | 46.67% |
+| Age at maturity | 40 years |
+| Maximum recommended amount | 141196.11 RON |
+| Product cap | 150000 RON |
 """
 
         data = canonicalize_llm_credit_json(None, text)
 
         self.assertIsNotNone(data)
         assert data is not None
-        self.assertEqual(data["decision"], "RESPINS")
+        self.assertEqual(data["decision"], "REJECTED")
         financial = data["financial"]
         self.assertEqual(financial["declared_income"], 10000)
         self.assertEqual(financial["weighted_income"], 7500)
         self.assertEqual(financial["stressed_monthly_payment"], 3500)
-        self.assertEqual(financial["max_credit_amount"], 141196.11)
+        self.assertEqual(financial["maximum_amount_by_dti"], 141196.11)
         self.assertEqual(financial["product_cap"], 150000)
 
     def test_canonicalize_markdown_preserves_calculation_details(self) -> None:
         text = """
-Detalii calcul
-- Rata noua analizata: formula=P*r/(1-(1+r)^(-n)); valori=P=100000, r=0.008333, n=60; rezultat=2124.70 RON.
-- GMI rezultat: formula=(rate_existente + rata_dupa_stres) / venit_ponderat * 100; valori=(0+2124.70)/15000*100; rezultat=14.16%.
-- Varsta la maturitate: formula=varsta + durata_credit_luni / 12; valori=35+60/12; rezultat=40 ani.
-- Suma maxima recomandata: formula=min(150000, capacitate_disponibila*(1-(1+r)^(-n))/r); valori=6000; rezultat=150000 RON.
+Calculation details
+- Analyzed new payment: formula=P*r/(1-(1+r)^(-n)); values=P=100000, r=0.008333, n=60; result=2124.70 RON.
+- DTI: formula=(existing_payments + payment_after_stress) / weighted_income * 100; values=(0+2124.70)/15000*100; result=14.16%.
+- Age at maturity: formula=age + loan_term_months / 12; values=35+60/12; result=40 years.
+- Maximum recommended amount: formula=min(150000, available_capacity*(1-(1+r)^(-n))/r); values=6000; result=150000 RON.
 
-| Indicator | Valoare |
+| Indicator | Value |
 |---|---:|
-| Decizie | APROBAT |
-| Venit declarat | 15000 RON |
-| Pondere venit | 100% |
-| Venit ponderat | 15000 RON |
-| Capacitate maxima | 6000 RON |
-| Rate existente | 0 RON |
-| Capacitate plata disponibila | 6000 RON |
-| Rata ceruta | 2124.70 RON |
-| GMI | 14.16% |
-| Varsta maturitate | 40 ani |
-| Suma maxima credit | 150000 RON |
-| Plafon produs | 150000 RON |
+| Decision | APPROVED |
+| Declared income | 15000 RON |
+| Income weight | 100% |
+| Weighted eligible income | 15000 RON |
+| Maximum total payment capacity | 6000 RON |
+| Existing payments | 0 RON |
+| Available capacity for the new payment | 6000 RON |
+| Analyzed new payment | 2124.70 RON |
+| DTI | 14.16% |
+| Age at maturity | 40 years |
+| Maximum recommended amount | 150000 RON |
+| Product cap | 150000 RON |
 """
 
         data = canonicalize_llm_credit_json(None, text)
@@ -287,31 +290,31 @@ Detalii calcul
         details = data["calculation_details"]
         self.assertEqual(len(details), 4)
         self.assertIn("formula=", details[0])
-        self.assertIn("GMI rezultat", details[1])
+        self.assertIn("DTI", details[1])
 
     def test_calculation_details_do_not_pollute_financial_extraction(self) -> None:
         text = """
-Detalii calcul
-- Rata noua analizata si rata dupa stres: formula=(suma_solicitata_ron * (dobanda_anuala_pct / 100 / 12)) / (1 - (1 + dobanda_anuala_pct / 100 / 12)^(-durata_credit_luni)), valori=suma_solicitata_ron=100000, dobanda_anuala_pct=10, durata_credit_luni=60, rezultat=1754.83 RON.
-- GMI rezultat: formula=(rate_existente_lunare_ron + rata_noua_analizata) / venit_eligibil_ponderat * 100, valori=rate_existente_lunare_ron=0, rata_noua_analizata=1754.83, venit_eligibil_ponderat=15000, rezultat=11.69%.
-- Suma maxima recomandata prin GMI si plafon produs: formula=(capacitate_disponibila_pentru_rata_noua * (1 - (1 + dobanda_anuala_pct / 100 / 12)^(-durata_credit_luni))) / (dobanda_anuala_pct / 100 / 12), valori=capacitate_disponibila_pentru_rata_noua=6000, rezultat=53879.44 RON.
+Calculation details
+- Analyzed new payment and payment after stress: formula=(requested_amount_ron * (annual_interest_pct / 100 / 12)) / (1 - (1 + annual_interest_pct / 100 / 12)^(-loan_term_months)), values=requested_amount_ron=100000, annual_interest_pct=10, loan_term_months=60, result=1754.83 RON.
+- DTI: formula=(existing_monthly_payments_ron + analyzed_new_payment) / weighted_eligible_income * 100, values=existing_monthly_payments_ron=0, analyzed_new_payment=1754.83, weighted_eligible_income=15000, result=11.69%.
+- Maximum recommended amount through DTI and product cap: formula=(available_capacity_for_new_payment * (1 - (1 + annual_interest_pct / 100 / 12)^(-loan_term_months))) / (annual_interest_pct / 100 / 12), values=available_capacity_for_new_payment=6000, result=53879.44 RON.
 
-Calcul financiar
-| Indicator | Valoare |
+Financial calculation
+| Indicator | Value |
 |---|---:|
-| Decizie | APROBAT |
-| Venit declarat | 15000 RON |
-| Pondere venit | 100% |
-| Venit eligibil ponderat | 15000 RON |
-| Capacitate maxima totala rate (40% GMI) | 6000 RON |
-| Rate existente | 0 RON |
-| Capacitate disponibila pentru rata noua | 6000 RON |
-| Rata noua analizata | 2124.70 RON |
-| Rata noua analizata, dupa stres daca se aplica | 2124.70 RON |
-| GMI rezultat | 14.16% |
-| Varsta la maturitate | 40 ani |
-| Suma maxima recomandata prin GMI si plafon produs | 150000 RON |
-| Plafon produs | 150000 RON |
+| Decision | APPROVED |
+| Declared income | 15000 RON |
+| Income weight | 100% |
+| Weighted eligible income | 15000 RON |
+| Maximum total payment capacity (40% DTI) | 6000 RON |
+| Existing payments | 0 RON |
+| Available capacity for the new payment | 6000 RON |
+| Analyzed new payment | 2124.70 RON |
+| Analyzed new payment after stress | 2124.70 RON |
+| DTI | 14.16% |
+| Age at maturity | 40 years |
+| Maximum recommended amount | 150000 RON |
+| Product cap | 150000 RON |
 """
 
         data = canonicalize_llm_credit_json(None, text)
@@ -322,25 +325,25 @@ Calcul financiar
         self.assertEqual(financial["existing_monthly_debts"], 0)
         self.assertEqual(financial["available_payment_capacity"], 6000)
         self.assertEqual(financial["stressed_monthly_payment"], 2124.70)
-        self.assertEqual(financial["gmi_pct"], 14.16)
-        self.assertEqual(financial["max_credit_amount"], 150000)
+        self.assertEqual(financial["dti_pct"], 14.16)
+        self.assertEqual(financial["maximum_amount_by_dti"], 150000)
         self.assertEqual(financial["product_cap"], 150000)
 
     def test_missing_financial_fields_are_backfilled_from_trace_results(self) -> None:
         text = """
-Decizie: APROBAT
-Calcul financiar
-Indicator	Valoare
-Venit declarat	15,000.00 RON
-Pondere venit	100.00%
-Venit eligibil ponderat	15,000.00 RON
-Capacitate maxima totala rate (40% GMI)	6,000.00 RON
+Decision: APPROVED
+Financial calculation
+Indicator	Value
+Declared income	15,000.00 RON
+Income weight	100.00%
+Weighted eligible income	15,000.00 RON
+Maximum total payment capacity (40% DTI)	6,000.00 RON
 
-Detalii calcul
-- Rata noua analizata si rata dupa stres: formula=(suma_solicitata_ron * (dobanda_anuala_pct / 100 / 12)) / (1 - (1 + dobanda_anuala_pct / 100 / 12)^(-durata_credit_luni)), valori=suma_solicitata_ron=100000, dobanda_anuala_pct=10, durata_credit_luni=60, rezultat=1754.89.
-- GMI rezultat: formula=(rate_existente_lunare_ron + rata_noua_analizata) / venit_eligibil_ponderat * 100, valori=rate_existente_lunare_ron=0, rata_noua_analizata=1754.89, venit_eligibil_ponderat=15000, rezultat=35.09.
-- Varsta la maturitate: formula=varsta + durata_credit_luni / 12, valori=varsta=35, durata_credit_luni=60, rezultat=40.0.
-- Suma maxima recomandata prin GMI si plafon produs: formula=(capacitate_disponibila_pentru_rata_noua * (1 - (1 + dobanda_anuala_pct / 100 / 12)^(-durata_credit_luni))) / (dobanda_anuala_pct / 100 / 12), valori=capacitate_disponibila_pentru_rata_noua=6000, dobanda_anuala_pct=10, durata_credit_luni=60, rezultat=53948.72.
+Calculation details
+- Analyzed new payment and payment after stress: formula=(requested_amount_ron * (annual_interest_pct / 100 / 12)) / (1 - (1 + annual_interest_pct / 100 / 12)^(-loan_term_months)), values=requested_amount_ron=100000, annual_interest_pct=10, loan_term_months=60, result=1754.89.
+- DTI: formula=(existing_monthly_payments_ron + analyzed_new_payment) / weighted_eligible_income * 100, values=existing_monthly_payments_ron=0, analyzed_new_payment=1754.89, weighted_eligible_income=15000, result=35.09.
+- Age at maturity: formula=age + loan_term_months / 12, values=age=35, loan_term_months=60, result=40.0.
+- Maximum recommended amount through DTI and product cap: formula=(available_capacity_for_new_payment * (1 - (1 + annual_interest_pct / 100 / 12)^(-loan_term_months))) / (annual_interest_pct / 100 / 12), values=available_capacity_for_new_payment=6000, annual_interest_pct=10, loan_term_months=60, result=53948.72.
 """
 
         data = canonicalize_llm_credit_json(None, text)
@@ -352,39 +355,39 @@ Detalii calcul
         self.assertEqual(financial["available_payment_capacity"], 6000)
         self.assertEqual(financial["analyzed_monthly_payment"], 1754.89)
         self.assertEqual(financial["stressed_monthly_payment"], 1754.89)
-        self.assertEqual(financial["gmi_pct"], 35.09)
+        self.assertEqual(financial["dti_pct"], 35.09)
         self.assertEqual(financial["maturity_age"], 40)
-        self.assertEqual(financial["max_credit_amount"], 53948.72)
+        self.assertEqual(financial["maximum_amount_by_dti"], 53948.72)
         self.assertEqual(financial["product_cap"], 150000)
 
     def test_schema_prompt_requires_four_calculation_trace_steps(self) -> None:
         prompt = credit_json_schema_prompt()
 
-        self.assertIn("calculation_details trebuie sa contina exact 4 elemente", prompt)
-        self.assertIn("Rata noua analizata", prompt)
-        self.assertIn("GMI rezultat", prompt)
-        self.assertIn("Varsta la maturitate", prompt)
-        self.assertIn("Suma maxima recomandata", prompt)
+        self.assertIn("calculation_details must contain exactly 4 items", prompt)
+        self.assertIn("Analyzed new payment", prompt)
+        self.assertIn("DTI", prompt)
+        self.assertIn("Age at maturity", prompt)
+        self.assertIn("Maximum recommended amount", prompt)
 
     def test_annuity_examples_prompt_calibrates_base_formula(self) -> None:
         prompt = annuity_examples_prompt()
 
         self.assertIn("r = 10 / 100 / 12 = 0.0083333333", prompt)
-        self.assertIn("numitor = 1 - 0.6077885915 = 0.3922114085", prompt)
+        self.assertIn("denominator = 1 - 0.6077885915 = 0.3922114085", prompt)
         self.assertIn("2124.70 RON", prompt)
         self.assertIn("1375.49", prompt)
         self.assertIn("1754.89", prompt)
         self.assertIn("(1+r)^(-36)=0.7417397035", prompt)
-        self.assertIn("P=30000 inseamna 3 * 322.671872 = 968.015616 RON", prompt)
-        self.assertIn("valabila numai pentru capacitate=3000 si n=60", prompt)
+        self.assertIn("P=30000 means 3 * 322.671872 = 968.015616 RON", prompt)
+        self.assertIn("valid only for capacity=3000 and n=60", prompt)
 
-    def test_schema_validation_rejects_wrong_pfa_decision(self) -> None:
+    def test_schema_validation_rejects_wrong_self_employment_decision(self) -> None:
         profile = ClientProfile(
             age=35,
             term_months=60,
             fico=680,
             monthly_income=10000,
-            income_type="PFA/PFI",
+            income_type="Self-employment/liberal professions",
             existing_monthly_debts=0,
             requested_amount=0,
             requested_monthly_payment=3500,
@@ -392,7 +395,7 @@ Detalii calcul
         )
         deterministic = evaluate_client(profile)
         data = {
-            "decision": "APROBAT",
+            "decision": "APPROVED",
             "financial": {
                 "declared_income": 10000,
                 "income_weight_pct": 75,
@@ -402,9 +405,9 @@ Detalii calcul
                 "available_payment_capacity": 3000,
                 "analyzed_monthly_payment": 2984.16,
                 "stressed_monthly_payment": 2984.16,
-                "gmi_pct": 39.79,
+                "dti_pct": 39.79,
                 "maturity_age": 40,
-                "max_credit_amount": 0,
+                "maximum_amount_by_dti": 0,
                 "product_cap": 150000,
             },
             "calculation_details": [],
@@ -416,12 +419,12 @@ Detalii calcul
 
         errors = validate_llm_credit_json(data, profile, deterministic)
 
-        self.assertTrue(any("RESPINS" in error for error in errors))
-        self.assertTrue(any("gmi_pct" in error for error in errors))
+        self.assertTrue(any("REJECTED" in error for error in errors))
+        self.assertTrue(any("dti_pct" in error for error in errors))
 
     def test_json_markdown_and_extraction(self) -> None:
         data = {
-            "decision": "RESPINS",
+            "decision": "REJECTED",
             "financial": {
                 "declared_income": 10000,
                 "income_weight_pct": 75,
@@ -431,25 +434,25 @@ Detalii calcul
                 "available_payment_capacity": 3000,
                 "analyzed_monthly_payment": 3500,
                 "stressed_monthly_payment": 3500,
-                "gmi_pct": 46.67,
+                "dti_pct": 46.67,
                 "maturity_age": 40,
-                "max_credit_amount": 0,
+                "maximum_amount_by_dti": 0,
                 "product_cap": 150000,
             },
-            "calculation_details": ["GMI = 3500 / 7500 * 100."],
-            "rejection_reasons": ["GMI depaseste limita de 40%."],
+            "calculation_details": ["DTI = 3500 / 7500 * 100."],
+            "rejection_reasons": ["DTI exceeds the 40% limit."],
             "manual_review_reasons": [],
             "observations": [],
-            "rag_sources": ["[1] Manual_Extins_Creditare_NovaTech_v3.pdf"],
+            "rag_sources": ["[1] NovaTech_Extended_Credit_Manual_v3.pdf"],
         }
 
         markdown = format_llm_credit_json_markdown(data)
         extracted = llm_json_to_extracted(data)
 
-        self.assertIn("## Decizie: RESPINS", markdown)
-        self.assertEqual(extracted.decision, "RESPINS")
+        self.assertIn("## Decision: REJECTED", markdown)
+        self.assertEqual(extracted.decision, "REJECTED")
         self.assertEqual(extracted.weighted_income, 7500)
-        self.assertEqual(extracted.gmi_pct, 46.67)
+        self.assertEqual(extracted.dti_pct, 46.67)
 
     def test_self_review_detects_approved_case_with_hard_rejections(self) -> None:
         profile = ClientProfile(
@@ -457,14 +460,14 @@ Detalii calcul
             term_months=60,
             fico=720,
             monthly_income=15000,
-            income_type="Salariu - contract nedeterminat",
+            income_type="Salary - permanent contract",
             existing_monthly_debts=0,
             requested_amount=1000000,
             requested_monthly_payment=0,
             annual_interest_pct=10,
         )
         data = {
-            "decision": "APROBAT",
+            "decision": "APPROVED",
             "financial": {
                 "declared_income": 15000,
                 "income_weight_pct": 100,
@@ -474,9 +477,9 @@ Detalii calcul
                 "available_payment_capacity": 6000,
                 "analyzed_monthly_payment": 17948.32,
                 "stressed_monthly_payment": 17948.32,
-                "gmi_pct": 119.65,
+                "dti_pct": 119.65,
                 "maturity_age": 40,
-                "max_credit_amount": 150000,
+                "maximum_amount_by_dti": 150000,
                 "product_cap": 150000,
             },
             "calculation_details": [],
@@ -489,12 +492,12 @@ Detalii calcul
         findings = llm_self_review_findings(profile, data)
 
         self.assertTrue(needs_llm_self_review(profile, data))
-        self.assertTrue(any("RESPINS" in finding for finding in findings))
-        self.assertTrue(any("GMI" in finding for finding in findings))
-        self.assertTrue(any("plafon" in finding for finding in findings))
+        self.assertTrue(any("REJECTED" in finding for finding in findings))
+        self.assertTrue(any("DTI" in finding for finding in findings))
+        self.assertTrue(any("product cap" in finding for finding in findings))
         flags = llm_self_review_flags_prompt(profile, data)
-        self.assertIn("suma_peste_plafon_produs: 1000000.00 > 150000.00 => DA", flags)
-        self.assertIn("gmi_returnat_de_model_peste_limita: 119.65% > 40% => DA", flags)
+        self.assertIn("requested_amount_above_product_cap: 1000000.00 > 150000.00 => YES", flags)
+        self.assertIn("model_returned_dti_above_limit: 119.65% > 40% => YES", flags)
 
     def test_self_review_detects_phi_style_calculation_shortcuts(self) -> None:
         profile = ClientProfile(
@@ -502,14 +505,14 @@ Detalii calcul
             term_months=60,
             fico=720,
             monthly_income=15000,
-            income_type="Salariu - contract nedeterminat",
+            income_type="Salary - permanent contract",
             existing_monthly_debts=0,
             requested_amount=100000,
             requested_monthly_payment=0,
             annual_interest_pct=10,
         )
         data = {
-            "decision": "APROBAT",
+            "decision": "APPROVED",
             "financial": {
                 "declared_income": 15000,
                 "income_weight_pct": 100,
@@ -519,9 +522,9 @@ Detalii calcul
                 "available_payment_capacity": 6000,
                 "analyzed_monthly_payment": 1666.67,
                 "stressed_monthly_payment": 1600,
-                "gmi_pct": 14.16,
+                "dti_pct": 14.16,
                 "maturity_age": 95,
-                "max_credit_amount": 100000,
+                "maximum_amount_by_dti": 100000,
                 "product_cap": 225000,
             },
             "calculation_details": [],
@@ -535,44 +538,44 @@ Detalii calcul
         joined = " ".join(findings)
 
         self.assertTrue(needs_llm_self_review(profile, data))
-        self.assertIn("Varsta la maturitate", joined)
-        self.assertIn("formula anuitatii", joined)
-        self.assertIn("rata dupa stres", joined)
-        self.assertIn("Plafonul produsului", joined)
-        self.assertIn("Suma maxima recomandata pare copiata", joined)
+        self.assertIn("Age at maturity", joined)
+        self.assertIn("annuity formula", joined)
+        self.assertIn("payment after stress", joined)
+        self.assertIn("The product cap", joined)
+        self.assertIn("Maximum recommended amount appears copied", joined)
 
     def test_merge_llm_decision_adjudication_keeps_financial_values(self) -> None:
         data = {
-            "decision": "APROBAT",
-            "financial": {"stressed_monthly_payment": 17298.34, "gmi_pct": 115.33},
+            "decision": "APPROVED",
+            "financial": {"stressed_monthly_payment": 17298.34, "dti_pct": 115.33},
             "rejection_reasons": [],
             "manual_review_reasons": [],
-            "observations": ["GMI peste limita de 40%"],
+            "observations": ["DTI exceeds the 40% limit"],
         }
         adjudication = {
-            "decision": "RESPINS",
-            "rejection_reasons": ["GMI peste limita de 40%."],
+            "decision": "REJECTED",
+            "rejection_reasons": ["DTI exceeds the 40% limit."],
             "manual_review_reasons": [],
             "observations": [],
         }
 
         merged = merge_llm_decision_adjudication(data, adjudication)
 
-        self.assertEqual(merged["decision"], "RESPINS")
+        self.assertEqual(merged["decision"], "REJECTED")
         self.assertEqual(merged["financial"], data["financial"])
-        self.assertEqual(merged["rejection_reasons"], ["GMI peste limita de 40%."])
+        self.assertEqual(merged["rejection_reasons"], ["DTI exceeds the 40% limit."])
 
     def test_merge_llm_decision_adjudication_humanizes_flag_reasons(self) -> None:
         data = {
-            "decision": "APROBAT",
+            "decision": "APPROVED",
             "financial": {},
             "rejection_reasons": [],
             "manual_review_reasons": [],
             "observations": [],
         }
         adjudication = {
-            "decision": "RESPINS",
-            "rejection_reasons": ["suma_peste_plafon_produs"],
+            "decision": "REJECTED",
+            "rejection_reasons": ["requested_amount_above_product_cap"],
             "manual_review_reasons": [],
             "observations": [],
         }
@@ -581,7 +584,7 @@ Detalii calcul
 
         self.assertEqual(
             merged["rejection_reasons"],
-            ["Suma solicitata depaseste plafonul produsului de 150,000 RON."],
+            ["The requested amount exceeds the product cap of 150,000 RON."],
         )
 
 

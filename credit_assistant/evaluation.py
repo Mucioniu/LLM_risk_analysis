@@ -14,12 +14,12 @@ from .rag import RagIndex
 
 DEFAULT_EVALUATION_CASES = Path("examples/evaluation_cases.json")
 REQUIRED_ANALYSIS_SECTIONS = [
-    "Decizie",
-    "Calcul financiar",
-    "Motive de respingere",
-    "Motive de analiza manuala",
-    "Observatii",
-    "Surse RAG folosite",
+    "Decision",
+    "Financial calculation",
+    "Rejection reasons",
+    "Manual review reasons",
+    "Notes",
+    "RAG sources used",
 ]
 
 
@@ -63,42 +63,42 @@ def keyword_coverage(text: str, expected_keywords: list[str]) -> MetricResult:
     normalized = text.lower()
     found = [keyword for keyword in expected_keywords if keyword.lower() in normalized]
     return MetricResult(
-        "acoperire_cuvinte_cheie",
+        "keyword_coverage",
         ratio(len(found), len(expected_keywords)),
-        f"{len(found)}/{len(expected_keywords)} cuvinte-cheie gasite: {', '.join(found) or 'niciunul'}",
+        f"{len(found)}/{len(expected_keywords)} keywords found: {', '.join(found) or 'none'}",
     )
 
 
 def format_score(text: str) -> MetricResult:
     checks = {
-        "are_linii_noi": "\n" in text.strip(),
-        "are_heading_markdown": bool(re.search(r"^#{2,3}\s+", text, flags=re.MULTILINE)),
-        "nu_are_asteriscuri_decorative": "***" not in text,
-        "nu_are_think": "<think>" not in text.lower(),
+        "has_newlines": "\n" in text.strip(),
+        "has_markdown_heading": bool(re.search(r"^#{2,3}\s+", text, flags=re.MULTILINE)),
+        "has_no_decorative_asterisks": "***" not in text,
+        "has_no_think_tag": "<think>" not in text.lower(),
     }
     passed = sum(1 for value in checks.values() if value)
     failed = [name for name, value in checks.items() if not value]
     return MetricResult(
-        "format_markdown",
+        "markdown_format",
         ratio(passed, len(checks)),
-        "OK" if not failed else "Probleme: " + ", ".join(failed),
+        "OK" if not failed else "Issues: " + ", ".join(failed),
     )
 
 
 def source_presence(text: str) -> MetricResult:
-    has_sources = "Fragmente relevante" in text or "Surse RAG folosite" in text
+    has_sources = "Relevant excerpts" in text or "RAG sources used" in text
     has_numbered_source = bool(re.search(r"\[\d+\]|\n\d+\.", text))
     score = ratio(int(has_sources) + int(has_numbered_source), 2)
     return MetricResult(
-        "prezenta_surse_rag",
+        "rag_source_presence",
         score,
-        "Sursele sunt afisate" if score == 1.0 else "Sursele lipsesc sau nu sunt numerotate clar",
+        "Sources are displayed" if score == 1.0 else "Sources are missing or not clearly numbered",
     )
 
 
 def retrieval_hit(index: RagIndex, query: str, expected_sources: list[str]) -> MetricResult:
     if not expected_sources:
-        return MetricResult("retrieval_hit_at_5", 1.0, "Caz fara sursa asteptata explicita")
+        return MetricResult("retrieval_hit_at_5", 1.0, "Case with no explicit expected source")
 
     retrieved = index.search(query, top_k=5)
     retrieved_names = [result.chunk.source for result in retrieved]
@@ -110,26 +110,26 @@ def retrieval_hit(index: RagIndex, query: str, expected_sources: list[str]) -> M
     return MetricResult(
         "retrieval_hit_at_5",
         ratio(len(hits), len(expected_sources)),
-        f"Surse gasite: {', '.join(hits) or 'niciuna'}",
+        f"Sources found: {', '.join(hits) or 'none'}",
     )
 
 
 def missing_answer_score(text: str, expect_missing: bool) -> MetricResult:
     missing_markers = [
-        "lipseste",
-        "nu este mentionat",
-        "nu am gasit",
-        "nu apare",
-        "nu este specificat",
+        "is missing",
+        "is not mentioned",
+        "not found",
+        "does not appear",
+        "is not specified",
     ]
     says_missing = contains_any(text, missing_markers)
     if not expect_missing:
-        return MetricResult("raspuns_lipsa_info", 1.0, "Nu este caz de informatie lipsa")
+        return MetricResult("missing_information_response", 1.0, "This is not a missing-information case")
 
     return MetricResult(
-        "raspuns_lipsa_info",
+        "missing_information_response",
         1.0 if says_missing else 0.0,
-        "Modelul semnaleaza lipsa informatiei" if says_missing else "Modelul nu semnaleaza lipsa informatiei",
+        "The model flags the missing information" if says_missing else "The model does not flag the missing information",
     )
 
 
@@ -145,7 +145,7 @@ def evaluate_policy_question_case(case: dict[str, Any], index: RagIndex) -> Case
         source_presence(answer),
         format_score(answer),
     ]
-    return CaseResult(case["id"], "intrebari_manual", latency, metrics)
+    return CaseResult(case["id"], "policy_questions", latency, metrics)
 
 
 def expected_numeric_values(profile: ClientProfile, evaluation: CreditEvaluation) -> list[str]:
@@ -154,25 +154,25 @@ def expected_numeric_values(profile: ClientProfile, evaluation: CreditEvaluation
         f"{evaluation.weighted_income:,.2f}",
         f"{evaluation.max_monthly_payment:,.2f}",
         f"{evaluation.stressed_monthly_payment:,.2f}",
-        f"{evaluation.gmi * 100:.2f}%",
-        f"{evaluation.max_credit_amount:,.2f}",
+        f"{evaluation.dti * 100:.2f}%",
+        f"{evaluation.maximum_amount_by_dti:,.2f}",
     ]
 
 
 def required_sections_score(text: str) -> MetricResult:
     found = [section for section in REQUIRED_ANALYSIS_SECTIONS if section.lower() in text.lower()]
     return MetricResult(
-        "sectiuni_obligatorii",
+        "required_sections",
         ratio(len(found), len(REQUIRED_ANALYSIS_SECTIONS)),
-        f"{len(found)}/{len(REQUIRED_ANALYSIS_SECTIONS)} sectiuni gasite",
+        f"{len(found)}/{len(REQUIRED_ANALYSIS_SECTIONS)} sections found",
     )
 
 
 def decision_consistency(text: str, expected_decision: str) -> MetricResult:
     return MetricResult(
-        "consistenta_decizie",
+        "decision_consistency",
         1.0 if expected_decision.lower() in text.lower() else 0.0,
-        f"Decizie asteptata: {expected_decision}",
+        f"Expected decision: {expected_decision}",
     )
 
 
@@ -180,9 +180,9 @@ def numeric_consistency(text: str, values: list[str]) -> MetricResult:
     normalized = text.replace(" ", "")
     found = [value for value in values if value.replace(" ", "") in normalized]
     return MetricResult(
-        "consistenta_valori_numerice",
+        "numeric_consistency",
         ratio(len(found), len(values)),
-        f"{len(found)}/{len(values)} valori gasite",
+        f"{len(found)}/{len(values)} values found",
     )
 
 
@@ -198,25 +198,25 @@ def evaluate_client_case(case: dict[str, Any], index: RagIndex) -> CaseResult:
 
     metrics = [
         MetricResult(
-            "decizie_llm_vs_asteptat",
+            "llm_decision_vs_expected",
             1.0 if analysis.extracted.decision == expected_decision else 0.0,
-            f"LLM: {analysis.extracted.decision or 'negasit'} / asteptat: {expected_decision}",
+            f"LLM: {analysis.extracted.decision or 'not found'} / expected: {expected_decision}",
         ),
         MetricResult(
-            "decizie_llm_vs_formule",
-            analysis.metric_scores.get("Decizie", 0.0),
-            f"LLM: {analysis.extracted.decision or 'negasit'} / formule: {deterministic.decision.value}",
+            "llm_decision_vs_formulas",
+            analysis.metric_scores.get("Decision", 0.0),
+            f"LLM: {analysis.extracted.decision or 'not found'} / formulas: {deterministic.decision.value}",
         ),
         MetricResult(
-            "scor_total_llm_vs_formule",
-            analysis.metric_scores.get("scor_total_llm_vs_formule", 0.0),
-            "Comparatie pe decizie si valori financiare extrase din raspunsul LLM.",
+            "overall_llm_vs_formulas_score",
+            analysis.metric_scores.get("overall_llm_vs_formulas_score", 0.0),
+            "Comparison of the decision and financial values extracted from the LLM response.",
         ),
         required_sections_score(answer),
         source_presence(answer),
         format_score(answer),
     ]
-    return CaseResult(case["id"], "analiza_client", latency, metrics)
+    return CaseResult(case["id"], "client_analysis", latency, metrics)
 
 
 def run_evaluation_suite(
@@ -243,7 +243,7 @@ def run_evaluation_suite(
 
 def summarize_evaluation_markdown(results: list[CaseResult]) -> str:
     if not results:
-        return "Nu exista cazuri de evaluare."
+        return "There are no evaluation cases."
 
     overall = sum(result.score for result in results) / len(results)
     total_latency = sum(result.latency_seconds for result in results)
@@ -252,15 +252,15 @@ def summarize_evaluation_markdown(results: list[CaseResult]) -> str:
         by_type.setdefault(result.case_type, []).append(result)
 
     lines = [
-        "## Raport metrici",
+        "## Metrics report",
         "",
-        f"Scor mediu total: {overall:.2%}",
-        f"Cazuri evaluate: {len(results)}",
-        f"Timp total: {total_latency:.2f}s",
+        f"Overall average score: {overall:.2%}",
+        f"Cases evaluated: {len(results)}",
+        f"Total time: {total_latency:.2f}s",
         "",
-        "### Scor pe sectiuni",
+        "### Score by section",
         "",
-        "| Sectiune | Cazuri | Scor mediu | Latenta medie |",
+        "| Section | Cases | Average score | Average latency |",
         "|---|---:|---:|---:|",
     ]
     for case_type, case_results in by_type.items():
@@ -270,16 +270,16 @@ def summarize_evaluation_markdown(results: list[CaseResult]) -> str:
             f"| {case_type} | {len(case_results)} | {section_score:.2%} | {section_latency:.2f}s |"
         )
 
-    lines.extend(["", "### Detaliu cazuri", ""])
+    lines.extend(["", "### Case details", ""])
     for result in results:
         lines.extend(
             [
                 f"#### {result.case_id} ({result.case_type})",
                 "",
-                f"Scor caz: {result.score:.2%}",
-                f"Latenta: {result.latency_seconds:.2f}s",
+                f"Case score: {result.score:.2%}",
+                f"Latency: {result.latency_seconds:.2f}s",
                 "",
-                "| Metrica | Scor | Detalii |",
+                "| Metric | Score | Details |",
                 "|---|---:|---|",
             ]
         )

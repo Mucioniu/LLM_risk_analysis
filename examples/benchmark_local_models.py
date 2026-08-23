@@ -56,8 +56,11 @@ def run_model(model: str, max_cases: int | None = None, *, think: bool = False) 
                 "expected_decision": case.get("expected_decision", deterministic.decision.value),
                 "deterministic_decision": deterministic.decision.value,
                 "llm_decision": analysis.extracted.decision,
-                "score_total": analysis.metric_scores.get("scor_total_llm_vs_formule", 0.0),
-                "decision_score": analysis.metric_scores.get("Decizie", 0.0),
+                "score_total": analysis.metric_scores.get(
+                    "overall_llm_vs_formulas_score",
+                    0.0,
+                ),
+                "decision_score": analysis.metric_scores.get("Decision", 0.0),
                 "metrics": analysis.metric_scores,
                 "latency_seconds": latency,
                 "extracted": extracted,
@@ -66,9 +69,9 @@ def run_model(model: str, max_cases: int | None = None, *, think: bool = False) 
                     "max_monthly_payment": deterministic.max_monthly_payment,
                     "available_payment_capacity": deterministic.available_payment_capacity,
                     "stressed_monthly_payment": deterministic.stressed_monthly_payment,
-                    "gmi_pct": deterministic.gmi * 100,
+                    "dti_pct": deterministic.dti * 100,
                     "maturity_age": deterministic.maturity_age,
-                    "max_credit_amount": deterministic.max_credit_amount,
+                    "maximum_amount_by_dti": deterministic.maximum_amount_by_dti,
                 },
             }
         )

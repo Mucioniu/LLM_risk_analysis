@@ -1,2 +1,1 @@
-"""Asistent RAG pentru analiza fictiva de creditare NovaTech."""
-
+"""RAG assistant for fictional NovaTech credit analysis."""

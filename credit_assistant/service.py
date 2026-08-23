@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .credit_engine import (
-    GMI_LIMIT,
+    DTI_LIMIT,
     INCOME_WEIGHTS,
     MAX_AGE_AT_MATURITY,
     MAX_AMOUNT_RON,
@@ -22,8 +22,8 @@ from .llm import optional_llm_summary
 from .rag import RagIndex, format_sources
 
 
-DEFAULT_PDF = Path("Manual_Extins_Creditare_NovaTech_v3.pdf")
-BNR_REGULATION_MD = Path("Regulamentul_BNR_nr_17_2012.md")
+DEFAULT_PDF = Path("NovaTech_Extended_Credit_Manual_v3.pdf")
+NBR_REGULATION_MD = Path("NBR_Regulation_No_17_2012.md")
 
 
 @dataclass(frozen=True)
@@ -36,9 +36,9 @@ class LlmExtractedDecision:
     existing_monthly_debts: float | None
     available_payment_capacity: float | None
     stressed_monthly_payment: float | None
-    gmi_pct: float | None
+    dti_pct: float | None
     maturity_age: float | None
-    max_credit_amount: float | None
+    maximum_amount_by_dti: float | None
 
 
 @dataclass(frozen=True)
@@ -59,119 +59,98 @@ REQUIRED_JSON_NUMERIC_FIELDS = {
     "available_payment_capacity",
     "analyzed_monthly_payment",
     "stressed_monthly_payment",
-    "gmi_pct",
+    "dti_pct",
     "maturity_age",
-    "max_credit_amount",
+    "maximum_amount_by_dti",
     "product_cap",
 }
 
 TOP_LEVEL_ALIASES = {
-    "decision": ["decision", "decizie", "decizia", "hotarare", "verdict", "status"],
+    "decision": ["decision", "verdict", "status"],
     "financial": [
         "financial",
-        "detalii_financiare",
-        "calcul_financiar",
-        "calcule_financiare",
         "financial_details",
+        "financial_calculation",
+        "financial_calculations",
         "calculation",
-        "calcul",
     ],
     "calculation_details": [
         "calculation_details",
-        "detalii_calcul",
-        "explicatii_calcul",
-        "pasii_calculului",
+        "calculation_explanations",
+        "calculation_steps",
         "rationale",
     ],
     "rejection_reasons": [
         "rejection_reasons",
-        "motive_respingere",
-        "motive_de_respingere",
-        "motiv",
-        "motive",
+        "rejection_reason",
+        "reason",
+        "reasons",
     ],
     "manual_review_reasons": [
         "manual_review_reasons",
-        "motive_analiza_manuala",
-        "motive_de_analiza_manuala",
         "manual_review",
     ],
-    "observations": ["observations", "observatii", "note", "comentarii", "warnings"],
-    "rag_sources": ["rag_sources", "surse_rag", "surse", "sources", "citations"],
+    "observations": ["observations", "notes", "comments", "warnings"],
+    "rag_sources": ["rag_sources", "sources", "citations"],
 }
 
 FINANCIAL_ALIASES = {
     "declared_income": [
         "declared_income",
-        "venit_declarat",
-        "venit_lunar_declarat",
-        "venit_lunar_declarat_ron",
+        "monthly_declared_income",
+        "monthly_declared_income_ron",
         "income",
     ],
     "income_weight_pct": [
         "income_weight_pct",
-        "pondere_venit",
-        "pondere_venit_pct",
-        "procent_pondere",
         "income_weight",
     ],
     "weighted_income": [
         "weighted_income",
-        "venit_ponderat",
-        "venit_eligibil_ponderat",
-        "venit_eligibil",
         "eligible_income",
+        "weighted_eligible_income",
     ],
     "max_monthly_payment": [
         "max_monthly_payment",
-        "capacitate_maxima_rate",
-        "capacitate_maxima_totala_rate",
-        "rata_maxima_totala",
+        "maximum_payment_capacity",
+        "maximum_total_payment_capacity",
         "maximum_debt_sum",
     ],
     "existing_monthly_debts": [
         "existing_monthly_debts",
-        "rate_existente",
-        "datorii_existente",
-        "rate_existente_lunare",
+        "existing_payments",
+        "existing_monthly_payments",
         "existing_debts",
     ],
     "available_payment_capacity": [
         "available_payment_capacity",
-        "capacitate_disponibila",
-        "capacitate_plata_disponibila",
-        "capacitate_disponibila_pentru_rata_noua",
+        "available_capacity",
+        "available_capacity_for_the_new_payment",
     ],
     "analyzed_monthly_payment": [
         "analyzed_monthly_payment",
-        "rata_analizata",
-        "rata_lunara_analizata",
-        "rata_noua_analizata",
-        "rata_ceruta",
+        "analyzed_payment",
+        "analyzed_new_payment",
+        "requested_payment",
         "monthly_payment",
     ],
     "stressed_monthly_payment": [
         "stressed_monthly_payment",
-        "rata_dupa_stres",
-        "rata_noua_dupa_stres",
-        "rata_stresata",
-        "rata_analizata_dupa_stres",
+        "payment_after_stress",
+        "analyzed_new_payment_after_stress",
+        "stressed_payment",
     ],
-    "gmi_pct": ["gmi_pct", "gmi", "grad_indatorare", "grad_maxim_indatorare"],
+    "dti_pct": ["dti_pct", "dti"],
     "maturity_age": [
         "maturity_age",
-        "varsta_maturitate",
-        "varsta_la_maturitate",
         "age_at_maturity",
     ],
-    "max_credit_amount": [
-        "max_credit_amount",
-        "suma_maxima_credit",
-        "suma_maxima_recomandata",
-        "max_credite",
+    "maximum_amount_by_dti": [
+        "maximum_amount_by_dti",
+        "maximum_recommended_amount",
         "maximum_credit_amount",
     ],
-    "product_cap": ["product_cap", "plafon_produs", "suma_maxima_produs", "product_limit"],
+    "product_cap": ["product_cap", "maximum_product_amount", "product_limit"],
 }
 
 
@@ -180,11 +159,11 @@ def default_corpus_paths() -> list[Path]:
     if DEFAULT_PDF.exists():
         paths.append(DEFAULT_PDF)
 
-    if BNR_REGULATION_MD.exists():
-        paths.append(BNR_REGULATION_MD)
+    if NBR_REGULATION_MD.exists():
+        paths.append(NBR_REGULATION_MD)
 
     if not paths:
-        raise FileNotFoundError("Nu gasesc documente de creditare in directorul proiectului.")
+        raise FileNotFoundError("No credit documents were found in the project directory.")
     return paths
 
 
@@ -193,7 +172,7 @@ def build_default_index() -> RagIndex:
 
 
 def format_sources_markdown(sources: str) -> str:
-    if sources.startswith("Nu am gasit"):
+    if sources.startswith("No relevant excerpts were found"):
         return sources
 
     blocks: list[str] = []
@@ -212,36 +191,37 @@ def format_sources_markdown(sources: str) -> str:
 
 def normalize_credit_markdown(text: str) -> str:
     section_titles = [
-        "Calcul financiar",
-        "Detalii calcul",
-        "Motive de respingere",
-        "Motive de analiza manuala",
-        "Observatii",
-        "Surse RAG folosite",
+        "Financial calculation",
+        "Calculation details",
+        "Rejection reasons",
+        "Manual review reasons",
+        "Notes",
+        "RAG sources used",
     ]
     financial_labels = [
-        "Venit declarat",
-        "Pondere venit",
-        "Venit eligibil ponderat",
-        "Capacitate maxima totala rate (40% GMI)",
-        "Rate existente",
-        "Capacitate disponibila pentru rata noua",
-        "Rata noua analizata, dupa stres daca se aplica",
-        "GMI rezultat",
-        "Varsta la maturitate",
-        "Suma maxima recomandata prin GMI si plafon produs",
+        "Declared income",
+        "Income weight",
+        "Weighted eligible income",
+        "Maximum total payment capacity (40% DTI)",
+        "Existing payments",
+        "Available capacity for the new payment",
+        "Analyzed new payment",
+        "Analyzed new payment after stress",
+        "DTI",
+        "Age at maturity",
+        "Maximum recommended amount",
     ]
 
     normalized = text.strip()
     normalized = normalize_tabular_text(normalized)
     normalized = re.sub(
-        r"(?im)^\s*#{0,3}\s*Decizie\s*[:|-]?\s*$\s*^(APROBAT|APROBAT|RESPINS|ANALIZA\s+MANUALA)\s*$",
-        lambda match: f"## Decizie: {normalize_decision(match.group(1))}",
+        r"(?im)^\s*#{0,3}\s*Decision\s*[:|-]?\s*$\s*^(APPROVED|REJECTED|MANUAL\s+REVIEW)\s*$",
+        lambda match: f"## Decision: {normalize_decision(match.group(1))}",
         normalized,
     )
     normalized = re.sub(
-        r"(?im)^#{0,3}\s*Decizie\s*:\s*(APROBAT|APROBAT|RESPINS|ANALIZA\s+MANUALA)\s*$",
-        lambda match: f"## Decizie: {normalize_decision(match.group(1))}",
+        r"(?im)^#{0,3}\s*Decision\s*:\s*(APPROVED|REJECTED|MANUAL\s+REVIEW)\s*$",
+        lambda match: f"## Decision: {normalize_decision(match.group(1))}",
         normalized,
     )
     for title in section_titles:
@@ -269,16 +249,16 @@ def normalize_tabular_text(text: str) -> str:
         nonlocal table_rows
         if not table_rows:
             return
-        normalized.append("| Indicator | Valoare |")
+        normalized.append("| Indicator | Value |")
         normalized.append("|---|---:|")
-        rows = table_rows[1:] if table_rows[0][0].lower() in {"eticheta", "indicator"} else table_rows
+        rows = table_rows[1:] if table_rows[0][0].lower() in {"label", "indicator"} else table_rows
         for row in rows:
             if len(row) >= 2:
                 normalized.append(f"| {row[0]} | {row[1]} |")
         table_rows = []
 
     def append_markdown_rows(rows: list[list[str]]) -> None:
-        normalized.append("| Indicator | Valoare |")
+        normalized.append("| Indicator | Value |")
         normalized.append("|---|---:|")
         for row in rows:
             if len(row) >= 2:
@@ -299,7 +279,7 @@ def normalize_tabular_text(text: str) -> str:
                     flush_table()
                     append_markdown_rows(paired_rows)
                     continue
-        if normalize_label(line) == "dupa stres daca se aplica":
+        if normalize_label(line) == "after stress if applicable":
             continue
         flush_table()
         normalized.append(line)
@@ -322,33 +302,33 @@ def normalize_decision(value: str | None) -> str | None:
     if value is None:
         return None
     normalized = _strip_accents(re.sub(r"\s+", " ", value.upper()).strip())
-    if normalized in {"APROBAT", "RESPINS", "ANALIZA MANUALA"}:
+    if normalized in {"APPROVED", "REJECTED", "MANUAL REVIEW"}:
         return normalized
-    if normalized in {"APROBARE", "APROBATA", "APPROVED", "ACCEPTAT"}:
-        return "APROBAT"
-    if normalized in {"RESPINGERE", "RESPINSA", "REJECTED", "REFUZAT"}:
-        return "RESPINS"
-    if normalized in {"ANALIZA", "REVIZUIRE MANUALA", "MANUAL REVIEW", "MANUAL_REVIEW"}:
-        return "ANALIZA MANUALA"
+    if normalized in {"APPROVAL", "ACCEPTED"}:
+        return "APPROVED"
+    if normalized in {"REJECTION", "DECLINED"}:
+        return "REJECTED"
+    if normalized in {"MANUAL", "MANUAL_REVIEW"}:
+        return "MANUAL REVIEW"
     return None
 
 
 def credit_query(profile: ClientProfile | None = None) -> str:
     query = (
-        "criterii eligibilitate varsta FICO istoric creditare venituri haircuts "
-        "grad maxim indatorare GMI formula produs NovaFlex suma maxima credit"
+        "eligibility criteria age FICO credit history income weights "
+        "maximum debt-to-income ratio DTI formula NovaFlex product maximum loan amount"
     )
     if profile is None:
         return query
 
     if profile.is_pep:
-        query += " PEP persoana expusa public aprobarea automata interzisa analiza manuala"
-    if profile.aml_risk == "Ridicat":
-        query += " risc AML ridicat conformitate analiza manuala"
+        query += " PEP politically exposed person automatic approval prohibited manual review"
+    if profile.aml_risk == "High":
+        query += " high AML risk compliance manual review"
     if profile.fico < 650:
-        query += " FICO sub 620 risc inacceptabil FICO 620 649 Gray Zone analiza manuala"
+        query += " FICO below 620 unacceptable risk FICO 620 649 Gray Zone manual review"
     if profile.active_delay_days > 0 or profile.historical_90_delay_last_year:
-        query += " intarzieri active istoric peste 90 zile respingere exceptii"
+        query += " active delinquencies history over 90 days rejection exceptions"
     return query
 
 
@@ -361,32 +341,32 @@ def retrieve_credit_sources(index: RagIndex, profile: ClientProfile | None = Non
 def profile_as_prompt_json(profile: ClientProfile) -> str:
     return json.dumps(
         {
-            "varsta": profile.age,
-            "durata_credit_luni": profile.term_months,
+            "age": profile.age,
+            "loan_term_months": profile.term_months,
             "fico": profile.fico,
-            "venit_lunar_declarat_ron": profile.monthly_income,
-            "tip_venit": profile.income_type,
-            "rate_existente_lunare_ron": profile.existing_monthly_debts,
-            "suma_solicitata_ron": profile.requested_amount,
-            "rata_lunara_dorita_ron": profile.requested_monthly_payment,
-            "dobanda_anuala_pct": profile.annual_interest_pct,
-            "moneda_credit": profile.currency,
-            "moneda_venit": profile.income_currency,
-            "dobanda_variabila": profile.variable_rate,
-            "zile_intarziere_activa": profile.active_delay_days,
-            "intarziere_istorica_90_zile_ultimul_an": profile.historical_90_delay_last_year,
-            "datoria_istorica_a_fost_stinsa": profile.historical_90_debt_settled,
-            "crestere_venit_dupa_intarziere_pct": profile.income_increase_after_delay_pct,
-            "client_pep": profile.is_pep,
-            "risc_aml": profile.aml_risk,
-            "client_non_ue": profile.is_non_eu,
-            "casatorit_cu_cetatean_roman": profile.married_to_ro_citizen,
-            "detine_proprietate_in_romania": profile.owns_property_in_ro,
-            "contract_local_luni": profile.local_contract_months,
+            "declared_monthly_income_ron": profile.monthly_income,
+            "income_type": profile.income_type,
+            "existing_monthly_payments_ron": profile.existing_monthly_debts,
+            "requested_amount_ron": profile.requested_amount,
+            "requested_monthly_payment_ron": profile.requested_monthly_payment,
+            "annual_interest_pct": profile.annual_interest_pct,
+            "loan_currency": profile.currency,
+            "income_currency": profile.income_currency,
+            "variable_interest_rate": profile.variable_rate,
+            "active_delinquency_days": profile.active_delay_days,
+            "historical_90_day_delinquency_last_year": profile.historical_90_delay_last_year,
+            "historical_debt_settled": profile.historical_90_debt_settled,
+            "income_increase_after_delinquency_pct": profile.income_increase_after_delay_pct,
+            "is_pep": profile.is_pep,
+            "aml_risk": profile.aml_risk,
+            "is_non_eu": profile.is_non_eu,
+            "married_to_romanian_citizen": profile.married_to_ro_citizen,
+            "owns_property_in_romania": profile.owns_property_in_ro,
+            "local_contract_months": profile.local_contract_months,
             "sector": profile.sector,
-            "vechime_job_curent_luni": profile.current_job_tenure_months,
-            "vechime_job_anterior_luni": profile.previous_job_tenure_months,
-            "pauza_intre_joburi_zile": profile.gap_days_between_jobs,
+            "current_job_tenure_months": profile.current_job_tenure_months,
+            "previous_job_tenure_months": profile.previous_job_tenure_months,
+            "gap_days_between_jobs": profile.gap_days_between_jobs,
         },
         ensure_ascii=False,
         indent=2,
@@ -399,149 +379,148 @@ def operating_rules_prompt() -> str:
         for income_type, weight in INCOME_WEIGHTS.items()
     )
     return (
-        "Reguli numerice obligatorii pentru experiment:\n"
-        f"- Varsta minima: {MIN_AGE} ani.\n"
-        f"- Varsta maxima la maturitate: {MAX_AGE_AT_MATURITY} ani.\n"
-        f"- Durata maxima: {MAX_TERM_MONTHS} luni.\n"
-        f"- Suma minima: {MIN_AMOUNT_RON:,.0f} RON.\n"
-        f"- Suma maxima produs: {MAX_AMOUNT_RON:,.0f} RON.\n"
-        f"- Limita GMI: {GMI_LIMIT * 100:.0f}%.\n"
-        "- Varsta la maturitate = varsta + durata_credit_luni / 12.\n"
-        "- Daca tip_venit este exact 'Salariu - contract nedeterminat', ponderea este 100%, nu 85%.\n"
-        "- Ponderi venituri acceptate:\n"
+        "Mandatory numerical rules for the experiment:\n"
+        f"- Minimum age: {MIN_AGE}.\n"
+        f"- Maximum age at maturity: {MAX_AGE_AT_MATURITY}.\n"
+        f"- Maximum term: {MAX_TERM_MONTHS} months.\n"
+        f"- Minimum amount: RON {MIN_AMOUNT_RON:,.0f}.\n"
+        f"- Maximum product amount: RON {MAX_AMOUNT_RON:,.0f}.\n"
+        f"- DTI limit: {DTI_LIMIT * 100:.0f}%.\n"
+        "- Age at maturity = age + loan_term_months / 12.\n"
+        "- If income_type is exactly 'Salary - permanent contract', its weight is 100%, not 85%.\n"
+        "- Accepted income weights:\n"
         f"{weights}\n"
-        "- Venit eligibil ponderat = venit_lunar_declarat_ron * pondere_venit.\n"
-        "- Capacitate maxima totala rate = venit_eligibil_ponderat * limita_GMI.\n"
-        "- Capacitate disponibila pentru rata noua = capacitate_maxima_totala_rate - rate_existente_lunare_ron.\n"
-        "- Dobanda folosita in formule = dobanda_anuala_pct + 2 daca dobanda_variabila este true, "
-        "altfel dobanda_anuala_pct.\n"
-        "- Factor stres valutar = 1.15 doar pentru credit EUR cu venit RON, altfel 1.00.\n"
-        "- Rata noua analizata = rata_lunara_dorita_ron daca aceasta este > 0; altfel calculeaza "
-        "formula anuitatii: P * r / (1 - (1 + r)^(-n)), unde P = suma_solicitata_ron, "
-        "r = dobanda_folosita_in_formule / 100 / 12 si n = durata_credit_luni.\n"
-        "- Rata noua dupa stres = rata_noua_analizata * factor_stres_valutar.\n"
-        "- Pentru anuitate, P este intotdeauna suma_solicitata_ron, nu plafonul produsului si nu suma maxima recomandata.\n"
-        "- Pentru 10% dobanda anuala, rata lunara folosita in formula este 0.10 / 12 = 0.0083333333. "
-        "Nu folosi 10 / 12 si nu folosi o dobanda implicita mai mica decat dobanda_anuala_pct.\n"
-        "- GMI rezultat este procent, nu suma in RON: "
-        "(rate_existente_lunare_ron + rata_noua_dupa_stres) / venit_eligibil_ponderat * 100.\n"
-        "- Suma maxima recomandata prin GMI = max(0, capacitate_disponibila_pentru_rata_noua / factor_stres_valutar) * "
-        "(1 - (1 + r)^(-n)) / r, limitata la suma maxima produs. Nu o confunda cu suma solicitata.\n"
-        "- Daca suma_solicitata_ron este mai mica sau egala cu suma maxima recomandata si plafonul produs, nu respinge pentru suma.\n"
-        "- Daca durata_credit_luni este mai mica sau egala cu durata maxima, nu respinge pentru durata.\n"
-        "- Socul de dobanda si stresul valutar se aplica exact ca mai sus; nu le aplica de doua ori.\n"
-        "- Decizia trebuie sa fie exact una dintre: APROBAT, RESPINS, ANALIZA MANUALA.\n"
-        "- Daca exista orice motiv de respingere, decizia este RESPINS. "
-        "Altfel, daca exista motiv de analiza manuala, decizia este ANALIZA MANUALA. "
-        "Altfel, decizia este APROBAT.\n"
-        "- FICO sub 620 inseamna RESPINS; FICO 620-649 inseamna ANALIZA MANUALA.\n"
-        "- Client PEP sau risc AML Ridicat inseamna ANALIZA MANUALA daca nu exista motive de respingere.\n"
+        "- Weighted eligible income = declared_monthly_income_ron * income weight.\n"
+        "- Maximum total payment capacity = weighted eligible income * DTI limit.\n"
+        "- Available capacity for the new payment = maximum total payment capacity - existing_monthly_payments_ron.\n"
+        "- Interest used in formulas = annual_interest_pct + 2 when variable_interest_rate is true; "
+        "otherwise it is annual_interest_pct.\n"
+        "- Currency stress factor = 1.15 only for a EUR loan with income in RON; otherwise it is 1.00.\n"
+        "- Analyzed new payment = requested_monthly_payment_ron when it is > 0; otherwise calculate the "
+        "annuity formula P * r / (1 - (1 + r)^(-n)), where P = requested_amount_ron, "
+        "r = interest_used_in_formulas / 100 / 12, and n = loan_term_months.\n"
+        "- Analyzed new payment after stress = analyzed new payment * currency stress factor.\n"
+        "- In the annuity formula, P is always requested_amount_ron, not the product cap or maximum recommended amount.\n"
+        "- At 10% annual interest, the monthly rate used in the formula is 0.10 / 12 = 0.0083333333. "
+        "Do not use 10 / 12 or an implied rate lower than annual_interest_pct.\n"
+        "- DTI is a percentage, not an amount in RON: "
+        "(existing_monthly_payments_ron + stressed_monthly_payment) / weighted_income * 100.\n"
+        "- Maximum recommended amount by DTI = max(0, available_payment_capacity / currency_stress_factor) * "
+        "(1 - (1 + r)^(-n)) / r, capped at the maximum product amount. Do not confuse it with the requested amount.\n"
+        "- If requested_amount_ron is at or below both the maximum recommended amount and product cap, do not reject it for amount.\n"
+        "- If loan_term_months is at or below the maximum term, do not reject it for term.\n"
+        "- Apply the interest-rate shock and currency stress exactly as stated above; do not apply them twice.\n"
+        "- The decision must be exactly one of: APPROVED, REJECTED, MANUAL REVIEW.\n"
+        "- If any rejection reason exists, the decision is REJECTED. "
+        "Otherwise, if a manual-review reason exists, the decision is MANUAL REVIEW. "
+        "Otherwise, the decision is APPROVED.\n"
+        "- FICO below 620 means REJECTED; FICO 620-649 means MANUAL REVIEW.\n"
+        "- A PEP client or High AML risk means MANUAL REVIEW when there are no rejection reasons.\n"
     )
 
 
 def calculation_guardrails_prompt() -> str:
     return (
-        "Erori de calcul pe care trebuie sa le eviti explicit:\n"
-        "- Daca rata_lunara_dorita_ron > 0, rata_noua_analizata este exact acea rata dorita, "
-        "nu se recalculeaza din suma solicitata.\n"
-        "- Procentele se convertesc in factori doar in calcule: 100% inseamna 1.00, 75% inseamna 0.75, "
-        "iar limita GMI 40% inseamna 0.40. Nu inmulti venitul cu 100 sau cu 40.\n"
-        "- Capacitatea maxima totala rate = venit_eligibil_ponderat * 0.40; nu poate fi mai mare decat venitul ponderat.\n"
-        "- Nu seta GMI rezultat la 40% doar pentru ca limita este 40%; GMI trebuie calculat din rate / venit ponderat.\n"
-        "- Daca rata_lunara_dorita_ron = 0 si suma_solicitata_ron > 0, rata se calculeaza cu formula anuitatii; "
-        "nu folosi impartirea simpla suma_solicitata_ron / durata_credit_luni.\n"
-        "- Pentru credit in RON cu venit in RON si dobanda fixa, rata dupa stres este egala cu rata analizata.\n"
-        "- suma_solicitata_ron = 0 inseamna caz bazat pe rata dorita; nu respinge pentru suma minima.\n"
-        "- Varsta la maturitate este varsta + durata_credit_luni / 12, nu varsta + durata_credit_luni.\n"
-        "- Daca GMI rezultat este peste 40%, decizia trebuie sa fie RESPINS.\n"
-        "- Plafonul produsului NovaFlex este exact 150000 RON, nu 225000 RON.\n"
-        "- Suma maxima recomandata nu poate depasi plafonul produsului de 150000 RON.\n"
-        "- Suma maxima recomandata se obtine prin inversarea formulei de anuitate pe capacitatea disponibila, "
-        "apoi se limiteaza la plafonul produsului; nu copia suma solicitata.\n"
-        "- In calculation_details nu scrie doar concluzii; pentru fiecare valoare ceruta include formula, "
-        "valorile inlocuite si rezultatul numeric.\n"
+        "Calculation errors you must explicitly avoid:\n"
+        "- If requested_monthly_payment_ron > 0, analyzed_monthly_payment is exactly that requested payment; "
+        "do not recalculate it from the requested amount.\n"
+        "- Convert percentages to factors only in calculations: 100% means 1.00, 75% means 0.75, "
+        "and a 40% DTI limit means 0.40. Do not multiply income by 100 or 40.\n"
+        "- max_monthly_payment = weighted_income * 0.40; it cannot exceed weighted_income.\n"
+        "- Do not set dti_pct to 40% merely because that is the limit; calculate DTI from payments / weighted income.\n"
+        "- If requested_monthly_payment_ron = 0 and requested_amount_ron > 0, calculate the payment with the annuity formula; "
+        "do not use the simple division requested_amount_ron / loan_term_months.\n"
+        "- For a fixed-rate loan in RON with income in RON, stressed_monthly_payment equals analyzed_monthly_payment.\n"
+        "- requested_amount_ron = 0 means the case is based on the requested payment; do not reject it for minimum amount.\n"
+        "- Age at maturity is age + loan_term_months / 12, not age + loan_term_months.\n"
+        "- If DTI is above 40%, the decision must be REJECTED.\n"
+        "- The NovaFlex product cap is exactly RON 150000, not RON 225000.\n"
+        "- The maximum recommended amount cannot exceed the RON 150000 product cap.\n"
+        "- Calculate maximum_amount_by_dti by inverting the annuity formula using available capacity, "
+        "then cap it at the product limit; do not copy the requested amount.\n"
+        "- In calculation_details, do not state conclusions alone; for every required value include the formula, "
+        "substituted values, and numerical result.\n"
     )
 
 
 def annuity_examples_prompt() -> str:
     return (
-        "Exemple scurte de calibrare pentru formula anuitatii. Foloseste-le ca model de calcul, "
-        "nu copia valorile daca profilul are alte date:\n"
-        "- Exemplu rata anuitate: P=100000 RON, dobanda_anuala_pct=10, n=60 luni. "
+        "Short calibration examples for the annuity formula. Use them as calculation models; "
+        "do not copy their values when the profile data differs:\n"
+        "- Annuity payment example: P=100000 RON, annual_interest_pct=10, n=60 months. "
         "r = 10 / 100 / 12 = 0.0083333333. "
         "(1+r)^(-n) = (1.0083333333)^(-60) = 0.6077885915. "
-        "numitor = 1 - 0.6077885915 = 0.3922114085. "
-        "numarator = P*r = 100000 * 0.0083333333 = 833.3333333. "
-        "rata = 833.3333333 / 0.3922114085 = 2124.704471, deci 2124.70 RON. "
-        "Rezultate precum 1375.49 sau 1754.89 sunt gresite pentru acest exemplu.\n"
-        "- Exemplu separat pentru 36 luni: P=10000 RON, dobanda_anuala_pct=10, n=36. "
-        "r=0.0083333333, (1+r)^(-36)=0.7417397035, numitor=0.2582602965, "
-        "numarator=83.3333333, rata=322.671872 RON. Pentru aceleasi r si n, rata este liniara in P; "
-        "de exemplu P=30000 inseamna 3 * 322.671872 = 968.015616 RON, nu aproximativ P/n=833.33 RON.\n"
-        "- Exemplu rata dorita: daca rata_lunara_dorita_ron=3500, rata_noua_analizata este 3500 RON; "
-        "nu recalcula anuitatea din suma solicitata.\n"
-        "- Exemplu suma maxima: capacitate_disponibila=3000 RON, r=0.0083333333, n=60. "
-        "principal = 3000 * 0.3922114085 / 0.0083333333 = 141196.107071, deci 141196.11 RON. "
-        "Aceasta valoare este valabila numai pentru capacitate=3000 si n=60; nu o reutiliza pentru alte date. "
-        "Pentru n=36, factorul invers este 0.2582602965 / 0.0083333333 = 30.99123559. "
-        "Daca principalul calculat depaseste 150000 RON, max_credit_amount trebuie plafonat la 150000 RON.\n"
+        "denominator = 1 - 0.6077885915 = 0.3922114085. "
+        "numerator = P*r = 100000 * 0.0083333333 = 833.3333333. "
+        "payment = 833.3333333 / 0.3922114085 = 2124.704471, or 2124.70 RON. "
+        "Results such as 1375.49 or 1754.89 are incorrect for this example.\n"
+        "- Separate 36-month example: P=10000 RON, annual_interest_pct=10, n=36. "
+        "r=0.0083333333, (1+r)^(-36)=0.7417397035, denominator=0.2582602965, "
+        "numerator=83.3333333, payment=322.671872 RON. For the same r and n, the payment is linear in P; "
+        "for example, P=30000 means 3 * 322.671872 = 968.015616 RON, not approximately P/n=833.33 RON.\n"
+        "- Requested-payment example: if requested_monthly_payment_ron=3500, analyzed_monthly_payment is RON 3500; "
+        "do not recalculate the annuity from the requested amount.\n"
+        "- Maximum-amount example: available_payment_capacity=3000 RON, r=0.0083333333, n=60. "
+        "principal = 3000 * 0.3922114085 / 0.0083333333 = 141196.107071, or RON 141196.11. "
+        "This value is valid only for capacity=3000 and n=60; do not reuse it for other data. "
+        "For n=36, the inverse factor is 0.2582602965 / 0.0083333333 = 30.99123559. "
+        "If the calculated principal exceeds RON 150000, maximum_amount_by_dti must be capped at RON 150000.\n"
     )
 
 
 def calculation_trace_prompt() -> str:
     return (
-        "Trasabilitate obligatorie pentru debugging:\n"
-        "- calculation_details trebuie sa contina exact 4 elemente, in ordinea de mai jos.\n"
-        "- Fiecare element trebuie sa includa formula=..., valori=..., rezultat=... si sa foloseasca numerele profilului.\n"
-        "- In valori scrie r ca numar zecimal, de exemplu r=0.0083333333, nu doar r=0.10/12.\n"
-        "1. Rata noua analizata: formula=rata_lunara_dorita_ron daca > 0, altfel P*r/(1-(1+r)^(-n)); "
-        "valori=P=..., r=..., n=..., q=(1+r)^(-n)=..., numitor=1-q=..., factor_stres_valutar=...; "
-        "rezultat=rata_noua_analizata=... RON, "
-        "rata_dupa_stres=... RON.\n"
-        "2. GMI rezultat: formula=(rate_existente_lunare_ron + rata_dupa_stres) / venit_eligibil_ponderat * 100; "
-        "valori=...; rezultat=...%.\n"
-        "3. Varsta la maturitate: formula=varsta + durata_credit_luni / 12; valori=...; rezultat=... ani.\n"
-        "4. Suma maxima recomandata: formula=min(150000, max(0, capacitate_disponibila / factor_stres_valutar) "
-        "* (1-(1+r)^(-n))/r); valori=capacitate_disponibila=..., factor_stres_valutar=..., "
-        "r=..., n=..., plafon_produs=150000; rezultat=... RON.\n"
+        "Mandatory debugging traceability:\n"
+        "- calculation_details must contain exactly 4 items in the order below.\n"
+        "- Each item must include formula=..., values=..., result=... and use the profile's numbers.\n"
+        "- Under values, write r as a decimal, for example r=0.0083333333, not only r=0.10/12.\n"
+        "1. Analyzed new payment: formula=requested_monthly_payment_ron if > 0, otherwise P*r/(1-(1+r)^(-n)); "
+        "values=P=..., r=..., n=..., q=(1+r)^(-n)=..., denominator=1-q=..., currency_stress_factor=...; "
+        "result=analyzed_monthly_payment=... RON, stressed_monthly_payment=... RON.\n"
+        "2. DTI: formula=(existing_monthly_payments_ron + stressed_monthly_payment) / weighted_income * 100; "
+        "values=...; result=...%.\n"
+        "3. Age at maturity: formula=age + loan_term_months / 12; values=...; result=... years.\n"
+        "4. Maximum recommended amount: formula=min(150000, max(0, available_payment_capacity / currency_stress_factor) "
+        "* (1-(1+r)^(-n))/r); values=available_payment_capacity=..., currency_stress_factor=..., "
+        "r=..., n=..., product_cap=150000; result=... RON.\n"
     )
 
 
 def critical_profile_checks_prompt(profile: ClientProfile) -> str:
-    fico_outcome = "nu cere actiune speciala"
+    fico_outcome = "requires no special action"
     if profile.fico < 620:
-        fico_outcome = "RESPINS obligatoriu, deoarece FICO este sub 620"
+        fico_outcome = "REJECTED is mandatory because FICO is below 620"
     elif profile.fico < 650:
-        fico_outcome = "ANALIZA MANUALA obligatorie, deoarece FICO este intre 620 si 649"
+        fico_outcome = "MANUAL REVIEW is mandatory because FICO is from 620 to 649"
 
     pep_outcome = (
-        "ANALIZA MANUALA obligatorie daca nu exista motive de respingere"
+        "MANUAL REVIEW is mandatory if there are no rejection reasons"
         if profile.is_pep
-        else "nu cere actiune speciala"
+        else "requires no special action"
     )
     aml_outcome = (
-        "ANALIZA MANUALA obligatorie daca nu exista motive de respingere"
-        if profile.aml_risk == "Ridicat"
-        else "nu cere actiune speciala"
+        "MANUAL REVIEW is mandatory if there are no rejection reasons"
+        if profile.aml_risk == "High"
+        else "requires no special action"
     )
     return (
-        "Checklist critic pentru acest profil. Aceste reguli au prioritate inaintea calculelor financiare:\n"
-        f"- FICO profil: {profile.fico}. Consecinta: {fico_outcome}.\n"
-        f"- Client PEP: {'DA' if profile.is_pep else 'NU'}. Consecinta: {pep_outcome}.\n"
-        f"- Risc AML: {profile.aml_risk}. Consecinta: {aml_outcome}.\n"
-        "- Nu transforma un motiv de analiza manuala in motiv de respingere.\n"
-        "- Nu transforma un motiv de respingere in analiza manuala sau aprobare.\n"
-        "- O regula marcata RESPINS are prioritate peste ANALIZA MANUALA si APROBAT.\n"
+        "Critical checklist for this profile. These rules take priority over financial calculations:\n"
+        f"- Profile FICO: {profile.fico}. Outcome: {fico_outcome}.\n"
+        f"- PEP client: {'YES' if profile.is_pep else 'NO'}. Outcome: {pep_outcome}.\n"
+        f"- AML risk: {profile.aml_risk}. Outcome: {aml_outcome}.\n"
+        "- Do not turn a manual-review reason into a rejection reason.\n"
+        "- Do not turn a rejection reason into manual review or approval.\n"
+        "- A rule marked REJECTED takes priority over MANUAL REVIEW and APPROVED.\n"
     )
 
 
 def credit_json_schema_prompt() -> str:
     return (
-        "Returneaza exclusiv un obiect JSON valid, fara Markdown, fara explicatii in afara JSON-ului. "
-        "Raspunsul trebuie sa fie compact si complet; inchide toate listele si acoladele. "
-        "Schema obligatorie este:\n"
+        "Return only a valid JSON object, without Markdown or explanations outside the JSON. "
+        "The response must be compact and complete; close every list and brace. "
+        "The required schema is:\n"
         "{\n"
-        '  "decision": "APROBAT | RESPINS | ANALIZA MANUALA",\n'
+        '  "decision": "APPROVED | REJECTED | MANUAL REVIEW",\n'
         '  "financial": {\n'
         '    "declared_income": number,\n'
         '    "income_weight_pct": number,\n'
@@ -551,9 +530,9 @@ def credit_json_schema_prompt() -> str:
         '    "available_payment_capacity": number,\n'
         '    "analyzed_monthly_payment": number,\n'
         '    "stressed_monthly_payment": number,\n'
-        '    "gmi_pct": number,\n'
+        '    "dti_pct": number,\n'
         '    "maturity_age": number,\n'
-        '    "max_credit_amount": number,\n'
+        '    "maximum_amount_by_dti": number,\n'
         '    "product_cap": number\n'
         "  },\n"
         '  "calculation_details": ["string"],\n'
@@ -563,12 +542,12 @@ def credit_json_schema_prompt() -> str:
         '  "rag_sources": ["[1] ...", "[2] ..."]\n'
         "}\n"
         f"{calculation_trace_prompt()}\n"
-        "Toate campurile numerice trebuie sa fie numere JSON, nu stringuri cu RON sau %. "
-        "Daca nu exista motive intr-o lista, foloseste lista goala []. "
-        "calculation_details trebuie sa aiba exact cele 4 elemente de trasabilitate de mai sus, "
-        "scurte dar cu formula, valori si rezultat. "
-        "rejection_reasons, manual_review_reasons si observations trebuie sa aiba maximum 3 elemente fiecare. "
-        "rag_sources trebuie sa contina doar referinte scurte de forma [1] fisier, fara fragmente lungi."
+        "Every numeric field must be a JSON number, not a string containing RON or %. "
+        "If a reason list is empty, use []. "
+        "calculation_details must contain exactly the four traceability items above, "
+        "kept short but including formula, values, and result. "
+        "rejection_reasons, manual_review_reasons, and observations may contain at most three items each. "
+        "rag_sources must contain only short references such as [1] filename, without long excerpts."
     )
 
 
@@ -665,9 +644,9 @@ def extract_calculation_details_from_text(text: str | None, limit: int = 6) -> l
         return []
 
     match = re.search(
-        r"(?is)(?:^|\n)\s*(?:#{1,6}\s*)?Detalii\s+calcul\s*:?\s*\n(?P<body>.*?)(?="
-        r"\n\s*(?:#{1,6}\s*)?(?:Calcul\s+financiar|Motive\s+de\s+respingere|"
-        r"Motive\s+de\s+analiza\s+manuala|Observatii|Surse\s+RAG\s+folosite|Decizie)\s*:?\s*(?:\n|$)|\Z)",
+        r"(?is)(?:^|\n)\s*(?:#{1,6}\s*)?Calculation\s+details\s*:?\s*\n(?P<body>.*?)(?="
+        r"\n\s*(?:#{1,6}\s*)?(?:Financial\s+calculation|Rejection\s+reasons|"
+        r"Manual\s+review\s+reasons|Notes|RAG\s+sources\s+used|Decision)\s*:?\s*(?:\n|$)|\Z)",
         text,
     )
     if not match:
@@ -676,7 +655,7 @@ def extract_calculation_details_from_text(text: str | None, limit: int = 6) -> l
     body = match.group("body")
     bullet_matches = re.findall(
         r"(?ms)^\s*(?:[-*]|\d+[\.)])\s+(.*?)(?="
-        r"^\s*(?:[-*]|\d+[\.)])\s+|^\s*\|?\s*(?:Indicator|Eticheta)\s*\||\Z)",
+        r"^\s*(?:[-*]|\d+[\.)])\s+|^\s*\|?\s*(?:Indicator|Label)\s*\||\Z)",
         body,
     )
     candidates = bullet_matches if bullet_matches else body.splitlines()
@@ -686,7 +665,7 @@ def extract_calculation_details_from_text(text: str | None, limit: int = 6) -> l
         line = re.sub(r"\s+", " ", raw_line).strip()
         if not line:
             continue
-        if line.startswith("|") or re.search(r"\bIndicator\b.*\bValoare\b", line, flags=re.IGNORECASE):
+        if line.startswith("|") or re.search(r"\bIndicator\b.*\bValue\b", line, flags=re.IGNORECASE):
             continue
         line = re.sub(r"^[-*]\s+", "", line)
         line = re.sub(r"^\d+[\.)]\s+", "", line)
@@ -744,7 +723,10 @@ def backfill_financial_from_calculation_details(data: dict[str, object]) -> None
         _set_financial_if_missing(
             financial,
             "existing_monthly_debts",
-            _parse_named_value(detail, ["rate_existente_lunare_ron", "rate_existente", "existing_monthly_debts"]),
+            _parse_named_value(
+                detail,
+                ["existing_monthly_payments_ron", "existing_payments", "existing_monthly_debts"],
+            ),
         )
         _set_financial_if_missing(
             financial,
@@ -752,8 +734,9 @@ def backfill_financial_from_calculation_details(data: dict[str, object]) -> None
             _parse_named_value(
                 detail,
                 [
-                    "capacitate_disponibila_pentru_rata_noua",
-                    "capacitate_disponibila",
+                    "available_capacity_for_the_new_payment",
+                    "available_capacity_for_new_payment",
+                    "available_capacity",
                     "available_payment_capacity",
                 ],
             ),
@@ -761,25 +744,28 @@ def backfill_financial_from_calculation_details(data: dict[str, object]) -> None
         _set_financial_if_missing(
             financial,
             "product_cap",
-            _parse_named_value(detail, ["plafon_produs", "product_cap", "suma_maxima_produs"]),
+            _parse_named_value(detail, ["product_cap", "maximum_product_amount"]),
         )
-        if "plafon produs" in normalized:
+        if "product cap" in normalized:
             _set_financial_if_missing(financial, "product_cap", MAX_AMOUNT_RON)
 
-        result = _parse_marker_number(detail, ["rezultat", "result"])
+        result = _parse_marker_number(detail, ["result"])
         if result is None:
             continue
 
-        if "rata noua" in label_normalized:
+        if "analyzed new payment" in label_normalized:
             _set_financial_if_missing(financial, "analyzed_monthly_payment", result)
-            stressed = _parse_named_value(detail, ["rata_dupa_stres", "rata_noua_dupa_stres"])
+            stressed = _parse_named_value(
+                detail,
+                ["stressed_monthly_payment", "analyzed_new_payment_after_stress"],
+            )
             _set_financial_if_missing(financial, "stressed_monthly_payment", stressed)
-        elif "varsta la maturitate" in label_normalized or "varsta maturitate" in label_normalized:
+        elif "age at maturity" in label_normalized or "maturity age" in label_normalized:
             _set_financial_if_missing(financial, "maturity_age", result)
-        elif "suma maxima" in label_normalized:
-            _set_financial_if_missing(financial, "max_credit_amount", result)
-        elif "gmi" in label_normalized:
-            _set_financial_if_missing(financial, "gmi_pct", result)
+        elif "maximum recommended amount" in label_normalized:
+            _set_financial_if_missing(financial, "maximum_amount_by_dti", result)
+        elif "dti" in label_normalized:
+            _set_financial_if_missing(financial, "dti_pct", result)
 
 
 def extracted_decision_to_credit_json(
@@ -795,14 +781,14 @@ def extracted_decision_to_credit_json(
         "available_payment_capacity": extracted.available_payment_capacity,
         "analyzed_monthly_payment": extracted.stressed_monthly_payment,
         "stressed_monthly_payment": extracted.stressed_monthly_payment,
-        "gmi_pct": extracted.gmi_pct,
+        "dti_pct": extracted.dti_pct,
         "maturity_age": extracted.maturity_age,
-        "max_credit_amount": extracted.max_credit_amount,
+        "maximum_amount_by_dti": extracted.maximum_amount_by_dti,
     }
     if raw_text:
         product_cap = _extract_after_labels(
             financial_extraction_text(raw_text),
-            ["Plafon produs", "Product cap", "Product limit"],
+            ["Product cap", "Product limit"],
         )
         if product_cap is not None:
             financial_values["product_cap"] = product_cap
@@ -818,7 +804,7 @@ def extracted_decision_to_credit_json(
         "rejection_reasons": [],
         "manual_review_reasons": [],
         "observations": [
-            "Raspunsul LLM a fost interpretat din text liber sau tabelar, nu din schema JSON canonica."
+            "The LLM response was interpreted from free-form text or a table, not from the canonical JSON schema."
         ],
         "rag_sources": [],
     }
@@ -911,26 +897,26 @@ def validate_llm_credit_json(
 ) -> list[str]:
     errors: list[str] = []
     if data is None:
-        return ["Raspunsul nu contine un obiect JSON valid."]
+        return ["The response does not contain a valid JSON object."]
 
     decision = normalize_decision(str(data.get("decision", "")))
     if decision is None:
-        errors.append("Campul decision lipseste sau nu este una dintre valorile permise.")
+        errors.append("The decision field is missing or is not one of the permitted values.")
     elif decision != deterministic.decision.value:
         errors.append(
-            "Campul decision trebuie sa fie "
-            f"{deterministic.decision.value}, conform regulilor critice si formulelor validate."
+            "The decision field must be "
+            f"{deterministic.decision.value}, according to the critical rules and validated formulas."
         )
 
     financial = data.get("financial")
     if not isinstance(financial, dict):
-        errors.append("Campul financial trebuie sa fie obiect JSON.")
+        errors.append("The financial field must be a JSON object.")
         financial = {}
 
     for field in sorted(REQUIRED_JSON_NUMERIC_FIELDS):
         value = _as_float(financial.get(field))
         if value is None:
-            errors.append(f"Campul financial.{field} lipseste sau nu este numeric.")
+            errors.append(f"The financial.{field} field is missing or is not numeric.")
 
     expected_numeric = {
         "declared_income": (profile.monthly_income, 0.01),
@@ -940,9 +926,9 @@ def validate_llm_credit_json(
         "existing_monthly_debts": (profile.existing_monthly_debts, 0.01),
         "available_payment_capacity": (deterministic.available_payment_capacity, 1.0),
         "stressed_monthly_payment": (deterministic.stressed_monthly_payment, 1.0),
-        "gmi_pct": (deterministic.gmi * 100, 0.05),
+        "dti_pct": (deterministic.dti * 100, 0.05),
         "maturity_age": (deterministic.maturity_age, 0.1),
-        "max_credit_amount": (deterministic.max_credit_amount, 1.0),
+        "maximum_amount_by_dti": (deterministic.maximum_amount_by_dti, 1.0),
         "product_cap": (MAX_AMOUNT_RON, 0.01),
     }
     analyzed_expected = deterministic.stressed_monthly_payment
@@ -954,27 +940,27 @@ def validate_llm_credit_json(
         actual = _as_float(financial.get(field))
         if actual is not None and abs(actual - expected) > tolerance:
             errors.append(
-                f"Campul financial.{field} trebuie sa fie {expected:.2f}, "
-                f"dar modelul a returnat {actual:.2f}."
+                f"The financial.{field} field must be {expected:.2f}, "
+                f"but the model returned {actual:.2f}."
             )
 
-    gmi_pct = _as_float(financial.get("gmi_pct"))
-    if gmi_pct is not None and (gmi_pct < 0 or gmi_pct > 1000):
-        errors.append("Campul financial.gmi_pct trebuie sa fie procent, nu suma in RON.")
+    dti_pct = _as_float(financial.get("dti_pct"))
+    if dti_pct is not None and (dti_pct < 0 or dti_pct > 1000):
+        errors.append("The financial.dti_pct field must be a percentage, not an amount in RON.")
 
-    if profile.fico < 620 and decision != "RESPINS":
-        errors.append("FICO sub 620 impune decizia RESPINS.")
-    elif 620 <= profile.fico < 650 and deterministic.decision.value != "RESPINS" and decision != "ANALIZA MANUALA":
-        errors.append("FICO intre 620 si 649 impune ANALIZA MANUALA daca nu exista respingere.")
+    if profile.fico < 620 and decision != "REJECTED":
+        errors.append("FICO below 620 requires a REJECTED decision.")
+    elif 620 <= profile.fico < 650 and deterministic.decision.value != "REJECTED" and decision != "MANUAL REVIEW":
+        errors.append("FICO from 620 to 649 requires MANUAL REVIEW if there is no rejection.")
 
-    if profile.is_pep and deterministic.decision.value != "RESPINS" and decision != "ANALIZA MANUALA":
-        errors.append("Client PEP impune ANALIZA MANUALA daca nu exista respingere.")
-    if profile.aml_risk == "Ridicat" and deterministic.decision.value != "RESPINS" and decision != "ANALIZA MANUALA":
-        errors.append("Risc AML ridicat impune ANALIZA MANUALA daca nu exista respingere.")
+    if profile.is_pep and deterministic.decision.value != "REJECTED" and decision != "MANUAL REVIEW":
+        errors.append("A PEP client requires MANUAL REVIEW if there is no rejection.")
+    if profile.aml_risk == "High" and deterministic.decision.value != "REJECTED" and decision != "MANUAL REVIEW":
+        errors.append("High AML risk requires MANUAL REVIEW if there is no rejection.")
 
     for field in ["calculation_details", "rejection_reasons", "manual_review_reasons", "observations", "rag_sources"]:
         if not isinstance(data.get(field), list):
-            errors.append(f"Campul {field} trebuie sa fie lista.")
+            errors.append(f"The {field} field must be a list.")
 
     rejection_reasons = _as_string_list(data.get("rejection_reasons"))
     manual_reasons = _as_string_list(data.get("manual_review_reasons"))
@@ -982,33 +968,33 @@ def validate_llm_credit_json(
     manual_text = " ".join(manual_reasons).lower()
 
     if deterministic.reject_reasons and not rejection_reasons:
-        errors.append("Lista rejection_reasons trebuie sa includa motivele de respingere calculate.")
+        errors.append("rejection_reasons must include the calculated rejection reasons.")
     if not deterministic.reject_reasons and rejection_reasons:
-        errors.append("Lista rejection_reasons trebuie sa fie goala; formulele nu indica respingere.")
+        errors.append("rejection_reasons must be empty; the formulas do not indicate rejection.")
     if deterministic.manual_review_reasons and not manual_reasons:
-        errors.append("Lista manual_review_reasons trebuie sa includa motivele de analiza manuala calculate.")
+        errors.append("manual_review_reasons must include the calculated manual-review reasons.")
     if not deterministic.manual_review_reasons and manual_reasons:
-        errors.append("Lista manual_review_reasons trebuie sa fie goala; regulile nu indica analiza manuala.")
+        errors.append("manual_review_reasons must be empty; the rules do not indicate manual review.")
 
     for reason in deterministic.reject_reasons:
         normalized_reason = reason.lower()
-        if "gmi" in normalized_reason and "gmi" not in rejection_text:
-            errors.append("rejection_reasons trebuie sa mentioneze depasirea limitei GMI.")
+        if "dti" in normalized_reason and "dti" not in rejection_text:
+            errors.append("rejection_reasons must mention that the DTI limit was exceeded.")
         if "fico" in normalized_reason and "fico" not in rejection_text:
-            errors.append("rejection_reasons trebuie sa mentioneze FICO sub limita.")
-        if "suma maxima" in normalized_reason and "suma" not in rejection_text:
-            errors.append("rejection_reasons trebuie sa mentioneze depasirea sumei maxime.")
-        if "varsta" in normalized_reason and "varsta" not in rejection_text:
-            errors.append("rejection_reasons trebuie sa mentioneze varsta la maturitate.")
+            errors.append("rejection_reasons must mention that FICO is below the limit.")
+        if "requested amount" in normalized_reason and "amount" not in rejection_text:
+            errors.append("rejection_reasons must mention that the maximum amount was exceeded.")
+        if "age" in normalized_reason and "age" not in rejection_text:
+            errors.append("rejection_reasons must mention age at maturity.")
 
     for reason in deterministic.manual_review_reasons:
         normalized_reason = reason.lower()
         if "pep" in normalized_reason and "pep" not in manual_text:
-            errors.append("manual_review_reasons trebuie sa mentioneze clientul PEP.")
+            errors.append("manual_review_reasons must mention the PEP client.")
         if "aml" in normalized_reason and "aml" not in manual_text:
-            errors.append("manual_review_reasons trebuie sa mentioneze riscul AML.")
+            errors.append("manual_review_reasons must mention the AML risk.")
         if "fico" in normalized_reason and "fico" not in manual_text:
-            errors.append("manual_review_reasons trebuie sa mentioneze zona FICO de analiza manuala.")
+            errors.append("manual_review_reasons must mention the FICO manual-review range.")
 
     return errors
 
@@ -1027,7 +1013,7 @@ def llm_self_review_findings(profile: ClientProfile, data: dict[str, object]) ->
     findings: list[str] = []
 
     maturity_age = profile.age + profile.term_months / 12
-    gmi_pct = _as_float(financial.get("gmi_pct"))
+    dti_pct = _as_float(financial.get("dti_pct"))
     reported_maturity_age = _as_float(financial.get("maturity_age"))
     weighted_income = _as_float(financial.get("weighted_income"))
     max_monthly_payment = _as_float(financial.get("max_monthly_payment"))
@@ -1035,13 +1021,13 @@ def llm_self_review_findings(profile: ClientProfile, data: dict[str, object]) ->
     available_capacity = _as_float(financial.get("available_payment_capacity"))
     analyzed_payment = _as_float(financial.get("analyzed_monthly_payment"))
     stressed_payment = _as_float(financial.get("stressed_monthly_payment"))
-    max_credit_amount = _as_float(financial.get("max_credit_amount"))
+    maximum_amount_by_dti = _as_float(financial.get("maximum_amount_by_dti"))
     product_cap = _as_float(financial.get("product_cap"))
 
     if reported_maturity_age is not None and abs(reported_maturity_age - maturity_age) > 0.1:
         findings.append(
-            "Varsta la maturitate este inconsistenta cu profilul: trebuie calculata ca "
-            "varsta + durata_credit_luni / 12."
+            "Age at maturity is inconsistent with the profile: it must be calculated as "
+            "age + loan_term_months / 12."
         )
     if (
         profile.requested_monthly_payment > 0
@@ -1049,7 +1035,7 @@ def llm_self_review_findings(profile: ClientProfile, data: dict[str, object]) ->
         and abs(analyzed_payment - profile.requested_monthly_payment) > 0.01
     ):
         findings.append(
-            "rata_lunara_dorita_ron este pozitiva, deci rata analizata trebuie sa fie exact rata dorita din profil."
+            "requested_monthly_payment_ron is positive, so the analyzed payment must exactly match the profile value."
         )
     if (
         profile.currency == "RON"
@@ -1060,138 +1046,138 @@ def llm_self_review_findings(profile: ClientProfile, data: dict[str, object]) ->
         and abs(analyzed_payment - stressed_payment) > 0.01
     ):
         findings.append(
-            "Creditul este RON/RON cu dobanda fixa, deci rata dupa stres trebuie sa fie egala cu rata analizata."
+            "The loan and income are both in RON and the rate is fixed, so the payment after stress must equal the analyzed payment."
         )
     if profile.requested_amount > 0 and analyzed_payment is not None and profile.term_months > 0:
         straight_line_payment = profile.requested_amount / profile.term_months
         if analyzed_payment <= straight_line_payment * 1.10:
             findings.append(
-                "Rata analizata pare calculata prin impartire simpla sau cu dobanda prea mica; "
-                "pentru suma solicitata trebuie folosita formula anuitatii."
+                "The analyzed payment appears to use simple division or an interest rate that is too low; "
+                "the annuity formula must be used for the requested amount."
             )
     if weighted_income and max_monthly_payment is not None:
-        model_expected_capacity = weighted_income * GMI_LIMIT
+        model_expected_capacity = weighted_income * DTI_LIMIT
         if abs(max_monthly_payment - model_expected_capacity) > 1.0:
             findings.append(
-                "Capacitatea maxima totala rate nu este consistenta cu venitul ponderat si limita GMI de 40%."
+                "Maximum total payment capacity is inconsistent with weighted income and the 40% DTI limit."
             )
     if max_monthly_payment is not None and existing_debts is not None and available_capacity is not None:
         model_expected_available = max_monthly_payment - existing_debts
         if abs(available_capacity - model_expected_available) > 1.0:
             findings.append(
-                "Capacitatea disponibila nu este consistenta cu capacitatea maxima minus ratele existente."
+                "Available capacity is inconsistent with maximum capacity minus existing payments."
             )
-    if weighted_income and stressed_payment is not None and existing_debts is not None and gmi_pct is not None:
-        model_expected_gmi = (existing_debts + stressed_payment) / weighted_income * 100
-        if abs(gmi_pct - model_expected_gmi) > 0.1:
+    if weighted_income and stressed_payment is not None and existing_debts is not None and dti_pct is not None:
+        model_expected_dti = (existing_debts + stressed_payment) / weighted_income * 100
+        if abs(dti_pct - model_expected_dti) > 0.1:
             findings.append(
-                "GMI-ul returnat nu este consistent cu rata dupa stres, ratele existente si venitul ponderat."
+                "The returned DTI is inconsistent with the stressed payment, existing payments, and weighted income."
             )
     if product_cap is not None and abs(product_cap - MAX_AMOUNT_RON) > 0.01:
-        findings.append("Plafonul produsului este inconsistent cu regula NovaFlex de 150000 RON.")
-    if max_credit_amount is not None and available_capacity is not None and available_capacity > 0:
-        if max_credit_amount > MAX_AMOUNT_RON + 1:
+        findings.append("The product cap is inconsistent with the NovaFlex limit of RON 150000.")
+    if maximum_amount_by_dti is not None and available_capacity is not None and available_capacity > 0:
+        if maximum_amount_by_dti > MAX_AMOUNT_RON + 1:
             findings.append(
-                "Suma maxima recomandata depaseste plafonul produsului; trebuie limitata la 150000 RON."
+                "The maximum recommended amount exceeds the product cap and must be limited to RON 150000."
             )
-        if max_credit_amount <= 1:
+        if maximum_amount_by_dti <= 1:
             findings.append(
-                "Suma maxima recomandata este zero desi exista capacitate disponibila pozitiva."
+                "The maximum recommended amount is zero despite positive available capacity."
             )
         if (
             profile.requested_amount > 0
-            and abs(max_credit_amount - profile.requested_amount) <= 1
-            and max_credit_amount < MAX_AMOUNT_RON
+            and abs(maximum_amount_by_dti - profile.requested_amount) <= 1
+            and maximum_amount_by_dti < MAX_AMOUNT_RON
         ):
             findings.append(
-                "Suma maxima recomandata pare copiata din suma solicitata; trebuie calculata din capacitatea disponibila."
+                "Maximum recommended amount appears copied from the requested amount; it must be calculated from available capacity."
             )
 
     hard_rejections: list[str] = []
     if profile.age < MIN_AGE:
-        hard_rejections.append(f"varsta clientului este sub limita minima de {MIN_AGE} ani")
+        hard_rejections.append(f"the client's age is below the minimum of {MIN_AGE}")
     if maturity_age > MAX_AGE_AT_MATURITY:
-        hard_rejections.append(f"varsta la maturitate este {maturity_age:.1f}, peste limita de {MAX_AGE_AT_MATURITY} ani")
+        hard_rejections.append(f"age at maturity is {maturity_age:.1f}, above the limit of {MAX_AGE_AT_MATURITY}")
     if profile.term_months > MAX_TERM_MONTHS:
-        hard_rejections.append(f"durata creditului este peste limita de {MAX_TERM_MONTHS} luni")
+        hard_rejections.append(f"the loan term exceeds the limit of {MAX_TERM_MONTHS} months")
     if profile.requested_amount > 0 and profile.requested_amount < MIN_AMOUNT_RON:
-        hard_rejections.append(f"suma solicitata este sub minimul de {MIN_AMOUNT_RON:,.0f} RON")
+        hard_rejections.append(f"the requested amount is below the minimum of RON {MIN_AMOUNT_RON:,.0f}")
     if profile.requested_amount > MAX_AMOUNT_RON:
-        hard_rejections.append(f"suma solicitata depaseste plafonul produsului de {MAX_AMOUNT_RON:,.0f} RON")
+        hard_rejections.append(f"the requested amount exceeds the product cap of RON {MAX_AMOUNT_RON:,.0f}")
     if profile.fico < 620:
-        hard_rejections.append("FICO este sub 620")
-    if gmi_pct is not None and gmi_pct > GMI_LIMIT * 100:
-        hard_rejections.append(f"GMI-ul returnat de model este {gmi_pct:.2f}%, peste limita de {GMI_LIMIT * 100:.0f}%")
+        hard_rejections.append("FICO is below 620")
+    if dti_pct is not None and dti_pct > DTI_LIMIT * 100:
+        hard_rejections.append(f"the model returned DTI of {dti_pct:.2f}%, above the {DTI_LIMIT * 100:.0f}% limit")
     if available_capacity is not None and stressed_payment is not None and stressed_payment > available_capacity:
-        hard_rejections.append("rata noua dupa stres depaseste capacitatea disponibila returnata de model")
-    if max_credit_amount is not None and profile.requested_amount > max_credit_amount:
-        hard_rejections.append("suma solicitata depaseste suma maxima recomandata returnata de model")
+        hard_rejections.append("the stressed new payment exceeds the available capacity returned by the model")
+    if maximum_amount_by_dti is not None and profile.requested_amount > maximum_amount_by_dti:
+        hard_rejections.append("the requested amount exceeds the maximum recommended amount returned by the model")
 
-    if hard_rejections and decision != "RESPINS":
-        findings.append("Decizia trebuie revizuita la RESPINS deoarece: " + "; ".join(hard_rejections) + ".")
+    if hard_rejections and decision != "REJECTED":
+        findings.append("The decision must be revised to REJECTED because: " + "; ".join(hard_rejections) + ".")
     if hard_rejections and not rejection_reasons:
-        findings.append("Lista rejection_reasons este goala desi exista motive hard de respingere.")
+        findings.append("rejection_reasons is empty even though hard rejection reasons exist.")
 
     manual_flags: list[str] = []
     if 620 <= profile.fico < 650:
-        manual_flags.append("FICO este intre 620 si 649")
+        manual_flags.append("FICO is from 620 to 649")
     if profile.is_pep:
-        manual_flags.append("clientul este PEP")
-    if profile.aml_risk == "Ridicat":
-        manual_flags.append("riscul AML este Ridicat")
-    if manual_flags and not hard_rejections and decision == "APROBAT":
-        findings.append("Decizia trebuie revizuita la ANALIZA MANUALA deoarece: " + "; ".join(manual_flags) + ".")
+        manual_flags.append("the client is a PEP")
+    if profile.aml_risk == "High":
+        manual_flags.append("AML risk is High")
+    if manual_flags and not hard_rejections and decision == "APPROVED":
+        findings.append("The decision must be revised to MANUAL REVIEW because: " + "; ".join(manual_flags) + ".")
     if manual_flags and not hard_rejections and not manual_reasons:
-        findings.append("Lista manual_review_reasons este goala desi exista motive de analiza manuala.")
+        findings.append("manual_review_reasons is empty even though manual-review reasons exist.")
 
     return findings
 
 
 def llm_self_review_flags_prompt(profile: ClientProfile, data: dict[str, object]) -> str:
     financial = _financial_object(data)
-    gmi_pct = _as_float(financial.get("gmi_pct"))
+    dti_pct = _as_float(financial.get("dti_pct"))
     available_capacity = _as_float(financial.get("available_payment_capacity"))
     stressed_payment = _as_float(financial.get("stressed_monthly_payment"))
-    max_credit_amount = _as_float(financial.get("max_credit_amount"))
+    maximum_amount_by_dti = _as_float(financial.get("maximum_amount_by_dti"))
     maturity_age = profile.age + profile.term_months / 12
 
     def yes_no(condition: bool) -> str:
-        return "DA" if condition else "NU"
+        return "YES" if condition else "NO"
 
     lines = [
-        "Tabel de verificare hard. Daca ORICARE rezultat este DA, decizia finala trebuie sa fie RESPINS:",
-        f"- varsta_sub_minim: {profile.age} < {MIN_AGE} => {yes_no(profile.age < MIN_AGE)}",
-        f"- varsta_la_maturitate_peste_limita: {maturity_age:.1f} > {MAX_AGE_AT_MATURITY} => {yes_no(maturity_age > MAX_AGE_AT_MATURITY)}",
-        f"- durata_peste_limita: {profile.term_months} > {MAX_TERM_MONTHS} => {yes_no(profile.term_months > MAX_TERM_MONTHS)}",
-        f"- suma_sub_minim: {profile.requested_amount:.2f} < {MIN_AMOUNT_RON:.2f} si suma > 0 => {yes_no(profile.requested_amount > 0 and profile.requested_amount < MIN_AMOUNT_RON)}",
-        f"- suma_peste_plafon_produs: {profile.requested_amount:.2f} > {MAX_AMOUNT_RON:.2f} => {yes_no(profile.requested_amount > MAX_AMOUNT_RON)}",
-        f"- fico_sub_620: {profile.fico} < 620 => {yes_no(profile.fico < 620)}",
+        "Hard-check table. If ANY result is YES, the final decision must be REJECTED:",
+        f"- client_age_below_minimum: {profile.age} < {MIN_AGE} => {yes_no(profile.age < MIN_AGE)}",
+        f"- age_at_maturity_above_limit: {maturity_age:.1f} > {MAX_AGE_AT_MATURITY} => {yes_no(maturity_age > MAX_AGE_AT_MATURITY)}",
+        f"- term_above_limit: {profile.term_months} > {MAX_TERM_MONTHS} => {yes_no(profile.term_months > MAX_TERM_MONTHS)}",
+        f"- amount_below_minimum: {profile.requested_amount:.2f} < {MIN_AMOUNT_RON:.2f} and amount > 0 => {yes_no(profile.requested_amount > 0 and profile.requested_amount < MIN_AMOUNT_RON)}",
+        f"- requested_amount_above_product_cap: {profile.requested_amount:.2f} > {MAX_AMOUNT_RON:.2f} => {yes_no(profile.requested_amount > MAX_AMOUNT_RON)}",
+        f"- fico_below_620: {profile.fico} < 620 => {yes_no(profile.fico < 620)}",
     ]
-    if gmi_pct is not None:
+    if dti_pct is not None:
         lines.append(
-            f"- gmi_returnat_de_model_peste_limita: {gmi_pct:.2f}% > {GMI_LIMIT * 100:.0f}% => {yes_no(gmi_pct > GMI_LIMIT * 100)}"
+            f"- model_returned_dti_above_limit: {dti_pct:.2f}% > {DTI_LIMIT * 100:.0f}% => {yes_no(dti_pct > DTI_LIMIT * 100)}"
         )
     if available_capacity is not None and stressed_payment is not None:
         lines.append(
-            "- rata_returnata_de_model_peste_capacitate: "
+            "- model_payment_above_capacity: "
             f"{stressed_payment:.2f} > {available_capacity:.2f} => {yes_no(stressed_payment > available_capacity)}"
         )
-    if max_credit_amount is not None:
+    if maximum_amount_by_dti is not None:
         lines.append(
-            "- suma_solicitata_peste_maxim_returnat_de_model: "
-            f"{profile.requested_amount:.2f} > {max_credit_amount:.2f} => {yes_no(profile.requested_amount > max_credit_amount)}"
+            "- requested_amount_above_model_maximum: "
+            f"{profile.requested_amount:.2f} > {maximum_amount_by_dti:.2f} => {yes_no(profile.requested_amount > maximum_amount_by_dti)}"
         )
 
     lines.extend(
         [
             "",
-            "Tabel de verificare analiza manuala. Se aplica doar daca toate verificarile hard de respingere sunt NU:",
+            "Manual-review check table. It applies only when all hard rejection checks are NO:",
             f"- fico_620_649: 620 <= {profile.fico} < 650 => {yes_no(620 <= profile.fico < 650)}",
             f"- client_pep: {yes_no(profile.is_pep)}",
-            f"- aml_ridicat: {profile.aml_risk} == Ridicat => {yes_no(profile.aml_risk == 'Ridicat')}",
+            f"- high_aml_risk: {profile.aml_risk} == High => {yes_no(profile.aml_risk == 'High')}",
             "",
-            "Regula de consistenta: este interzis sa scrii APROBAT daca o verificare hard este DA.",
-            "Regula de observatii: este interzis sa scrii ca suma este sub plafon cand suma_peste_plafon_produs este DA.",
+            "Consistency rule: APPROVED is forbidden when a hard check is YES.",
+            "Notes rule: do not state that the amount is below the cap when requested_amount_above_product_cap is YES.",
         ]
     )
     return "\n".join(lines)
@@ -1211,35 +1197,35 @@ def request_llm_credit_self_review(
         return None, None
 
     system_prompt = (
-        "Esti un verificator local pentru un raspuns JSON de creditare generat de acelasi LLM. "
-        "Nu primesti valori calculate de Python. Verifici doar profilul clientului, regulile explicite, "
-        "fragmentele RAG si JSON-ul anterior. Returnezi exclusiv JSON valid in aceeasi schema."
+        "You are a local reviewer for a credit JSON response generated by the same LLM. "
+        "You do not receive values calculated by Python. Review only the client profile, explicit rules, "
+        "RAG excerpts, and previous JSON. Return only valid JSON in the same schema."
     )
     findings_text = "\n".join(f"- {finding}" for finding in findings)
     user_prompt = (
-        "JSON-ul anterior contine posibile inconsistente de decizie sau calcul. "
-        "Recalculeaza singur anuitatea si regulile hard, apoi returneaza un JSON complet corectat.\n\n"
-        "Nu copia automat valorile anterioare daca observi o eroare. "
-        "Nu folosi valori dintr-un motor Python; foloseste doar regulile de mai jos.\n\n"
-        "Profil client in JSON:\n"
+        "The previous JSON may contain decision or calculation inconsistencies. "
+        "Recalculate the annuity and hard rules yourself, then return fully corrected JSON.\n\n"
+        "Do not automatically copy earlier values when you identify an error. "
+        "Do not use values from a Python engine; use only the rules below.\n\n"
+        "Client profile as JSON:\n"
         f"{profile_as_prompt_json(profile)}\n\n"
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n\n"
         f"{annuity_examples_prompt()}\n"
-        "Verificari declansate pe baza profilului si a JSON-ului tau anterior:\n"
+        "Checks triggered by the profile and your previous JSON:\n"
         f"{findings_text}\n\n"
         f"{llm_self_review_flags_prompt(profile, first_data)}\n\n"
-        "Reguli de decizie obligatorii la revizuire:\n"
-        "- Daca exista oricare motiv hard de respingere, decision trebuie sa fie RESPINS.\n"
-        "- Daca decision este RESPINS, rejection_reasons trebuie sa explice concret motivele.\n"
-        "- Daca nu exista respingere, dar exista PEP, AML Ridicat sau FICO 620-649, decision trebuie sa fie ANALIZA MANUALA.\n"
-        "- Pentru rata noua, daca rata_lunara_dorita_ron este 0, foloseste formula anuitatii cu P = suma_solicitata_ron.\n"
-        "- Verifica dupa calcul ca GMI peste 40% produce RESPINS.\n\n"
+        "Mandatory decision rules for the review:\n"
+        "- If any hard rejection reason exists, decision must be REJECTED.\n"
+        "- If decision is REJECTED, rejection_reasons must explain the reasons concretely.\n"
+        "- If there is no rejection but PEP, High AML risk, or FICO 620-649 applies, decision must be MANUAL REVIEW.\n"
+        "- For the new payment, if requested_monthly_payment_ron is 0, use the annuity formula with P = requested_amount_ron.\n"
+        "- Verify after calculation that DTI above 40% produces REJECTED.\n\n"
         f"{credit_json_schema_prompt()}\n\n"
-        "JSON anterior:\n"
+        "Previous JSON:\n"
         f"{json.dumps(first_data, ensure_ascii=False, indent=2)}\n\n"
-        f"Fragmente RAG disponibile:\n{sources_markdown}"
+        f"Available RAG excerpts:\n{sources_markdown}"
     )
     raw_answer = optional_llm_summary(
         system_prompt,
@@ -1259,21 +1245,21 @@ def request_llm_decision_adjudication(
         return None, None
 
     system_prompt = (
-        "Esti un adjudicator de decizie pentru creditare. Nu calculezi valori financiare. "
-        "Citesti doar verificarile DA/NU si decizi daca raspunsul LLM trebuie sa fie "
-        "APROBAT, RESPINS sau ANALIZA MANUALA. Returnezi exclusiv JSON valid."
+        "You are a credit-decision adjudicator. Do not calculate financial values. "
+        "Read only the YES/NO checks and decide whether the LLM response must be "
+        "APPROVED, REJECTED, or MANUAL REVIEW. Return only valid JSON."
     )
     user_prompt = (
-        "Stabileste doar decizia si listele de motive. Nu modifica valorile financiare.\n\n"
+        "Determine only the decision and reason lists. Do not change the financial values.\n\n"
         f"{llm_self_review_flags_prompt(profile, data)}\n\n"
-        "Reguli:\n"
-        "- Daca oricare verificare hard are rezultat DA, decision = RESPINS.\n"
-        "- Toate verificarile hard cu DA trebuie trecute in rejection_reasons.\n"
-        "- Doar daca toate verificarile hard sunt NU, poti folosi ANALIZA MANUALA pentru PEP, AML Ridicat sau FICO 620-649.\n"
-        "- Nu pune motive hard in observations; ele trebuie sa fie in rejection_reasons.\n\n"
-        "Returneaza exact aceasta schema:\n"
+        "Rules:\n"
+        "- If any hard check is YES, decision = REJECTED.\n"
+        "- Every hard check marked YES must be included in rejection_reasons.\n"
+        "- Only when all hard checks are NO may you use MANUAL REVIEW for PEP, High AML risk, or FICO 620-649.\n"
+        "- Do not put hard reasons in observations; they belong in rejection_reasons.\n\n"
+        "Return exactly this schema:\n"
         "{\n"
-        '  "decision": "APROBAT | RESPINS | ANALIZA MANUALA",\n'
+        '  "decision": "APPROVED | REJECTED | MANUAL REVIEW",\n'
         '  "rejection_reasons": ["string"],\n'
         '  "manual_review_reasons": ["string"],\n'
         '  "observations": ["string"]\n'
@@ -1308,18 +1294,18 @@ def merge_llm_decision_adjudication(
 def humanize_rule_reason(reason: str) -> str:
     normalized = reason.strip()
     mapping = {
-        "varsta_sub_minim": f"Varsta clientului este sub limita minima de {MIN_AGE} ani.",
-        "varsta_la_maturitate_peste_limita": f"Varsta la maturitate depaseste limita de {MAX_AGE_AT_MATURITY} ani.",
-        "durata_peste_limita": f"Durata creditului depaseste limita de {MAX_TERM_MONTHS} luni.",
-        "suma_sub_minim": f"Suma solicitata este sub minimul de {MIN_AMOUNT_RON:,.0f} RON.",
-        "suma_peste_plafon_produs": f"Suma solicitata depaseste plafonul produsului de {MAX_AMOUNT_RON:,.0f} RON.",
-        "fico_sub_620": "Scorul FICO este sub 620.",
-        "gmi_returnat_de_model_peste_limita": f"GMI-ul returnat de model depaseste limita de {GMI_LIMIT * 100:.0f}%.",
-        "rata_returnata_de_model_peste_capacitate": "Rata noua returnata de model depaseste capacitatea disponibila.",
-        "suma_solicitata_peste_maxim_returnat_de_model": "Suma solicitata depaseste suma maxima recomandata returnata de model.",
-        "fico_620_649": "Scorul FICO este in intervalul 620-649 si necesita analiza manuala.",
-        "client_pep": "Clientul este PEP si necesita analiza manuala.",
-        "aml_ridicat": "Riscul AML este ridicat si necesita analiza manuala.",
+        "client_age_below_minimum": f"The client's age is below the minimum of {MIN_AGE}.",
+        "age_at_maturity_above_limit": f"Age at maturity exceeds the limit of {MAX_AGE_AT_MATURITY}.",
+        "term_above_limit": f"The loan term exceeds the limit of {MAX_TERM_MONTHS} months.",
+        "amount_below_minimum": f"The requested amount is below the minimum of RON {MIN_AMOUNT_RON:,.0f}.",
+        "requested_amount_above_product_cap": f"The requested amount exceeds the product cap of {MAX_AMOUNT_RON:,.0f} RON.",
+        "fico_below_620": "The FICO score is below 620.",
+        "model_returned_dti_above_limit": f"The DTI returned by the model exceeds the {DTI_LIMIT * 100:.0f}% limit.",
+        "model_payment_above_capacity": "The new payment returned by the model exceeds available capacity.",
+        "requested_amount_above_model_maximum": "The requested amount exceeds the maximum recommended amount returned by the model.",
+        "fico_620_649": "The FICO score is from 620 to 649 and requires manual review.",
+        "client_pep": "The client is a PEP and requires manual review.",
+        "high_aml_risk": "The AML risk is High and requires manual review.",
     }
     return mapping.get(normalized, normalized)
 
@@ -1337,9 +1323,9 @@ def llm_json_to_extracted(data: dict[str, object]) -> LlmExtractedDecision:
         existing_monthly_debts=_as_float(financial.get("existing_monthly_debts")),
         available_payment_capacity=_as_float(financial.get("available_payment_capacity")),
         stressed_monthly_payment=_as_float(financial.get("stressed_monthly_payment")),
-        gmi_pct=_as_float(financial.get("gmi_pct")),
+        dti_pct=_as_float(financial.get("dti_pct")),
         maturity_age=_as_float(financial.get("maturity_age")),
-        max_credit_amount=_as_float(financial.get("max_credit_amount")),
+        maximum_amount_by_dti=_as_float(financial.get("maximum_amount_by_dti")),
     )
 
 
@@ -1347,19 +1333,19 @@ def format_llm_credit_json_markdown(data: dict[str, object], validation_notes: l
     financial = data.get("financial")
     if not isinstance(financial, dict):
         financial = {}
-    decision = normalize_decision(str(data.get("decision", ""))) or "NEVALIDAT"
+    decision = normalize_decision(str(data.get("decision", ""))) or "UNVALIDATED"
 
     def money(field: str) -> str:
         value = _as_float(financial.get(field))
-        return "negasit" if value is None else f"{value:,.2f} RON"
+        return "not found" if value is None else f"{value:,.2f} RON"
 
     def pct(field: str) -> str:
         value = _as_float(financial.get(field))
-        return "negasit" if value is None else f"{value:.2f}%"
+        return "not found" if value is None else f"{value:.2f}%"
 
     def num(field: str, suffix: str = "") -> str:
         value = _as_float(financial.get(field))
-        return "negasit" if value is None else f"{value:,.2f}{suffix}"
+        return "not found" if value is None else f"{value:,.2f}{suffix}"
 
     details = _as_string_list(data.get("calculation_details"))
     rejection = _as_string_list(data.get("rejection_reasons"))
@@ -1368,50 +1354,50 @@ def format_llm_credit_json_markdown(data: dict[str, object], validation_notes: l
     sources = _as_string_list(data.get("rag_sources"))
 
     lines = [
-        f"## Decizie: {decision}",
+        f"## Decision: {decision}",
         "",
-        "### Calcul financiar",
+        "### Financial calculation",
         "",
-        "| Indicator | Valoare |",
+        "| Indicator | Value |",
         "|---|---:|",
-        f"| Venit declarat | {money('declared_income')} |",
-        f"| Pondere venit | {pct('income_weight_pct')} |",
-        f"| Venit eligibil ponderat | {money('weighted_income')} |",
-        f"| Capacitate maxima totala rate (40% GMI) | {money('max_monthly_payment')} |",
-        f"| Rate existente | {money('existing_monthly_debts')} |",
-        f"| Capacitate disponibila pentru rata noua | {money('available_payment_capacity')} |",
-        f"| Rata noua analizata | {money('analyzed_monthly_payment')} |",
-        f"| Rata noua analizata, dupa stres daca se aplica | {money('stressed_monthly_payment')} |",
-        f"| GMI rezultat | {pct('gmi_pct')} |",
-        f"| Varsta la maturitate | {num('maturity_age', ' ani')} |",
-        f"| Suma maxima recomandata prin GMI si plafon produs | {money('max_credit_amount')} |",
-        f"| Plafon produs | {money('product_cap')} |",
+        f"| Declared income | {money('declared_income')} |",
+        f"| Income weight | {pct('income_weight_pct')} |",
+        f"| Weighted eligible income | {money('weighted_income')} |",
+        f"| Maximum total payment capacity (40% DTI) | {money('max_monthly_payment')} |",
+        f"| Existing payments | {money('existing_monthly_debts')} |",
+        f"| Available capacity for the new payment | {money('available_payment_capacity')} |",
+        f"| Analyzed new payment | {money('analyzed_monthly_payment')} |",
+        f"| Analyzed new payment after stress | {money('stressed_monthly_payment')} |",
+        f"| DTI | {pct('dti_pct')} |",
+        f"| Age at maturity | {num('maturity_age', ' years')} |",
+        f"| Maximum recommended amount | {money('maximum_amount_by_dti')} |",
+        f"| Product cap | {money('product_cap')} |",
         "",
-        "### Detalii calcul",
+        "### Calculation details",
         "",
-        "\n".join(f"- {item}" for item in details) or "- Nu exista detalii suplimentare.",
+        "\n".join(f"- {item}" for item in details) or "- No additional details.",
         "",
-        "### Motive de respingere",
+        "### Rejection reasons",
         "",
-        "\n".join(f"- {item}" for item in rejection) or "- Nu exista.",
+        "\n".join(f"- {item}" for item in rejection) or "- None.",
         "",
-        "### Motive de analiza manuala",
+        "### Manual review reasons",
         "",
-        "\n".join(f"- {item}" for item in manual) or "- Nu este necesara.",
+        "\n".join(f"- {item}" for item in manual) or "- Not required.",
         "",
-        "### Observatii",
+        "### Notes",
         "",
-        "\n".join(f"- {item}" for item in observations) or "- Nu exista.",
+        "\n".join(f"- {item}" for item in observations) or "- None.",
         "",
-        "### Surse RAG folosite",
+        "### RAG sources used",
         "",
-        "\n".join(sources) or "- Nu au fost indicate surse.",
+        "\n".join(sources) or "- No sources were provided.",
     ]
     if validation_notes:
         lines.extend(
             [
                 "",
-                "### Note validare schema",
+                "### Schema validation notes",
                 "",
                 "\n".join(f"- {note}" for note in validation_notes),
             ]
@@ -1425,7 +1411,7 @@ def _parse_number(value: str | None) -> float | None:
     cleaned = value.strip().replace("\u00a0", " ")
     if "=" in cleaned:
         cleaned = cleaned.rsplit("=", 1)[-1]
-    unit_match = re.search(r"-?\d[\d\s.,]*\s*(?:RON|%|ani)\b", cleaned, flags=re.IGNORECASE)
+    unit_match = re.search(r"-?\d[\d\s.,]*\s*(?:RON|%|years?)\b", cleaned, flags=re.IGNORECASE)
     token_match = unit_match or re.search(r"-?\d[\d\s.,]*", cleaned)
     if not token_match:
         return None
@@ -1489,7 +1475,7 @@ def extract_label_rows(text: str) -> list[tuple[str, str]]:
             cells = [cell.strip() for cell in line.strip("|").split("|") if cell.strip()]
             if not cells or all(set(cell) <= {"-", ":"} for cell in cells):
                 continue
-            if len(cells) >= 2 and cells[0].lower() in {"indicator", "eticheta"}:
+            if len(cells) >= 2 and cells[0].lower() in {"indicator", "label"}:
                 continue
             if len(cells) >= 4:
                 for index in range(0, len(cells) - 1, 2):
@@ -1514,11 +1500,11 @@ def extract_label_rows(text: str) -> list[tuple[str, str]]:
 def strip_calculation_details_for_financial_extraction(text: str) -> str:
     """Remove arithmetic trace text so formulas are not parsed as output values."""
     return re.sub(
-        r"(?is)(?:^|\n)\s*(?:#{1,6}\s*)?Detalii\s+calcul\s*:?\s*\n.*?(?="
-        r"\n\s*(?:#{1,6}\s*)?(?:Calcul\s+financiar|Motive\s+de\s+respingere|"
-        r"Motive\s+de\s+analiza\s+manuala|Observatii|Surse\s+RAG\s+folosite|"
-        r"Note\s+validare\s+schema|Decizie)\s*:?\s*(?:\n|$)|"
-        r"\n\s*\|?\s*(?:Indicator|Eticheta)\s*\||\Z)",
+        r"(?is)(?:^|\n)\s*(?:#{1,6}\s*)?Calculation\s+details\s*:?\s*\n.*?(?="
+        r"\n\s*(?:#{1,6}\s*)?(?:Financial\s+calculation|Rejection\s+reasons|"
+        r"Manual\s+review\s+reasons|Notes|RAG\s+sources\s+used|"
+        r"Schema\s+validation\s+notes|Decision)\s*:?\s*(?:\n|$)|"
+        r"\n\s*\|?\s*(?:Indicator|Label)\s*\||\Z)",
         "\n",
         text,
     )
@@ -1527,9 +1513,9 @@ def strip_calculation_details_for_financial_extraction(text: str) -> str:
 def extract_named_section(text: str, title: str) -> str | None:
     match = re.search(
         rf"(?is)(?:^|\n)\s*(?:#{{1,6}}\s*)?{re.escape(title)}\s*:?\s*\n(?P<body>.*?)(?="
-        r"\n\s*(?:#{1,6}\s*)?(?:Detalii\s+calcul|Motive\s+de\s+respingere|"
-        r"Motive\s+de\s+analiza\s+manuala|Observatii|Surse\s+RAG\s+folosite|"
-        r"Note\s+validare\s+schema|Decizie)\s*:?\s*(?:\n|$)|\Z)",
+        r"\n\s*(?:#{1,6}\s*)?(?:Calculation\s+details|Rejection\s+reasons|"
+        r"Manual\s+review\s+reasons|Notes|RAG\s+sources\s+used|"
+        r"Schema\s+validation\s+notes|Decision)\s*:?\s*(?:\n|$)|\Z)",
         text,
     )
     if not match:
@@ -1539,7 +1525,7 @@ def extract_named_section(text: str, title: str) -> str | None:
 
 def financial_extraction_text(text: str) -> str:
     without_details = strip_calculation_details_for_financial_extraction(text)
-    financial_section = extract_named_section(without_details, "Calcul financiar")
+    financial_section = extract_named_section(without_details, "Financial calculation")
     return financial_section or without_details
 
 
@@ -1551,65 +1537,63 @@ def extract_llm_decision(text: str) -> LlmExtractedDecision:
         decision=decision,
         declared_income=_extract_after_labels(
             financial_text,
-            ["Venit declarat", "Venit lunar declarat", "declared_income", "income"],
+            ["Declared income", "Monthly declared income", "declared_income", "income"],
         ),
         income_weight_pct=_extract_after_labels(
             financial_text,
-            ["Pondere venit", "Pondere", "income_weight_pct", "income weight"],
+            ["Income weight", "Weight", "income_weight_pct"],
         ),
         weighted_income=_extract_after_labels(
             financial_text,
-            ["Venit eligibil ponderat", "Venit ponderat", "Venit eligibil", "weighted_income"],
+            ["Weighted eligible income", "Weighted income", "Eligible income", "weighted_income"],
         ),
         max_monthly_payment=_extract_after_labels(
             financial_text,
             [
-                "Capacitate maxima totala rate (40% GMI)",
-                "Capacitate maxima totala rate",
-                "Capacitate maxima",
+                "Maximum total payment capacity (40% DTI)",
+                "Maximum total payment capacity",
+                "Maximum payment capacity",
                 "Maximum debt sum",
                 "max_monthly_payment",
             ],
         ),
         existing_monthly_debts=_extract_after_labels(
             financial_text,
-            ["Rate existente", "Datorii existente", "existing_monthly_debts"],
+            ["Existing payments", "Existing debts", "existing_monthly_debts"],
         ),
         available_payment_capacity=_extract_after_labels(
             financial_text,
             [
-                "Capacitate disponibila pentru rata noua",
-                "Capacitate disponibila",
-                "Capacitate plata disponibila",
+                "Available capacity for the new payment",
+                "Available capacity",
+                "Available payment capacity",
                 "available_payment_capacity",
             ],
         ),
         stressed_monthly_payment=_extract_after_labels(
             financial_text,
             [
-                "Rata noua analizata, dupa stres daca se aplica",
-                "Rata noua dupa stres",
-                "Rata noua analizata",
-                "Rata analizata",
-                "Rata ceruta",
+                "Analyzed new payment after stress",
+                "New payment after stress",
+                "Analyzed new payment",
+                "Analyzed payment",
+                "Requested payment",
                 "stressed_monthly_payment",
                 "analyzed_monthly_payment",
             ],
         ),
-        gmi_pct=_extract_after_labels(financial_text, ["GMI rezultat", "GMI", "gmi_pct"]),
+        dti_pct=_extract_after_labels(financial_text, ["DTI", "dti_pct"]),
         maturity_age=_extract_after_labels(
             financial_text,
-            ["Varsta la maturitate", "Varsta maturitate", "maturity_age"],
+            ["Age at maturity", "Maturity age", "maturity_age"],
         ),
-        max_credit_amount=_extract_after_labels(
+        maximum_amount_by_dti=_extract_after_labels(
             financial_text,
             [
-                "Suma maxima recomandata prin GMI si plafon produs",
-                "Suma maxima recomandata prin GMI",
-                "Suma maxima recomandata",
-                "Suma maxima credit",
+                "Maximum recommended amount",
+                "Maximum amount by DTI",
                 "Maximum credit amount",
-                "max_credit_amount",
+                "maximum_amount_by_dti",
             ],
         ),
     )
@@ -1617,7 +1601,7 @@ def extract_llm_decision(text: str) -> LlmExtractedDecision:
 
 def extract_decision_label(text: str) -> str | None:
     decision_match = re.search(
-        r"Decizi(?:e|a)\s*[:|]\s*(APROBAT(?:A)?|APROBARE|RESPINS(?:A)?|RESPINGERE|ANALIZA\s+MANUALA|MANUAL\s+REVIEW)",
+        r"Decision\s*[:|]\s*(APPROVED|APPROVAL|ACCEPTED|REJECTED|REJECTION|DECLINED|MANUAL\s+REVIEW)",
         text,
         flags=re.IGNORECASE,
     )
@@ -1626,7 +1610,7 @@ def extract_decision_label(text: str) -> str | None:
 
     lines = [line.strip(" #|\t") for line in text.splitlines()]
     for index, line in enumerate(lines):
-        if normalize_label(line) in {"decizie", "decizia"}:
+        if normalize_label(line) == "decision":
             for next_line in lines[index + 1 :]:
                 if not next_line:
                     continue
@@ -1649,7 +1633,7 @@ def _score_number(actual: float | None, expected: float, tolerance: float) -> fl
 
 def _fmt_optional(value: float | str | None, suffix: str = "") -> str:
     if value is None:
-        return "negasit"
+        return "not found"
     if isinstance(value, str):
         return value
     return f"{value:,.2f}{suffix}"
@@ -1661,102 +1645,102 @@ def compare_llm_to_deterministic(
     extracted: LlmExtractedDecision,
 ) -> tuple[str, dict[str, float]]:
     expected_values: list[tuple[str, str, str, float]] = [
-        ("Decizie", extracted.decision or "negasit", deterministic.decision.value, _score_text_match(extracted.decision, deterministic.decision.value)),
+        ("Decision", extracted.decision or "not found", deterministic.decision.value, _score_text_match(extracted.decision, deterministic.decision.value)),
         (
-            "Venit declarat",
+            "Declared income",
             _fmt_optional(extracted.declared_income, " RON"),
             f"{profile.monthly_income:,.2f} RON",
             _score_number(extracted.declared_income, profile.monthly_income, 0.01),
         ),
         (
-            "Pondere venit",
+            "Income weight",
             _fmt_optional(extracted.income_weight_pct, "%"),
             f"{deterministic.income_weight * 100:.0f}%",
             _score_number(extracted.income_weight_pct, deterministic.income_weight * 100, 0.01),
         ),
         (
-            "Venit eligibil ponderat",
+            "Weighted eligible income",
             _fmt_optional(extracted.weighted_income, " RON"),
             f"{deterministic.weighted_income:,.2f} RON",
             _score_number(extracted.weighted_income, deterministic.weighted_income, 1.0),
         ),
         (
-            "Capacitate maxima totala rate",
+            "Maximum total payment capacity",
             _fmt_optional(extracted.max_monthly_payment, " RON"),
             f"{deterministic.max_monthly_payment:,.2f} RON",
             _score_number(extracted.max_monthly_payment, deterministic.max_monthly_payment, 1.0),
         ),
         (
-            "Rate existente",
+            "Existing payments",
             _fmt_optional(extracted.existing_monthly_debts, " RON"),
             f"{profile.existing_monthly_debts:,.2f} RON",
             _score_number(extracted.existing_monthly_debts, profile.existing_monthly_debts, 0.01),
         ),
         (
-            "Capacitate disponibila",
+            "Available capacity for the new payment",
             _fmt_optional(extracted.available_payment_capacity, " RON"),
             f"{deterministic.available_payment_capacity:,.2f} RON",
             _score_number(extracted.available_payment_capacity, deterministic.available_payment_capacity, 1.0),
         ),
         (
-            "Rata noua analizata",
+            "Analyzed new payment after stress",
             _fmt_optional(extracted.stressed_monthly_payment, " RON"),
             f"{deterministic.stressed_monthly_payment:,.2f} RON",
             _score_number(extracted.stressed_monthly_payment, deterministic.stressed_monthly_payment, 1.0),
         ),
         (
-            "GMI rezultat",
-            _fmt_optional(extracted.gmi_pct, "%"),
-            f"{deterministic.gmi * 100:.2f}%",
-            _score_number(extracted.gmi_pct, deterministic.gmi * 100, 0.05),
+            "DTI",
+            _fmt_optional(extracted.dti_pct, "%"),
+            f"{deterministic.dti * 100:.2f}%",
+            _score_number(extracted.dti_pct, deterministic.dti * 100, 0.05),
         ),
         (
-            "Varsta la maturitate",
-            _fmt_optional(extracted.maturity_age, " ani"),
-            f"{deterministic.maturity_age:.1f} ani",
+            "Age at maturity",
+            _fmt_optional(extracted.maturity_age, " years"),
+            f"{deterministic.maturity_age:.1f} years",
             _score_number(extracted.maturity_age, deterministic.maturity_age, 0.1),
         ),
         (
-            "Suma maxima recomandata",
-            _fmt_optional(extracted.max_credit_amount, " RON"),
-            f"{deterministic.max_credit_amount:,.2f} RON",
-            _score_number(extracted.max_credit_amount, deterministic.max_credit_amount, 1.0),
+            "Maximum recommended amount",
+            _fmt_optional(extracted.maximum_amount_by_dti, " RON"),
+            f"{deterministic.maximum_amount_by_dti:,.2f} RON",
+            _score_number(extracted.maximum_amount_by_dti, deterministic.maximum_amount_by_dti, 1.0),
         ),
     ]
     score = sum(row[3] for row in expected_values) / len(expected_values)
     metrics = {row[0]: row[3] for row in expected_values}
-    metrics["scor_total_llm_vs_formule"] = score
+    metrics["overall_llm_vs_formulas_score"] = score
 
     lines = [
-        "## Comparatie LLM vs formule Python",
+        "## LLM vs Python formulas comparison",
         "",
-        "Aceasta sectiune foloseste metoda deterministica calculata in Python ca validator. "
-        "Raspunsul din tabul Analiza client ramane raspunsul calculat si redactat de LLM.",
+        "This section uses the deterministic Python calculation as a validator. "
+        "The response in the Client analysis tab remains the response calculated and written by the LLM.",
         "",
-        f"Scor total LLM vs formule: {score:.2%}",
+        f"Overall LLM vs formulas score: {score:.2%}",
         "",
-        "| Indicator | LLM | Formule Python | Corect |",
+        "| Indicator | LLM | Python formulas | Correct |",
         "|---|---:|---:|---:|",
     ]
     for label, llm_value, expected, row_score in expected_values:
         lines.append(
-            f"| {label} | {llm_value} | {expected} | {'DA' if row_score == 1.0 else 'NU'} |"
+            f"| {label} | {llm_value} | {expected} | {'YES' if row_score == 1.0 else 'NO'} |"
         )
 
     lines.extend(
         [
             "",
-            "### Motive calculate de Python",
+            "### Reasons calculated by Python",
             "",
-            "**Motive de respingere:**",
-            "\n".join(f"- {reason}" for reason in deterministic.reject_reasons) or "- Nu exista.",
+            "**Rejection reasons:**",
+            "\n".join(f"- {reason}" for reason in deterministic.reject_reasons) or "- None.",
             "",
-            "**Motive de analiza manuala:**",
+            "**Manual review reasons:**",
             "\n".join(f"- {reason}" for reason in deterministic.manual_review_reasons)
-            or "- Nu este necesara.",
+            or "- Not required.",
             "",
-            "**Observatii:**",
-            "\n".join(f"- {warning}" for warning in deterministic.warnings) or "- Nu exista.",
+            "**Notes:**",
+            "\n".join(f"- {warning}" for warning in deterministic.warnings) or "- None.",
         ]
     )
     return "\n".join(lines), metrics
@@ -1771,40 +1755,40 @@ def request_freeform_credit_calculation(
     sources_markdown: str,
 ) -> tuple[dict[str, object] | None, str | None]:
     system_prompt = (
-        "Esti asistentul local de creditare pentru o aplicatie educationala RAG. "
-        "Calculezi singur valorile financiare si returnezi un tabel Markdown compact. "
-        "Nu folosi JSON in acest raspuns."
+        "You are the local credit assistant for an educational RAG application. "
+        "Calculate the financial values yourself and return a compact Markdown table. "
+        "Do not use JSON in this response."
     )
     user_prompt = (
-        "Modelul anterior nu a produs o schema JSON usor de interpretat. "
-        "Recalculeaza profilul si raspunde in Markdown simplu, cu exact aceste randuri in tabelul final.\n\n"
-        "Profil client in JSON:\n"
+        "The previous model did not produce an easily interpreted JSON schema. "
+        "Recalculate the profile and respond in plain Markdown with exactly these rows in the final table.\n\n"
+        "Client profile as JSON:\n"
         f"{profile_as_prompt_json(profile)}\n\n"
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n"
         f"{annuity_examples_prompt()}\n"
-        "Include o sectiune 'Detalii calcul' cu exact 4 bullets pentru debugging, inaintea tabelului final. "
-        "Fiecare bullet trebuie sa contina formula=..., valori=..., rezultat=..., pentru aceste calcule:\n"
-        "- Rata noua analizata si rata dupa stres\n"
-        "- GMI rezultat\n"
-        "- Varsta la maturitate\n"
-        "- Suma maxima recomandata\n\n"
-        "La final include acest tabel cu doua coloane, Indicator si Valoare:\n"
-        "- Decizie\n"
-        "- Venit declarat\n"
-        "- Pondere venit\n"
-        "- Venit eligibil ponderat\n"
-        "- Capacitate maxima totala rate (40% GMI)\n"
-        "- Rate existente\n"
-        "- Capacitate disponibila pentru rata noua\n"
-        "- Rata noua analizata\n"
-        "- Rata noua analizata, dupa stres daca se aplica\n"
-        "- GMI rezultat\n"
-        "- Varsta la maturitate\n"
-        "- Suma maxima recomandata prin GMI si plafon produs\n"
-        "- Plafon produs\n\n"
-        f"Fragmente RAG disponibile:\n{sources_markdown}"
+        "Include a 'Calculation details' section with exactly 4 debugging bullets before the final table. "
+        "Each bullet must contain formula=..., values=..., result=... for these calculations:\n"
+        "- Analyzed new payment and payment after stress\n"
+        "- DTI\n"
+        "- Age at maturity\n"
+        "- Maximum recommended amount\n\n"
+        "Finally, include this two-column table, Indicator and Value:\n"
+        "- Decision\n"
+        "- Declared income\n"
+        "- Income weight\n"
+        "- Weighted eligible income\n"
+        "- Maximum total payment capacity (40% DTI)\n"
+        "- Existing payments\n"
+        "- Available capacity for the new payment\n"
+        "- Analyzed new payment\n"
+        "- Analyzed new payment after stress\n"
+        "- DTI\n"
+        "- Age at maturity\n"
+        "- Maximum recommended amount\n"
+        "- Product cap\n\n"
+        f"Available RAG excerpts:\n{sources_markdown}"
     )
     raw_answer = optional_llm_summary(
         system_prompt,
@@ -1821,21 +1805,21 @@ def request_validated_credit_json(
     sources_markdown: str,
 ) -> tuple[dict[str, object] | None, str | None, list[str]]:
     system_prompt = (
-        "Esti asistentul local de creditare pentru o aplicatie educationala RAG. "
-        "Calculezi decizia de creditare pe baza profilului clientului, a regulilor numerice si a fragmentelor RAG. "
-        "Raspunsul tau trebuie sa fie exclusiv JSON valid, conform schemei cerute. "
-        "Foloseste prioritar regulile numerice explicite din prompt; fragmentele RAG sunt pentru justificare si surse. "
-        "Nu include Markdown, explicatii externe, comentarii sau text in afara obiectului JSON."
+        "You are the local credit assistant for an educational RAG application. "
+        "Calculate the credit decision from the client profile, numerical rules, and RAG excerpts. "
+        "Your response must contain only valid JSON that follows the requested schema. "
+        "Prioritize the explicit numerical rules in the prompt; use RAG excerpts for justification and sources. "
+        "Do not include Markdown, external explanations, comments, or text outside the JSON object."
     )
     base_prompt = (
-        "Profil client in JSON:\n"
+        "Client profile as JSON:\n"
         f"{profile_as_prompt_json(profile)}\n\n"
         f"{critical_profile_checks_prompt(profile)}\n"
         f"{operating_rules_prompt()}\n"
         f"{calculation_guardrails_prompt()}\n\n"
         f"{annuity_examples_prompt()}\n"
         f"{credit_json_schema_prompt()}\n\n"
-        f"Fragmente RAG disponibile:\n{sources_markdown}"
+        f"Available RAG excerpts:\n{sources_markdown}"
     )
 
     raw_answer: str | None = None
@@ -1845,10 +1829,10 @@ def request_validated_credit_json(
         user_prompt = base_prompt
         if attempt > 0:
             user_prompt += (
-                "\n\nRaspunsul anterior nu a putut fi citit ca JSON valid. "
-                "Genereaza de la zero un JSON mai scurt, complet si valid. "
-                "Nu continua raspunsul anterior si nu adauga text in afara obiectului JSON. "
-                "Foloseste exact cele 4 elemente cerute in calculation_details, cu formula, valori si rezultat."
+                "\n\nThe previous response could not be parsed as valid JSON. "
+                "Generate shorter, complete, valid JSON from scratch. "
+                "Do not continue the previous response or add text outside the JSON object. "
+                "Use exactly the four required calculation_details items, each with formula, values, and result."
             )
         raw_answer = optional_llm_summary(
             system_prompt,
@@ -1900,22 +1884,22 @@ def build_llm_credit_analysis(profile: ClientProfile, index: RagIndex) -> LlmCre
         evaluation,
         sources_markdown,
     )
-    if not raw_answer or raw_answer.startswith("LLM indisponibil"):
+    if not raw_answer or raw_answer.startswith("The LLM is unavailable"):
         answer = (
-            "## Eroare LLM local\n\n"
-            "Nu am putut genera raspunsul cu modelul local configurat. "
-            "Verifica daca Ollama ruleaza si daca modelul este descarcat.\n\n"
-            f"```text\n{raw_answer or 'LLM-ul nu a returnat continut.'}\n```\n\n"
-            "Rezultatul determinist nu este afisat in analiza principala; "
-            "el este folosit doar pentru comparatia din tabul LLM vs formule."
+            "## Local LLM error\n\n"
+            "The configured local model could not generate a response. "
+            "Check that Ollama is running and the model has been downloaded.\n\n"
+            f"```text\n{raw_answer or 'The LLM returned no content.'}\n```\n\n"
+            "The deterministic result is not displayed in the main analysis; "
+            "it is used only for the comparison in the LLM vs formulas tab."
         )
         extracted = extract_llm_decision(answer)
     elif llm_json is None:
         answer = (
-            "## Eroare validare JSON\n\n"
-            "LLM-ul nu a returnat un obiect JSON valid dupa retry.\n\n"
+            "## JSON validation error\n\n"
+            "The LLM did not return a valid JSON object after retrying.\n\n"
             f"```text\n{raw_answer}\n```\n\n"
-            "### Erori validare schema\n\n"
+            "### Schema validation errors\n\n"
             + "\n".join(f"- {error}" for error in validation_errors)
         )
         extracted = extract_llm_decision(answer)
@@ -1931,14 +1915,14 @@ def answer_policy_question(question: str, index: RagIndex, use_llm: bool = False
     retrieved = index.search(question, top_k=5)
     sources = format_sources(retrieved, max_chars=900)
     if not use_llm:
-        return f"### Fragmente relevante\n{sources}"
+        return f"### Relevant excerpts\n{sources}"
 
     llm_answer = optional_llm_summary(
-        "Raspunde strict pe baza fragmentelor RAG. Daca informatia lipseste, spune ca lipseste. "
-        "Scrie in romana, in Markdown simplu, cu paragrafe scurte si liste cu liniuta. "
-        "Nu folosi asteriscuri pentru bold, nu folosi separatoare de tip *** si nu adauga text de gandire.",
-        f"Intrebare: {question}\n\nFragmente:\n{sources}",
+        "Answer strictly from the RAG excerpts. If information is missing, state that it is missing. "
+        "Write in English using plain Markdown, short paragraphs, and hyphenated lists. "
+        "Do not use asterisks for bold, separators such as ***, or add reasoning text.",
+        f"Question: {question}\n\nExcerpts:\n{sources}",
     )
     if not llm_answer:
-        return f"### Fragmente relevante\n{sources}\n\nLLM-ul nu este activ."
-    return f"### Raspuns\n{llm_answer}\n\n### Fragmente relevante\n{sources}"
+        return f"### Relevant excerpts\n{sources}\n\nThe LLM is not active."
+    return f"### Answer\n{llm_answer}\n\n### Relevant excerpts\n{sources}"

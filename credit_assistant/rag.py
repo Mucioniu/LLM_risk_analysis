@@ -47,7 +47,7 @@ class RagIndex:
 
 def format_sources(results: list[RetrievedChunk], *, max_chars: int = 800) -> str:
     if not results:
-        return "Nu am gasit fragmente relevante in corpus."
+        return "No relevant excerpts were found in the corpus."
 
     sections: list[str] = []
     for idx, result in enumerate(results, start=1):
@@ -55,7 +55,6 @@ def format_sources(results: list[RetrievedChunk], *, max_chars: int = 800) -> st
         if len(text) > max_chars:
             text = text[: max_chars - 3].rstrip() + "..."
         sections.append(
-            f"[{idx}] {result.chunk.source}, {result.chunk.location}, scor {result.score:.3f}\n{text}"
+            f"[{idx}] {result.chunk.source}, {result.chunk.location}, score {result.score:.3f}\n{text}"
         )
     return "\n\n".join(sections)
-

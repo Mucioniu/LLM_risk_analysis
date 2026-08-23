@@ -36,7 +36,7 @@ def read_pdf_pages(path: Path) -> list[str]:
         from PyPDF2 import PdfReader  # type: ignore
     except Exception as exc:  # pragma: no cover - depends on optional package
         raise RuntimeError(
-            "Pentru citirea PDF-urilor instaleaza PyPDF2 sau foloseste varianta DOCX."
+            "Install PyPDF2 to read PDF files, or use the DOCX version."
         ) from exc
 
     reader = PdfReader(str(path))
@@ -55,7 +55,7 @@ def paragraphs_from_file(path: Path) -> list[str]:
     if suffix in {".txt", ".md"}:
         text = path.read_text(encoding="utf-8", errors="replace")
         return [block.strip() for block in text.split("\n\n") if block.strip()]
-    raise ValueError(f"Format nesuportat: {path}")
+    raise ValueError(f"Unsupported format: {path}")
 
 
 def chunk_paragraphs(
@@ -75,7 +75,7 @@ def chunk_paragraphs(
             chunks.append(
                 DocumentChunk(
                     source=source,
-                    location=f"paragrafele {start_idx}-{idx - 1}",
+                    location=f"paragraphs {start_idx}-{idx - 1}",
                     text="\n".join(buffer),
                 )
             )
@@ -87,7 +87,7 @@ def chunk_paragraphs(
         chunks.append(
             DocumentChunk(
                 source=source,
-                location=f"paragrafele {start_idx}-{start_idx + len(buffer) - 1}",
+                location=f"paragraphs {start_idx}-{start_idx + len(buffer) - 1}",
                 text="\n".join(buffer),
             )
         )
@@ -105,16 +105,16 @@ def load_documents(paths: Iterable[Path]) -> list[DocumentChunk]:
             continue
         chunks.extend(chunk_paragraphs(paragraphs, path.name))
     if not chunks:
-        raise ValueError("Nu am gasit continut text in documentele incarcate.")
+        raise ValueError("No text content was found in the uploaded documents.")
     for message in skipped:
         chunks.append(
             DocumentChunk(
-                source="Sistem",
-                location="avertisment incarcare corpus",
+                source="System",
+                location="corpus loading warning",
                 text=(
-                    "Document omis la indexare. "
-                    f"{message}. Ruleaza `python -m pip install -r requirements.txt` "
-                    "si reporneste aplicatia pentru citirea PDF-urilor."
+                    "Document omitted from indexing. "
+                    f"{message}. Run `python -m pip install -r requirements.txt` "
+                    "and restart the application to enable PDF reading."
                 ),
             )
         )

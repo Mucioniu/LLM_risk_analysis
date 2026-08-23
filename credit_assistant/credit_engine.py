@@ -5,7 +5,7 @@ from enum import Enum
 from math import pow
 
 
-GMI_LIMIT = 0.40
+DTI_LIMIT = 0.40
 MIN_AGE = 21
 MAX_AGE_AT_MATURITY = 70
 MAX_TERM_MONTHS = 60
@@ -13,23 +13,23 @@ MIN_AMOUNT_RON = 5_000
 MAX_AMOUNT_RON = 150_000
 
 INCOME_WEIGHTS = {
-    "Salariu - contract nedeterminat": 1.00,
-    "Salariu - contract determinat": 0.80,
-    "Pensie permanenta": 1.00,
-    "PFA/PFI": 0.75,
-    "Dividende": 0.60,
-    "Chirii": 0.50,
-    "Drepturi de autor": 0.70,
-    "Diurne navigatori/aeronaval": 0.60,
-    "Contract management/mandat": 0.85,
-    "Venit exclus de manual": 0.00,
+    "Salary - permanent contract": 1.00,
+    "Salary - fixed-term contract": 0.80,
+    "Pension": 1.00,
+    "Self-employment/liberal professions": 0.75,
+    "Dividends": 0.60,
+    "Rental income": 0.50,
+    "Copyright royalties": 0.70,
+    "Seafarer/aviation per diem": 0.60,
+    "Management/mandate contract": 0.85,
+    "Income excluded by policy manual": 0.00,
 }
 
 
 class Decision(str, Enum):
-    APPROVED = "APROBAT"
-    MANUAL_REVIEW = "ANALIZA MANUALA"
-    REJECTED = "RESPINS"
+    APPROVED = "APPROVED"
+    MANUAL_REVIEW = "MANUAL REVIEW"
+    REJECTED = "REJECTED"
 
 
 @dataclass(frozen=True)
@@ -56,7 +56,7 @@ class ClientProfile:
     married_to_ro_citizen: bool = False
     owns_property_in_ro: bool = False
     local_contract_months: int = 0
-    sector: str = "Altul"
+    sector: str = "Other"
     current_job_tenure_months: int = 12
     previous_job_tenure_months: int = 0
     gap_days_between_jobs: int = 0
@@ -70,8 +70,8 @@ class CreditEvaluation:
     max_monthly_payment: float
     available_payment_capacity: float
     stressed_monthly_payment: float
-    gmi: float
-    max_credit_amount: float
+    dti: float
+    maximum_amount_by_dti: float
     maturity_age: float
     reject_reasons: list[str] = field(default_factory=list)
     manual_review_reasons: list[str] = field(default_factory=list)
@@ -103,7 +103,7 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
 
     income_weight = INCOME_WEIGHTS.get(profile.income_type, 0.0)
     weighted_income = profile.monthly_income * income_weight
-    max_monthly_payment = weighted_income * GMI_LIMIT
+    max_monthly_payment = weighted_income * DTI_LIMIT
     available_capacity = max_monthly_payment - profile.existing_monthly_debts
     maturity_age = profile.age + profile.term_months / 12
 
@@ -115,41 +115,41 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
         else annuity_payment(profile.requested_amount, stressed_interest, profile.term_months)
     )
     stressed_payment = requested_payment * currency_stress
-    gmi = (
+    dti = (
         (profile.existing_monthly_debts + stressed_payment) / weighted_income
         if weighted_income > 0
         else 999.0
     )
     max_payment_before_stress = max(0.0, available_capacity / currency_stress)
-    max_credit_amount = min(
+    maximum_amount_by_dti = min(
         MAX_AMOUNT_RON,
         principal_from_payment(max_payment_before_stress, stressed_interest, profile.term_months),
     )
 
     if profile.age < MIN_AGE:
-        reject_reasons.append("Varsta minima acceptata este 21 de ani.")
+        reject_reasons.append("The minimum accepted age is 21.")
     if maturity_age > MAX_AGE_AT_MATURITY:
-        reject_reasons.append("Varsta la maturitatea creditului depaseste 70 de ani.")
+        reject_reasons.append("Age at loan maturity exceeds 70.")
     if profile.age > 62:
-        warnings.append("Este necesara polita de asigurare de viata pentru clienti peste 62 de ani.")
+        warnings.append("Life insurance is required for clients over 62.")
     if profile.term_months > MAX_TERM_MONTHS:
-        reject_reasons.append("Perioada maxima pentru NovaFlex este 60 de luni.")
+        reject_reasons.append("The maximum NovaFlex term is 60 months.")
     if profile.requested_amount > 0 and profile.requested_amount < MIN_AMOUNT_RON:
-        reject_reasons.append("Suma minima finantata este 5.000 RON.")
+        reject_reasons.append("The minimum financed amount is RON 5,000.")
     if profile.requested_amount > MAX_AMOUNT_RON:
-        reject_reasons.append("Suma maxima finantata este 150.000 RON.")
+        reject_reasons.append("The maximum financed amount is RON 150,000.")
 
     if profile.fico < 620:
-        reject_reasons.append("FICO sub 620 intra in risc inacceptabil.")
+        reject_reasons.append("A FICO score below 620 is an unacceptable risk.")
     elif profile.fico < 650:
-        manual_reasons.append("FICO intre 620 si 649 intra in zona Gray Zone.")
+        manual_reasons.append("A FICO score from 620 to 649 falls within the Gray Zone.")
 
     if profile.active_delay_days > 30:
-        reject_reasons.append("Intarzierile active peste 30 de zile duc la respingere automata.")
+        reject_reasons.append("Active delinquencies over 30 days result in automatic rejection.")
     elif profile.active_delay_days >= 16:
-        manual_reasons.append("Intarzierile active de 16-30 zile cer justificari si verificare manuala.")
+        manual_reasons.append("Active delinquencies of 16-30 days require justification and manual review.")
     elif profile.active_delay_days > 0:
-        warnings.append("Intarzierile sub 15 zile sunt tratate ca tehnice.")
+        warnings.append("Delinquencies of up to 15 days are treated as technical delays.")
 
     if profile.historical_90_delay_last_year:
         exception_ok = (
@@ -158,11 +158,11 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
         )
         if exception_ok:
             manual_reasons.append(
-                "Exista intarziere istorica peste 90 de zile, dar se aplica exceptia cu datorie stinsa si venit crescut cu minimum 50%."
+                "A historical delinquency over 90 days exists, but the exception applies because the debt was settled and income increased by at least 50%."
             )
         else:
             reject_reasons.append(
-                "Intarziere istorica peste 90 de zile in ultimul an fara exceptie documentata."
+                "A historical delinquency over 90 days occurred in the past year without a documented exception."
             )
 
     if profile.is_non_eu:
@@ -173,23 +173,23 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
         )
         if not non_eu_ok:
             reject_reasons.append(
-                "Clientul non-UE nu indeplineste cumulativ conditiile de casatorie, proprietate in Romania si contract local de minimum 24 luni."
+                "The non-EU client does not meet all requirements for marriage to a Romanian citizen, property ownership in Romania, and a local contract of at least 24 months."
             )
 
     if income_weight == 0:
-        reject_reasons.append("Tipul de venit are pondere 0% si nu poate sustine creditul.")
+        reject_reasons.append("This income type has a 0% weight and cannot support the loan.")
     if available_capacity <= 0:
-        reject_reasons.append("Ratele existente consuma deja capacitatea maxima de indatorare.")
+        reject_reasons.append("Existing payments already exhaust the maximum debt-service capacity.")
 
     if profile.currency == "EUR" and profile.income_currency == "RON":
-        warnings.append("S-a aplicat stres valutar de 15% pentru credit EUR cu venituri in RON.")
+        warnings.append("A 15% currency stress was applied to the EUR loan with income in RON.")
     if profile.variable_rate:
-        warnings.append("S-a aplicat soc de dobanda de +2 puncte procentuale.")
+        warnings.append("An interest-rate shock of +2 percentage points was applied.")
 
     if profile.is_pep:
-        manual_reasons.append("Client PEP: manualul interzice aprobarea automata.")
-    if profile.aml_risk == "Ridicat":
-        manual_reasons.append("Risc AML ridicat: este necesar aviz de conformitate.")
+        manual_reasons.append("PEP client: the policy manual prohibits automatic approval.")
+    if profile.aml_risk == "High":
+        manual_reasons.append("High AML risk: compliance approval is required.")
 
     if (
         profile.sector == "IT"
@@ -197,14 +197,14 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
         and profile.previous_job_tenure_months >= 24
         and profile.gap_days_between_jobs <= 30
     ):
-        warnings.append("Se potriveste exceptia E-3.1 pentru sectorul IT din scenariile de test.")
+        warnings.append("The E-3.1 exception for the IT sector in the test scenarios applies.")
 
-    if profile.requested_amount > 0 and profile.requested_amount > max_credit_amount:
+    if profile.requested_amount > 0 and profile.requested_amount > maximum_amount_by_dti:
         reject_reasons.append(
-            "Suma solicitata depaseste capacitatea maxima calculata prin GMI."
+            "The requested amount exceeds the maximum capacity calculated using DTI."
         )
-    if gmi > GMI_LIMIT:
-        reject_reasons.append("GMI depaseste limita operationala de 40%.")
+    if dti > DTI_LIMIT:
+        reject_reasons.append("DTI exceeds the 40% operating limit.")
 
     if reject_reasons:
         decision = Decision.REJECTED
@@ -220,8 +220,8 @@ def evaluate_client(profile: ClientProfile) -> CreditEvaluation:
         max_monthly_payment=max_monthly_payment,
         available_payment_capacity=available_capacity,
         stressed_monthly_payment=stressed_payment,
-        gmi=gmi,
-        max_credit_amount=max_credit_amount,
+        dti=dti,
+        maximum_amount_by_dti=maximum_amount_by_dti,
         maturity_age=maturity_age,
         reject_reasons=reject_reasons,
         manual_review_reasons=manual_reasons,

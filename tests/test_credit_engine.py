@@ -10,7 +10,7 @@ class CreditEngineTests(unittest.TestCase):
             term_months=60,
             fico=720,
             monthly_income=15000,
-            income_type="Salariu - contract nedeterminat",
+            income_type="Salary - permanent contract",
             existing_monthly_debts=0,
             requested_amount=0,
             requested_monthly_payment=4000,
@@ -24,7 +24,7 @@ class CreditEngineTests(unittest.TestCase):
         result = evaluate_client(profile)
 
         self.assertIs(result.decision, Decision.APPROVED)
-        self.assertEqual(round(result.gmi, 3), 0.267)
+        self.assertEqual(round(result.dti, 3), 0.267)
 
     def test_annex_case_2_rejected_by_age(self) -> None:
         profile = ClientProfile(
@@ -32,7 +32,7 @@ class CreditEngineTests(unittest.TestCase):
             term_months=60,
             fico=690,
             monthly_income=4500,
-            income_type="Pensie permanenta",
+            income_type="Pension",
             existing_monthly_debts=0,
             requested_amount=50000,
             annual_interest_pct=10,
@@ -43,13 +43,13 @@ class CreditEngineTests(unittest.TestCase):
         self.assertIs(result.decision, Decision.REJECTED)
         self.assertTrue(any("70" in reason for reason in result.reject_reasons))
 
-    def test_annex_case_3_rejected_by_pfa_haircut(self) -> None:
+    def test_annex_case_3_rejected_by_self_employment_haircut(self) -> None:
         profile = ClientProfile(
             age=35,
             term_months=60,
             fico=680,
             monthly_income=10000,
-            income_type="PFA/PFI",
+            income_type="Self-employment/liberal professions",
             existing_monthly_debts=0,
             requested_amount=0,
             requested_monthly_payment=3500,
@@ -64,4 +64,3 @@ class CreditEngineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

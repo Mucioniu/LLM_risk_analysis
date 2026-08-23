@@ -1,11 +1,11 @@
 # NovaTech RAG Credit Assistant
 
-Educational prototype for a master's thesis: an assistant that reads the fictional `Manual_Extins_Creditare_NovaTech_v3.pdf`, includes `Regulamentul_BNR_nr_17_2012.md`, retrieves relevant fragments with RAG, and uses a local LLM to analyze credit applicants.
+Educational prototype for a master's thesis: an assistant that reads the fictional `NovaTech_Extended_Credit_Manual_v3.pdf`, includes `NBR_Regulation_No_17_2012.md`, retrieves relevant fragments with RAG, and uses a local LLM to analyze credit applicants.
 
 ## What It Does
 
-- indexes the NovaTech manual and BNR Regulation no. 17/2012 into searchable chunks;
-- retrieves fragments relevant to the client profile, including rules about FICO, PEP, AML, income types, and GMI;
+- indexes the NovaTech manual and NBR Regulation No. 17/2012 into searchable chunks;
+- retrieves fragments relevant to the client profile, including rules about FICO, PEP, AML, income types, and DTI;
 - sends the client profile, numerical rules, and RAG fragments to a local LLM through Ollama;
 - receives from the LLM a structured JSON analysis containing the decision, financial values, reasons, and sources;
 - validates the JSON schema and value consistency for reporting and metrics;
@@ -16,7 +16,7 @@ Educational prototype for a master's thesis: an assistant that reads the fiction
 ## Recommended Project Steps
 
 1. Keep the fictional manual as a controlled source for testing.
-2. Use BNR Regulation no. 17/2012 as a separate document in the corpus.
+2. Use NBR Regulation No. 17/2012 as a separate document in the corpus.
 3. Run the system on known synthetic clients, including the cases in `examples/evaluation_cases.json`.
 4. Analyze the structured LLM response for decision, financial values, and justifications.
 5. Use RAG for justification and citation, and the JSON schema to control the response format.
@@ -88,27 +88,27 @@ python -m unittest discover tests
 
 ## Evaluation Metrics
 
-The application includes a `Metrici` tab that runs synthetic cases from `examples/evaluation_cases.json`.
+The application includes a `Metrics` tab that runs synthetic cases from `examples/evaluation_cases.json`.
 The suite contains 13 policy questions and 22 client-analysis cases covering approvals, rejections,
-manual review, income weighting, GMI, FICO, AML/PEP, payment delays, residency, stress scenarios,
+manual review, income weighting, DTI, FICO, AML/PEP, payment delays, residency, stress scenarios,
 product limits, maturity age, and documented policy exceptions.
 
-For the `Intrebari despre manual` section, the following metrics are computed:
+For the `Manual Questions` section, the following metrics are computed:
 
 - `retrieval_hit_at_5` - checks whether the expected sources appear among the top 5 RAG fragments;
-- `acoperire_cuvinte_cheie` - measures how many expected concepts appear in the LLM answer;
-- `raspuns_lipsa_info` - checks whether the model explicitly recognizes missing information;
-- `prezenta_surse_rag` - checks whether the answer includes fragments or sources;
-- `format_markdown` - checks answer readability: headings, line breaks, no `***`, and no hidden reasoning text.
+- `keyword_coverage` - measures how many expected concepts appear in the LLM answer;
+- `missing_information_response` - checks whether the model explicitly recognizes missing information;
+- `rag_source_presence` - checks whether the answer includes fragments or sources;
+- `markdown_format` - checks answer readability: headings, line breaks, no `***`, and no hidden reasoning text.
 
-For the `Analiza client` section, the following metrics are computed:
+For the `Client Analysis` section, the following metrics are computed:
 
-- `decizie_llm_vs_asteptat` - compares the decision extracted from the LLM response with the expected decision in the synthetic dataset;
-- `decizie_llm_vs_formule` - compares the LLM decision with the reference decision calculated through formulas;
-- `scor_total_llm_vs_formule` - compares the structured financial values produced by the LLM with the reference values;
-- `sectiuni_obligatorii` - checks whether the required report sections are present;
-- `prezenta_surse_rag` - checks whether RAG sources are included;
-- `format_markdown` - checks the structure and readability of the response.
+- `llm_decision_vs_expected` - compares the decision extracted from the LLM response with the expected decision in the synthetic dataset;
+- `llm_decision_vs_formulas` - compares the LLM decision with the reference decision calculated through formulas;
+- `overall_llm_vs_formulas_score` - compares the structured financial values produced by the LLM with the reference values;
+- `required_sections` - checks whether the required report sections are present;
+- `rag_source_presence` - checks whether RAG sources are included;
+- `markdown_format` - checks the structure and readability of the response.
 
 The report displays the overall average score, score by section, latency, and detailed results for each case.
 
@@ -131,7 +131,7 @@ python app.py
 
 The local LLM uses Ollama's native `/api/chat` endpoint with JSON mode and an 8192-token context. The larger context leaves enough room for the profile, numerical rules, worked annuity examples, RAG fragments, and the complete JSON response. The response is then validated and displayed as a Markdown report in the Gradio interface.
 
-Note on validation and robustness: the service attempts to parse and validate the LLM JSON up to three times. If the returned JSON is inconsistent with the deterministic Python evaluation, the code will (1) request an internal LLM self-review to correct numeric or decision inconsistencies, and (2) if necessary, request an adjudication step that only decides `APROBAT | RESPINS | ANALIZA MANUALA` and updates the JSON decision. These retries and reviewer/adjudicator interactions are automatic and intended to improve result consistency for evaluation and reporting.
+Note on validation and robustness: the service attempts to parse and validate the LLM JSON up to three times. If the returned JSON is inconsistent with the deterministic Python evaluation, the code will (1) request an internal LLM self-review to correct numeric or decision inconsistencies, and (2) if necessary, request an adjudication step that only decides `APPROVED | REJECTED | MANUAL REVIEW` and updates the JSON decision. These retries and reviewer/adjudicator interactions are automatic and intended to improve result consistency for evaluation and reporting.
 
 ## Structure
 

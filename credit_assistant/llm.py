@@ -108,17 +108,17 @@ def optional_llm_summary(
             message = data.get("message", {})
             content = str(message.get("content") or "").strip()
             if not content:
-                done_reason = data.get("done_reason", "necunoscut")
+                done_reason = data.get("done_reason", "unknown")
                 if response_format_json:
                     return (
-                        "LLM indisponibil sau configurat incorect: Ollama nu a emis JSON final "
-                        f"(done_reason={done_reason}). Creste OLLAMA_NUM_PREDICT/OLLAMA_NUM_CTX "
-                        "sau seteaza OLLAMA_THINK=false."
+                        "The LLM is unavailable or incorrectly configured: Ollama did not produce final JSON "
+                        f"(done_reason={done_reason}). Increase OLLAMA_NUM_PREDICT/OLLAMA_NUM_CTX "
+                        "or set OLLAMA_THINK=false."
                     )
                 content = str(message.get("thinking") or message.get("reasoning") or "").strip()
             return content if response_format_json else clean_llm_markdown(content)
         except Exception as exc:
-            return f"LLM indisponibil sau configurat incorect: {exc}"
+            return f"The LLM is unavailable or incorrectly configured: {exc}"
 
     payload: dict[str, Any] = {
         "model": model,
@@ -141,4 +141,4 @@ def optional_llm_summary(
         content = data["choices"][0]["message"]["content"].strip()
         return content if response_format_json else clean_llm_markdown(content)
     except Exception as exc:
-        return f"LLM indisponibil sau configurat incorect: {exc}"
+        return f"The LLM is unavailable or incorrectly configured: {exc}"

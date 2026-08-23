@@ -46,7 +46,7 @@ if (-not $env:OPENAI_MAX_TOKENS) {
     $env:OPENAI_MAX_TOKENS = "1800"
 }
 
-Write-Host "Pornesc Asistentul de Creditare pe http://127.0.0.1:7860 ..."
+Write-Host "Starting the Credit Assistant at http://127.0.0.1:7860 ..."
 $AppProcess = Start-Process -FilePath $PythonExe -ArgumentList "app.py" -PassThru -WindowStyle Hidden
 
 try {
@@ -54,23 +54,23 @@ try {
 
     if (-not $CloudflaredExe) {
         Write-Host ""
-        Write-Host "cloudflared nu este instalat."
-        Write-Host "Instaleaza-l cu:"
+        Write-Host "cloudflared is not installed."
+        Write-Host "Install it with:"
         Write-Host "  winget install Cloudflare.cloudflared"
         Write-Host ""
-        Write-Host "Daca winget spune ca este deja instalat, inchide si redeschide PowerShell."
+        Write-Host "If winget says it is already installed, close and reopen PowerShell."
         Write-Host ""
-        Write-Host "Dupa instalare, ruleaza din nou:"
+        Write-Host "After installation, run this again:"
         Write-Host "  .\start_public_cloudflare.ps1"
         Write-Host ""
-        Write-Host "Serverul local ramane pornit pana inchizi aceasta fereastra."
+        Write-Host "The local server will remain running until you close this window."
         Wait-Process -Id $AppProcess.Id
         exit 1
     }
 
     Write-Host ""
-    Write-Host "Creez link public temporar. Trimite URL-ul https://...trycloudflare.com afisat mai jos."
-    Write-Host "Pentru oprire, apasa Ctrl+C in acest terminal."
+    Write-Host "Creating a temporary public link. Share the https://...trycloudflare.com URL displayed below."
+    Write-Host "To stop it, press Ctrl+C in this terminal."
     Write-Host ""
     & $CloudflaredExe tunnel --url "http://127.0.0.1:7860"
 }

@@ -8,28 +8,28 @@
     "cases": [
       {
         "case_id": "c_salary_approved",
-        "expected_decision": "APROBAT",
-        "deterministic_decision": "APROBAT",
-        "llm_decision": "APROBAT",
+        "expected_decision": "APPROVED",
+        "deterministic_decision": "APPROVED",
+        "llm_decision": "APPROVED",
         "score_total": 0.6363636363636364,
         "decision_score": 1.0,
         "metrics": {
-          "Decizie": 1.0,
-          "Venit declarat": 1.0,
-          "Pondere venit": 1.0,
-          "Venit eligibil ponderat": 1.0,
-          "Capacitate maxima totala rate": 1.0,
-          "Rate existente": 1.0,
-          "Capacitate disponibila": 1.0,
-          "Rata noua analizata": 0.0,
-          "GMI rezultat": 0.0,
-          "Varsta la maturitate": 0.0,
-          "Suma maxima recomandata": 0.0,
-          "scor_total_llm_vs_formule": 0.6363636363636364
+          "Decision": 1.0,
+          "Declared income": 1.0,
+          "Income weight": 1.0,
+          "Weighted eligible income": 1.0,
+          "Maximum total payment capacity": 1.0,
+          "Existing payments": 1.0,
+          "Available capacity for the new payment": 1.0,
+          "Analyzed new payment after stress": 0.0,
+          "DTI": 0.0,
+          "Age at maturity": 0.0,
+          "Maximum recommended amount": 0.0,
+          "overall_llm_vs_formulas_score": 0.6363636363636364
         },
         "latency_seconds": 52.95264599996153,
         "extracted": {
-          "decision": "APROBAT",
+          "decision": "APPROVED",
           "declared_income": 15000.0,
           "income_weight_pct": 100.0,
           "weighted_income": 15000.0,
@@ -37,44 +37,44 @@
           "existing_monthly_debts": 0.0,
           "available_payment_capacity": 6000.0,
           "stressed_monthly_payment": 1933.0,
-          "gmi_pct": 12.89,
+          "dti_pct": 12.89,
           "maturity_age": null,
-          "max_credit_amount": null
+          "maximum_amount_by_dti": null
         },
         "deterministic": {
           "weighted_income": 15000.0,
           "max_monthly_payment": 6000.0,
           "available_payment_capacity": 6000.0,
           "stressed_monthly_payment": 2124.704471126833,
-          "gmi_pct": 14.164696474178887,
+          "dti_pct": 14.164696474178887,
           "maturity_age": 40.0,
-          "max_credit_amount": 150000
+          "maximum_amount_by_dti": 150000
         }
       },
       {
-        "case_id": "c_pfa_rejected_gmi",
-        "expected_decision": "RESPINS",
-        "deterministic_decision": "RESPINS",
-        "llm_decision": "RESPINS",
+        "case_id": "c_self_employment_rejected_dti",
+        "expected_decision": "REJECTED",
+        "deterministic_decision": "REJECTED",
+        "llm_decision": "REJECTED",
         "score_total": 0.6363636363636364,
         "decision_score": 1.0,
         "metrics": {
-          "Decizie": 1.0,
-          "Venit declarat": 1.0,
-          "Pondere venit": 1.0,
-          "Venit eligibil ponderat": 1.0,
-          "Capacitate maxima totala rate": 1.0,
-          "Rate existente": 1.0,
-          "Capacitate disponibila": 0.0,
-          "Rata noua analizata": 0.0,
-          "GMI rezultat": 1.0,
-          "Varsta la maturitate": 0.0,
-          "Suma maxima recomandata": 0.0,
-          "scor_total_llm_vs_formule": 0.6363636363636364
+          "Decision": 1.0,
+          "Declared income": 1.0,
+          "Income weight": 1.0,
+          "Weighted eligible income": 1.0,
+          "Maximum total payment capacity": 1.0,
+          "Existing payments": 1.0,
+          "Available capacity for the new payment": 0.0,
+          "Analyzed new payment after stress": 0.0,
+          "DTI": 1.0,
+          "Age at maturity": 0.0,
+          "Maximum recommended amount": 0.0,
+          "overall_llm_vs_formulas_score": 0.6363636363636364
         },
         "latency_seconds": 16.20378109999001,
         "extracted": {
-          "decision": "RESPINS",
+          "decision": "REJECTED",
           "declared_income": 10000.0,
           "income_weight_pct": 75.0,
           "weighted_income": 7500.0,
@@ -82,40 +82,40 @@
           "existing_monthly_debts": 0.0,
           "available_payment_capacity": null,
           "stressed_monthly_payment": null,
-          "gmi_pct": 46.67,
+          "dti_pct": 46.67,
           "maturity_age": null,
-          "max_credit_amount": 0.0
+          "maximum_amount_by_dti": 0.0
         },
         "deterministic": {
           "weighted_income": 7500.0,
           "max_monthly_payment": 3000.0,
           "available_payment_capacity": 3000.0,
           "stressed_monthly_payment": 3500.0,
-          "gmi_pct": 46.666666666666664,
+          "dti_pct": 46.666666666666664,
           "maturity_age": 40.0,
-          "max_credit_amount": 141196.10707125568
+          "maximum_amount_by_dti": 141196.10707125568
         }
       },
       {
         "case_id": "c_pep_manual",
-        "expected_decision": "ANALIZA MANUALA",
-        "deterministic_decision": "ANALIZA MANUALA",
+        "expected_decision": "MANUAL REVIEW",
+        "deterministic_decision": "MANUAL REVIEW",
         "llm_decision": null,
         "score_total": 0.36363636363636365,
         "decision_score": 0.0,
         "metrics": {
-          "Decizie": 0.0,
-          "Venit declarat": 0.0,
-          "Pondere venit": 0.0,
-          "Venit eligibil ponderat": 1.0,
-          "Capacitate maxima totala rate": 0.0,
-          "Rate existente": 0.0,
-          "Capacitate disponibila": 1.0,
-          "Rata noua analizata": 0.0,
-          "GMI rezultat": 0.0,
-          "Varsta la maturitate": 1.0,
-          "Suma maxima recomandata": 1.0,
-          "scor_total_llm_vs_formule": 0.36363636363636365
+          "Decision": 0.0,
+          "Declared income": 0.0,
+          "Income weight": 0.0,
+          "Weighted eligible income": 1.0,
+          "Maximum total payment capacity": 0.0,
+          "Existing payments": 0.0,
+          "Available capacity for the new payment": 1.0,
+          "Analyzed new payment after stress": 0.0,
+          "DTI": 0.0,
+          "Age at maturity": 1.0,
+          "Maximum recommended amount": 1.0,
+          "overall_llm_vs_formulas_score": 0.36363636363636365
         },
         "latency_seconds": 90.01569889998063,
         "extracted": {
@@ -127,44 +127,44 @@
           "existing_monthly_debts": null,
           "available_payment_capacity": 4300.0,
           "stressed_monthly_payment": null,
-          "gmi_pct": 13.33,
+          "dti_pct": 13.33,
           "maturity_age": 46.0,
-          "max_credit_amount": 150000.0
+          "maximum_amount_by_dti": 150000.0
         },
         "deterministic": {
           "weighted_income": 12000.0,
           "max_monthly_payment": 4800.0,
           "available_payment_capacity": 4300.0,
           "stressed_monthly_payment": 1268.129171737363,
-          "gmi_pct": 14.734409764478027,
+          "dti_pct": 14.734409764478027,
           "maturity_age": 46.0,
-          "max_credit_amount": 150000
+          "maximum_amount_by_dti": 150000
         }
       },
       {
         "case_id": "c_fico_rejected",
-        "expected_decision": "RESPINS",
-        "deterministic_decision": "RESPINS",
-        "llm_decision": "RESPINS",
+        "expected_decision": "REJECTED",
+        "deterministic_decision": "REJECTED",
+        "llm_decision": "REJECTED",
         "score_total": 0.09090909090909091,
         "decision_score": 1.0,
         "metrics": {
-          "Decizie": 1.0,
-          "Venit declarat": 0.0,
-          "Pondere venit": 0.0,
-          "Venit eligibil ponderat": 0.0,
-          "Capacitate maxima totala rate": 0.0,
-          "Rate existente": 0.0,
-          "Capacitate disponibila": 0.0,
-          "Rata noua analizata": 0.0,
-          "GMI rezultat": 0.0,
-          "Varsta la maturitate": 0.0,
-          "Suma maxima recomandata": 0.0,
-          "scor_total_llm_vs_formule": 0.09090909090909091
+          "Decision": 1.0,
+          "Declared income": 0.0,
+          "Income weight": 0.0,
+          "Weighted eligible income": 0.0,
+          "Maximum total payment capacity": 0.0,
+          "Existing payments": 0.0,
+          "Available capacity for the new payment": 0.0,
+          "Analyzed new payment after stress": 0.0,
+          "DTI": 0.0,
+          "Age at maturity": 0.0,
+          "Maximum recommended amount": 0.0,
+          "overall_llm_vs_formulas_score": 0.09090909090909091
         },
         "latency_seconds": 112.63515410001855,
         "extracted": {
-          "decision": "RESPINS",
+          "decision": "REJECTED",
           "declared_income": 3500.0,
           "income_weight_pct": null,
           "weighted_income": 3500.0,
@@ -172,18 +172,18 @@
           "existing_monthly_debts": null,
           "available_payment_capacity": null,
           "stressed_monthly_payment": null,
-          "gmi_pct": null,
+          "dti_pct": null,
           "maturity_age": null,
-          "max_credit_amount": 121480.0
+          "maximum_amount_by_dti": 121480.0
         },
         "deterministic": {
           "weighted_income": 9000.0,
           "max_monthly_payment": 3600.0,
           "available_payment_capacity": 3600.0,
           "stressed_monthly_payment": 968.0156158151277,
-          "gmi_pct": 10.755729064612531,
+          "dti_pct": 10.755729064612531,
           "maturity_age": 33.0,
-          "max_credit_amount": 111568.44810716971
+          "maximum_amount_by_dti": 111568.44810716971
         }
       }
     ]
