@@ -6,12 +6,12 @@ Educational prototype for a master's thesis: an assistant that reads the fiction
 
 - indexes the NovaTech manual and NBR Regulation No. 17/2012 into searchable chunks;
 - retrieves fragments relevant to the client profile, including rules about FICO, PEP, AML, income types, and DTI;
-- sends the client profile, numerical rules, and RAG fragments to a local LLM through Ollama;
-- receives from the LLM a structured JSON analysis containing the decision, financial values, reasons, and sources;
-- validates the JSON schema and value consistency for reporting and metrics;
-- validates the LLM's JSON output against deterministic Python calculations and numeric rules; if inconsistencies are found the service performs automatic self-review and (if needed) an adjudication step to correct decision or reasons;
-- converts the validated result into a Markdown report displayed in Gradio;
-- includes a separate comparison section between the LLM response and the reference formulas.
+- sends the full profile and RAG fragments to a policy-only LLM stage;
+- sends ten finance-only inputs and sanitized policy parameters to one isolated LLM calculation stage;
+- locks the calculation stage's three final values and sends them, together with the policy result, to a final decision/synthesis stage that has no financial output fields;
+- enforces exact stage-specific JSON schemas, finite canonical numbers, and calculation self-check status without supplying Python-calculated answers;
+- converts the locked LLM result into a Markdown report displayed in Gradio;
+- runs deterministic Python formulas only afterward, in a separate comparison/evaluation section.
 
 ## Recommended Project Steps
 
@@ -105,7 +105,9 @@ For the `Client Analysis` section, the following metrics are computed:
 
 - `llm_decision_vs_expected` - compares the decision extracted from the LLM response with the expected decision in the synthetic dataset;
 - `llm_decision_vs_formulas` - compares the LLM decision with the reference decision calculated through formulas;
-- `overall_llm_vs_formulas_score` - compares the structured financial values produced by the LLM with the reference values;
+- `isolated_numeric_agreement` - compares only the isolated LLM values for stressed payment, DTI, and maximum recommended amount with the post-hoc reference values;
+- `all_three_numeric_fields_correct` - is 1 only when all three isolated calculation fields agree in the same case;
+- `overall_llm_vs_formulas_score` - combines the final LLM decision and the three isolated numerical fields;
 - `required_sections` - checks whether the required report sections are present;
 - `rag_source_presence` - checks whether RAG sources are included;
 - `markdown_format` - checks the structure and readability of the response.
@@ -114,7 +116,15 @@ The report displays the overall average score, score by section, latency, and de
 
 ## Local LLM
 
-For client evaluation, the application uses the local LLM to generate a structured analysis of the profile, including the decision, financial calculations, reasons, and RAG sources. Recommended for the demo:
+Client evaluation now uses three separate LLM calls:
+
+1. the RAG/policy stage reads the full profile and retrieved excerpts, selects the applicable calculation parameters, and assesses only non-calculated policy conditions;
+2. the isolated calculation stage receives ten finance-only inputs plus the sanitized parameters and returns a branch/intermediate audit object whose immutable `final` contains exactly `stressed_monthly_payment`, `dti_pct`, and `maximum_amount_by_dti`;
+3. the final synthesis stage consumes the policy result and the immutable calculation object, then returns only the decision and reason/source lists.
+
+Python performs strict JSON/schema checks and renders the locked values verbatim. It does not calculate, retry, repair, or replace visible values. The deterministic engine runs only after generation, for the separate comparison tab and evaluation metrics.
+
+Basic configuration (all stages use the same model):
 
 ```powershell
 ollama pull mistral-small3.2
@@ -129,21 +139,46 @@ $env:OPENAI_MAX_TOKENS="3000"
 python app.py
 ```
 
-The local LLM uses Ollama's native `/api/chat` endpoint with JSON mode and an 8192-token context. The larger context leaves enough room for the profile, numerical rules, worked annuity examples, RAG fragments, and the complete JSON response. The response is then validated and displayed as a Markdown report in the Gradio interface.
+Each stage can also be routed independently. Stage-specific variables fall back to the global settings when omitted:
 
-Note on validation and robustness: the service attempts to parse and validate the LLM JSON up to three times. If the returned JSON is inconsistent with the deterministic Python evaluation, the code will (1) request an internal LLM self-review to correct numeric or decision inconsistencies, and (2) if necessary, request an adjudication step that only decides `APPROVED | REJECTED | MANUAL REVIEW` and updates the JSON decision. These retries and reviewer/adjudicator interactions are automatic and intended to improve result consistency for evaluation and reporting.
+```powershell
+$env:OPENAI_RAG_MODEL="mistral-small3.2:latest"
+$env:OLLAMA_RAG_THINK="false"
+$env:OPENAI_CALCULATION_MODEL="qwen3:14b"
+$env:OLLAMA_CALCULATION_THINK="true"
+$env:OPENAI_CALCULATION_TEMPERATURE="0.1"
+$env:OLLAMA_CALCULATION_NUM_PREDICT="6000"
+$env:OPENAI_SYNTHESIS_MODEL="mistral-small3.2:latest"
+$env:OLLAMA_SYNTHESIS_THINK="false"
+```
+
+The local client uses Ollama's native `/api/chat` endpoint and sends an exact JSON Schema for every stage. The calculation prompt contains symbolic formulas and a mandatory branch/intermediate self-check, but no worked fixed-number examples, RAG prose, decision label, FICO, PEP, AML, delinquency, or residency fields. A malformed, non-finite, locale-formatted, contaminated, incomplete, or self-declared `FAIL` numerical object is a hard failure; the pipeline does not silently invoke a second calculator.
+
+The installed `mistral-small4-iq1` aliases are useful as a quantization experiment, but their three-seed benchmark produced no cases with all three target fields correct. Do not select them as the calculation-stage model for a presentation without reporting that limitation. Benchmark candidate routes over all cases and choose by all-three-correct rate, not only aggregate per-field agreement.
+
+Run a reproducible end-to-end smoke case with:
+
+```powershell
+python examples/smoke_staged_pipeline.py --case-id c_eur_variable_stress_rejected `
+  --rag-model mistral-small3.2:latest --calculation-model qwen3:14b `
+  --calculation-reasoning on --num-predict 6000 `
+  --synthesis-model mistral-small3.2:latest
+```
+
+The observed route-screening results are recorded in `examples/staged_pipeline_smoke_comparison.md`. They are labeled as illustrative smoke results, not as a substitute for the complete 22-case, multi-seed benchmark.
 
 ## Structure
 
 - `app.py` - Gradio interface;
 - `credit_assistant/document_loader.py` - DOCX/PDF reading and chunking;
 - `credit_assistant/rag.py` - TF-IDF index and search;
-- `credit_assistant/credit_engine.py` - reference formulas and rules used for comparison;
-- `credit_assistant/service.py` - RAG orchestration, LLM prompts, structured JSON, and validation;
-- `credit_assistant/service.py` - RAG orchestration, structured JSON prompts, schema validation, self-review and adjudication loops, and comparison to deterministic formulas;
+- `credit_assistant/credit_engine.py` - post-hoc reference formulas used only for comparison and metrics;
+- `credit_assistant/service.py` - staged RAG/policy, isolated calculation, immutable-value assembly, synthesis, and post-hoc comparison;
 - `credit_assistant/evaluation.py` - metrics and synthetic suite execution;
 - `examples/evaluation_cases.json` - synthetic evaluation examples;
-- `tests/` - basic tests for the engine and metrics.
+- `examples/smoke_staged_pipeline.py` - reproducible single-case live route smoke test;
+- `examples/staged_pipeline_smoke_comparison.md` - observed local route-screening results and limitations;
+- `tests/` - engine, metrics, routing, schema, isolation, injection, and immutable-value tests.
 
 ## Note
 

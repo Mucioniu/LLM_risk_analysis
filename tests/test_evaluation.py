@@ -5,6 +5,7 @@ from credit_assistant.evaluation import (
     format_score,
     keyword_coverage,
     load_evaluation_cases,
+    numeric_agreement_details,
     numeric_consistency,
     required_sections_score,
 )
@@ -62,6 +63,37 @@ class EvaluationMetricTests(unittest.TestCase):
         metric = numeric_consistency("Income: 15,000.00 RON", ["15,000.00"])
 
         self.assertEqual(metric.score, 1.0)
+
+    def test_numeric_agreement_details_names_the_failed_target(self) -> None:
+        profile = ClientProfile(
+            age=35,
+            term_months=60,
+            fico=680,
+            monthly_income=10000,
+            income_type="Self-employment/liberal professions",
+            existing_monthly_debts=0,
+            requested_amount=0,
+            requested_monthly_payment=3500,
+            annual_interest_pct=10,
+        )
+        deterministic = evaluate_client(profile)
+        extracted = llm_json_to_extracted(
+            {
+                "decision": "REJECTED",
+                "financial": {
+                    "stressed_monthly_payment": 3500,
+                    "dti_pct": 46.6666666667,
+                    "maximum_amount_by_dti": 141444.444444,
+                },
+            }
+        )
+
+        details = numeric_agreement_details(extracted, deterministic)
+
+        self.assertIn("Stressed payment: YES", details)
+        self.assertIn("DTI: YES", details)
+        self.assertIn("Maximum amount: NO", details)
+        self.assertIn("absolute error 248.34", details)
 
     def test_decision_consistency(self) -> None:
         metric = decision_consistency("## Decision: APPROVED", "APPROVED")

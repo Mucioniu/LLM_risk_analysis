@@ -18,22 +18,52 @@ from credit_assistant.evaluation import load_evaluation_cases
 from credit_assistant.service import build_default_index, build_llm_credit_analysis
 
 
-def configure_ollama(model: str, *, think: bool = False) -> None:
-    os.environ.setdefault("OPENAI_BASE_URL", "http://localhost:11434/v1")
-    os.environ.setdefault("OPENAI_API_KEY", "ollama")
+def configure_ollama(
+    model: str,
+    *,
+    reasoning: str = "off",
+    num_ctx: int = 8192,
+    num_predict: int = 3000,
+    timeout: float = 900.0,
+    temperature: float = 0.1,
+    seed: int = 42,
+) -> None:
+    os.environ["OPENAI_BASE_URL"] = "http://localhost:11434/v1"
+    os.environ["OPENAI_API_KEY"] = "ollama"
+    os.environ["OLLAMA_NATIVE_CHAT"] = "true"
     os.environ["OPENAI_MODEL"] = model
-    os.environ.setdefault("OPENAI_TIMEOUT_SECONDS", "300")
-    os.environ.setdefault("OPENAI_MAX_TOKENS", "3000")
-    if think:
-        os.environ["OLLAMA_THINK"] = "true"
-        os.environ.setdefault("OLLAMA_NUM_CTX", "8192")
-        os.environ.setdefault("OLLAMA_NUM_PREDICT", "6000")
-    else:
+    os.environ["OPENAI_TIMEOUT_SECONDS"] = str(timeout)
+    os.environ["OPENAI_MAX_TOKENS"] = str(num_predict)
+    os.environ["OPENAI_TEMPERATURE"] = str(temperature)
+    os.environ["OPENAI_SEED"] = str(seed)
+    os.environ["OLLAMA_NUM_CTX"] = str(num_ctx)
+    os.environ["OLLAMA_NUM_PREDICT"] = str(num_predict)
+    if reasoning.startswith("template-"):
         os.environ.pop("OLLAMA_THINK", None)
+    else:
+        os.environ["OLLAMA_THINK"] = "false" if reasoning == "off" else reasoning
 
 
-def run_model(model: str, max_cases: int | None = None, *, think: bool = False) -> dict[str, Any]:
-    configure_ollama(model, think=think)
+def run_model(
+    model: str,
+    max_cases: int | None = None,
+    *,
+    reasoning: str = "off",
+    num_ctx: int = 8192,
+    num_predict: int = 3000,
+    timeout: float = 900.0,
+    temperature: float = 0.1,
+    seed: int = 42,
+) -> dict[str, Any]:
+    configure_ollama(
+        model,
+        reasoning=reasoning,
+        num_ctx=num_ctx,
+        num_predict=num_predict,
+        timeout=timeout,
+        temperature=temperature,
+        seed=seed,
+    )
     cases = load_evaluation_cases().get("client_cases", [])
     if max_cases is not None:
         cases = cases[:max_cases]
@@ -85,7 +115,15 @@ def run_model(model: str, max_cases: int | None = None, *, think: bool = False) 
     )
     return {
         "model": model,
-        "think": think,
+        "reasoning": reasoning,
+        "think": reasoning not in {"off", "template-none"},
+        "settings": {
+            "num_ctx": num_ctx,
+            "num_predict": num_predict,
+            "timeout_seconds": timeout,
+            "temperature": temperature,
+            "seed": seed,
+        },
         "case_count": case_count,
         "average_score_total": average_score,
         "decision_accuracy": decision_accuracy,
@@ -98,11 +136,45 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark local Ollama models on client cases.")
     parser.add_argument("--models", nargs="+", required=True)
     parser.add_argument("--max-cases", type=int, default=None)
-    parser.add_argument("--think", action="store_true")
+    parser.add_argument(
+        "--reasoning",
+        choices=["off", "on", "low", "medium", "high", "template-none", "template-high"],
+        default=None,
+        help=(
+            "Explicit Ollama thinking setting. Template modes omit the API field because "
+            "the selected model alias embeds Mistral reasoning_effort none/high."
+        ),
+    )
+    parser.add_argument(
+        "--think",
+        action="store_true",
+        help="Backward-compatible alias for --reasoning on.",
+    )
+    parser.add_argument("--num-ctx", type=int, default=8192)
+    parser.add_argument("--num-predict", type=int, default=3000)
+    parser.add_argument("--timeout", type=float, default=900.0)
+    parser.add_argument("--temperature", type=float, default=0.1)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
-    summary = [run_model(model, args.max_cases, think=args.think) for model in args.models]
+    if args.think and args.reasoning is not None:
+        parser.error("Use either --think or --reasoning, not both.")
+    reasoning = args.reasoning or ("on" if args.think else "off")
+
+    summary = [
+        run_model(
+            model,
+            args.max_cases,
+            reasoning=reasoning,
+            num_ctx=args.num_ctx,
+            num_predict=args.num_predict,
+            timeout=args.timeout,
+            temperature=args.temperature,
+            seed=args.seed,
+        )
+        for model in args.models
+    ]
     text = json.dumps(summary, ensure_ascii=False, indent=2)
     if args.output:
         args.output.write_text(text, encoding="utf-8")

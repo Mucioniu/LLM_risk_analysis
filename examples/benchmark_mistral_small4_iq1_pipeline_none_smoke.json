@@ -1,0 +1,65 @@
+[
+  {
+    "model": "mistral-small4-iq1:none",
+    "reasoning": "template-none",
+    "think": false,
+    "settings": {
+      "num_ctx": 8192,
+      "num_predict": 3000,
+      "timeout_seconds": 900.0,
+      "temperature": 0.7,
+      "seed": 42
+    },
+    "case_count": 1,
+    "average_score_total": 0.8181818181818182,
+    "decision_accuracy": 1.0,
+    "latency_seconds": 188.53835560000152,
+    "cases": [
+      {
+        "case_id": "c_salary_approved",
+        "expected_decision": "APPROVED",
+        "deterministic_decision": "APPROVED",
+        "llm_decision": "APPROVED",
+        "score_total": 0.8181818181818182,
+        "decision_score": 1.0,
+        "metrics": {
+          "Decision": 1.0,
+          "Declared income": 1.0,
+          "Income weight": 1.0,
+          "Weighted eligible income": 1.0,
+          "Maximum total payment capacity": 1.0,
+          "Existing payments": 1.0,
+          "Available capacity for the new payment": 0.0,
+          "Analyzed new payment after stress": 1.0,
+          "DTI": 1.0,
+          "Age at maturity": 1.0,
+          "Maximum recommended amount": 0.0,
+          "overall_llm_vs_formulas_score": 0.8181818181818182
+        },
+        "latency_seconds": 188.53830139999627,
+        "extracted": {
+          "decision": "APPROVED",
+          "declared_income": 15000.0,
+          "income_weight_pct": 100.0,
+          "weighted_income": 15000.0,
+          "max_monthly_payment": 6000.0,
+          "existing_monthly_debts": 0.0,
+          "available_payment_capacity": 15000.0,
+          "stressed_monthly_payment": 2124.7,
+          "dti_pct": 14.16,
+          "maturity_age": 40.0,
+          "maximum_amount_by_dti": 141196.11
+        },
+        "deterministic": {
+          "weighted_income": 15000.0,
+          "max_monthly_payment": 6000.0,
+          "available_payment_capacity": 6000.0,
+          "stressed_monthly_payment": 2124.704471126833,
+          "dti_pct": 14.164696474178887,
+          "maturity_age": 40.0,
+          "maximum_amount_by_dti": 150000
+        }
+      }
+    ]
+  }
+]

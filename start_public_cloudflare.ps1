@@ -39,6 +39,24 @@ if (-not $env:OPENAI_API_KEY) {
 if (-not $env:OPENAI_MODEL) {
     $env:OPENAI_MODEL = "qwen3:8b"
 }
+if (-not $env:OPENAI_RAG_MODEL) {
+    $env:OPENAI_RAG_MODEL = "mistral-small3.2:latest"
+}
+if (-not $env:OPENAI_CALCULATION_MODEL) {
+    $env:OPENAI_CALCULATION_MODEL = "qwen3:14b"
+}
+if (-not $env:OLLAMA_CALCULATION_THINK) {
+    $env:OLLAMA_CALCULATION_THINK = "true"
+}
+if (-not $env:OPENAI_CALCULATION_TEMPERATURE) {
+    $env:OPENAI_CALCULATION_TEMPERATURE = "0.1"
+}
+if (-not $env:OLLAMA_CALCULATION_NUM_PREDICT) {
+    $env:OLLAMA_CALCULATION_NUM_PREDICT = "6000"
+}
+if (-not $env:OPENAI_SYNTHESIS_MODEL) {
+    $env:OPENAI_SYNTHESIS_MODEL = "mistral-small3.2:latest"
+}
 if (-not $env:OPENAI_TIMEOUT_SECONDS) {
     $env:OPENAI_TIMEOUT_SECONDS = "180"
 }

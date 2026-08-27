@@ -467,8 +467,8 @@ def analyze_client_with_comparison(
 def show_analyze_loading() -> str:
     return (
         "## Processing the evaluation...\n\n"
-        "Retrieving the relevant RAG fragments and asking the local LLM to calculate the credit decision. "
-        "The response is then compared with the Python formulas in the comparison tab. "
+        "Running the RAG/policy stage, the isolated LLM calculation stage, and final synthesis. "
+        "Only after the LLM result is locked is it compared with Python formulas in the comparison tab. "
         "The first evaluation after startup may take a little longer."
     )
 

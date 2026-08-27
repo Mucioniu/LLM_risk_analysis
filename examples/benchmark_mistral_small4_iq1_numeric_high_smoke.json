@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "benchmark": "numeric_reasoning",
+  "status": "complete",
+  "created_at": "2026-08-26T07:07:27.944636+00:00",
+  "updated_at": "2026-08-26T07:07:31.484893+00:00",
+  "config": {
+    "model": "mistral-small4-iq1:high",
+    "reasoning_cli": "template-high",
+    "think_payload": null,
+    "ollama_endpoint": "http://127.0.0.1:11434/api/chat",
+    "num_ctx": 4096,
+    "num_predict": 1024,
+    "temperature": 0.7,
+    "seed": 42,
+    "timeout_seconds": 900.0,
+    "cases_path": "D:\\Master\\Lucrare de dizertatie\\project\\examples\\evaluation_cases.json",
+    "case_ids": [
+      "c_salary_approved"
+    ],
+    "target_fields": [
+      "stressed_monthly_payment",
+      "dti_pct",
+      "maximum_amount_by_dti"
+    ],
+    "tolerances": {
+      "stressed_monthly_payment": 1.0,
+      "dti_pct": 0.05,
+      "maximum_amount_by_dti": 1.0
+    },
+    "one_call_per_case": true
+  },
+  "environment": {
+    "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Mar 19 2026, 20:16:45) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "command": [
+      "D:\\CondaEnvs\\disertatie\\python.exe",
+      "examples\\benchmark_numeric_reasoning.py",
+      "--model",
+      "mistral-small4-iq1:high",
+      "--reasoning",
+      "template-high",
+      "--output",
+      "examples\\benchmark_mistral_small4_iq1_numeric_high_smoke.json",
+      "--max-cases",
+      "1",
+      "--num-ctx",
+      "4096",
+      "--num-predict",
+      "1024",
+      "--temperature",
+      "0.7",
+      "--seed",
+      "42",
+      "--timeout-seconds",
+      "900",
+      "--overwrite"
+    ]
+  },
+  "reference_engine": {
+    "dti_limit": 0.4,
+    "maximum_amount_ron": 150000,
+    "income_weights": {
+      "Salary - permanent contract": 1.0,
+      "Salary - fixed-term contract": 0.8,
+      "Pension": 1.0,
+      "Self-employment/liberal professions": 0.75,
+      "Dividends": 0.6,
+      "Rental income": 0.5,
+      "Copyright royalties": 0.7,
+      "Seafarer/aviation per diem": 0.6,
+      "Management/mandate contract": 0.85,
+      "Income excluded by policy manual": 0.0
+    }
+  },
+  "cases": [
+    {
+      "case_id": "c_salary_approved",
+      "profile": {
+        "age": 35,
+        "term_months": 60,
+        "fico": 720,
+        "monthly_income": 15000,
+        "income_type": "Salary - permanent contract",
+        "existing_monthly_debts": 0,
+        "requested_amount": 100000,
+        "annual_interest_pct": 10,
+        "requested_monthly_payment": 0,
+        "currency": "RON",
+        "income_currency": "RON",
+        "variable_rate": false,
+        "active_delay_days": 0,
+        "historical_90_delay_last_year": false,
+        "historical_90_debt_settled": false,
+        "income_increase_after_delay_pct": 0.0,
+        "is_pep": false,
+        "aml_risk": "Standard",
+        "is_non_eu": false,
+        "married_to_ro_citizen": false,
+        "owns_property_in_ro": false,
+        "local_contract_months": 0,
+        "sector": "Other",
+        "current_job_tenure_months": 12,
+        "previous_job_tenure_months": 0,
+        "gap_days_between_jobs": 0
+      },
+      "expected": {
+        "stressed_monthly_payment": 2124.704471126833,
+        "dti_pct": 14.164696474178887,
+        "maximum_amount_by_dti": 150000
+      },
+      "tolerances": {
+        "stressed_monthly_payment": 1.0,
+        "dti_pct": 0.05,
+        "maximum_amount_by_dti": 1.0
+      },
+      "prompt_length_chars": 3412,
+      "http_status": 200,
+      "error": null,
+      "content": "{\n  \"dti_pct\": 56.666666666666664,\n  \"maximum_amount_by_dti\": 100000.0,\n  \"stressed_monthly_payment\": 3800.0\n}",
+      "thinking_present": false,
+      "thinking_length_chars": 0,
+      "parsed": {
+        "stressed_monthly_payment": 3800.0,
+        "dti_pct": 56.666666666666664,
+        "maximum_amount_by_dti": 100000.0
+      },
+      "parse_error": null,
+      "scores": {
+        "stressed_monthly_payment": 0.0,
+        "dti_pct": 0.0,
+        "maximum_amount_by_dti": 0.0
+      },
+      "absolute_errors": {
+        "stressed_monthly_payment": 1675.2955288731669,
+        "dti_pct": 42.501970192487775,
+        "maximum_amount_by_dti": 50000.0
+      },
+      "all_three_correct": false,
+      "latency_seconds": 3.4519729999883566,
+      "response_model": "mistral-small4-iq1:high",
+      "response_created_at": "2026-08-26T07:07:31.4822736Z",
+      "done_reason": "stop",
+      "prompt_eval_count": 1052,
+      "eval_count": 68,
+      "total_duration_ns": 3448306000,
+      "total_duration_seconds": 3.448306,
+      "load_duration_ns": 3595500,
+      "load_duration_seconds": 0.0035955,
+      "prompt_eval_duration_ns": 267601000,
+      "prompt_eval_duration_seconds": 0.267601,
+      "eval_duration_ns": 3170468000,
+      "eval_duration_seconds": 3.170468
+    }
+  ],
+  "summary": {
+    "completed_case_count": 1,
+    "http_success_count": 1,
+    "valid_json_count": 1,
+    "thinking_present_count": 0,
+    "correct_counts": {
+      "stressed_monthly_payment": 0.0,
+      "dti_pct": 0.0,
+      "maximum_amount_by_dti": 0.0
+    },
+    "agreement_by_field": {
+      "stressed_monthly_payment": 0.0,
+      "dti_pct": 0.0,
+      "maximum_amount_by_dti": 0.0
+    },
+    "combined_target_correct": 0.0,
+    "combined_target_comparisons": 3,
+    "combined_target_agreement": 0.0,
+    "all_three_correct_count": 0,
+    "all_three_correct_rate": 0.0,
+    "latency_seconds": {
+      "total": 3.4519729999883566,
+      "mean": 3.4519729999883566,
+      "median": 3.4519729999883566,
+      "minimum": 3.4519729999883566,
+      "maximum": 3.4519729999883566
+    }
+  }
+}

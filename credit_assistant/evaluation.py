@@ -8,7 +8,11 @@ from pathlib import Path
 from typing import Any
 
 from .credit_engine import ClientProfile, CreditEvaluation, evaluate_client
-from .service import answer_policy_question, build_llm_credit_analysis
+from .service import (
+    LlmExtractedDecision,
+    answer_policy_question,
+    build_llm_credit_analysis,
+)
 from .rag import RagIndex
 
 
@@ -186,6 +190,60 @@ def numeric_consistency(text: str, values: list[str]) -> MetricResult:
     )
 
 
+def numeric_agreement_details(
+    extracted: LlmExtractedDecision,
+    deterministic: CreditEvaluation,
+) -> str:
+    """Describe each locked numeric comparison without changing metric weighting."""
+    targets = (
+        (
+            "Stressed payment",
+            extracted.stressed_monthly_payment,
+            deterministic.stressed_monthly_payment,
+            1.0,
+            "RON",
+            "RON",
+            2,
+        ),
+        (
+            "DTI",
+            extracted.dti_pct,
+            deterministic.dti * 100,
+            0.05,
+            "%",
+            "pp",
+            4,
+        ),
+        (
+            "Maximum amount",
+            extracted.maximum_amount_by_dti,
+            deterministic.maximum_amount_by_dti,
+            1.0,
+            "RON",
+            "RON",
+            2,
+        ),
+    )
+    details: list[str] = []
+    for label, actual, reference, tolerance, value_unit, error_unit, decimals in targets:
+        if actual is None:
+            details.append(
+                f"{label}: NO (LLM value not found; "
+                f"reference {reference:,.{decimals}f} {value_unit})"
+            )
+            continue
+        absolute_error = abs(actual - reference)
+        agrees = absolute_error <= tolerance
+        details.append(
+            f"{label}: {'YES' if agrees else 'NO'} "
+            f"(LLM {actual:,.{decimals}f} {value_unit}; "
+            f"reference {reference:,.{decimals}f} {value_unit}; "
+            f"absolute error {absolute_error:,.{decimals}f} {error_unit}; "
+            f"tolerance {tolerance:,.{decimals}f} {error_unit})"
+        )
+    return "; ".join(details)
+
+
 def evaluate_client_case(case: dict[str, Any], index: RagIndex) -> CaseResult:
     profile = ClientProfile(**case["profile"])
     deterministic = evaluate_client(profile)
@@ -210,7 +268,17 @@ def evaluate_client_case(case: dict[str, Any], index: RagIndex) -> CaseResult:
         MetricResult(
             "overall_llm_vs_formulas_score",
             analysis.metric_scores.get("overall_llm_vs_formulas_score", 0.0),
-            "Comparison of the decision and financial values extracted from the LLM response.",
+            "Comparison of the decision and the three locked LLM calculation fields.",
+        ),
+        MetricResult(
+            "isolated_numeric_agreement",
+            analysis.metric_scores.get("isolated_numeric_agreement", 0.0),
+            numeric_agreement_details(analysis.extracted, deterministic),
+        ),
+        MetricResult(
+            "all_three_numeric_fields_correct",
+            analysis.metric_scores.get("all_three_numeric_fields_correct", 0.0),
+            "One only when all three isolated numerical fields agree in this case.",
         ),
         required_sections_score(answer),
         source_presence(answer),
