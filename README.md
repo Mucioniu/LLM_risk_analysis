@@ -4,7 +4,7 @@ Educational prototype for a master's thesis: an assistant that reads the fiction
 
 ## What It Does
 
-- indexes the NovaTech manual and NBR Regulation No. 17/2012 into searchable chunks;
+- indexes the NovaTech manual and NBR Regulation No. 17/2012 into searchable chunks using a selectable TF-IDF or Okapi BM25 sparse retriever;
 - retrieves fragments relevant to the client profile, including rules about FICO, PEP, AML, income types, and DTI;
 - sends the full profile and RAG fragments to a policy-only LLM stage;
 - sends ten finance-only inputs and sanitized policy parameters to one isolated LLM calculation stage;
@@ -41,6 +41,25 @@ http://127.0.0.1:7860
 ```
 
 If you add or modify documents in the corpus, stop and restart the application. The RAG index is built at startup.
+
+## Sparse Retriever
+
+TF-IDF remains the default because the current paired retrieval diagnostic does not demonstrate a BM25 improvement. BM25 is implemented over the same lowercase, Unicode-accent-normalized unigram/bigram vocabulary, with term-frequency saturation and document-length normalization. No additional package is required.
+
+Select the backend before starting the application:
+
+```powershell
+# Evidence-backed default
+$env:RAG_RETRIEVER="tfidf"
+
+# Selectable Okapi BM25 alternative
+$env:RAG_RETRIEVER="bm25"
+$env:RAG_BM25_K1="1.2"
+$env:RAG_BM25_B="0.75"
+python app.py
+```
+
+The active backend is displayed in the interface. Restart the application after changing it because the index is built once at startup. BM25 and TF-IDF scores have different scales; compare ranks and retrieval metrics, not raw score magnitudes.
 
 ## Temporary Public Access
 
@@ -85,6 +104,15 @@ D:\CondaEnvs\disertatie\python.exe app.py
 ```powershell
 python -m unittest discover tests
 ```
+
+Run the paired, retriever-only comparison without invoking an LLM:
+
+```powershell
+python examples/benchmark_retrievers.py --retrievers tfidf bm25 --top-k 5 `
+  --visible-chars 900 --repetitions 500
+```
+
+The resulting JSON and Markdown files record corpus hashes, tokenizer settings, BM25 parameters, per-query rankings, visible-prefix keyword coverage, and retriever-only latency. The keyword metric is explicitly a diagnostic rather than a human passage-relevance judgment.
 
 ## Evaluation Metrics
 
@@ -171,11 +199,12 @@ The observed route-screening results are recorded in `examples/staged_pipeline_s
 
 - `app.py` - Gradio interface;
 - `credit_assistant/document_loader.py` - DOCX/PDF reading and chunking;
-- `credit_assistant/rag.py` - TF-IDF index and search;
+- `credit_assistant/rag.py` - selectable TF-IDF and dependency-free Okapi BM25 indexing and search;
 - `credit_assistant/credit_engine.py` - post-hoc reference formulas used only for comparison and metrics;
 - `credit_assistant/service.py` - staged RAG/policy, isolated calculation, immutable-value assembly, synthesis, and post-hoc comparison;
 - `credit_assistant/evaluation.py` - metrics and synthetic suite execution;
 - `examples/evaluation_cases.json` - synthetic evaluation examples;
+- `examples/benchmark_retrievers.py` - paired TF-IDF/BM25 retrieval-only benchmark;
 - `examples/smoke_staged_pipeline.py` - reproducible single-case live route smoke test;
 - `examples/staged_pipeline_smoke_comparison.md` - observed local route-screening results and limitations;
 - `tests/` - engine, metrics, routing, schema, isolation, injection, and immutable-value tests.

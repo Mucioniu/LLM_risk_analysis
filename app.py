@@ -519,6 +519,8 @@ with gr.Blocks(title="NovaTech Credit Assistant") as demo:
     gr.Markdown(
         "# NovaTech RAG Credit Assistant\n"
         "Evaluate a fictional client using the NovaTech manual and display the fragments retrieved from the corpus.\n\n"
+        f"**Active sparse retriever:** `{'TF-IDF' if INDEX.retriever == 'tfidf' else 'BM25'}`. "
+        "Set `RAG_RETRIEVER=bm25` or `RAG_RETRIEVER=tfidf` before startup to switch.\n\n"
         "**Diagnostics enabled:** server errors can be viewed directly at `/runtime-errors`.",
         elem_id="novatech-hero",
     )

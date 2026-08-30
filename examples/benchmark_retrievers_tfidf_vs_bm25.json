@@ -1,0 +1,1592 @@
+{
+  "schema_version": 1,
+  "benchmark": "paired_sparse_retrievers",
+  "created_at": "2026-08-30T07:29:57.323197+00:00",
+  "configuration": {
+    "top_k": 5,
+    "visible_chars_per_chunk": 900,
+    "latency_repetitions_per_question": 500,
+    "effectiveness_questions": 12,
+    "latency_questions": 13
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.8.0"
+  },
+  "limitations": [
+    "Expected document names are too coarse to establish passage relevance.",
+    "Expected answer keywords are a diagnostic and include generic tokens.",
+    "The missing-policy case is excluded from keyword aggregates.",
+    "Raw score magnitudes are not comparable across retrievers."
+  ],
+  "input_sha256": {
+    "cases": "e5d84e9d108209635873ab85c08ac517734b979d68daef36e6508466f52c45d6",
+    "benchmark_implementation": "bd598150d4fa19a8481288f6e9977833175f03f06452543263a29a8aee4a012c",
+    "document_loader_implementation": "2585becd984d9ecfc5347fa9128730a0d603a84874b40584b2ae6ddbc3da756d",
+    "rag_implementation": "cce632e1cc791f65826c123720d1dc61dd0bc02328209f915a36c4bb3abcd17b",
+    "service_implementation": "1805ba091f06320c87fd918564b6ab5b85af6c1273ad68872042c1338bf4a20c",
+    "NovaTech_Extended_Credit_Manual_v3.pdf": "bfc64561b208a523037e05648d56d6898b935c3b8f23771aa133679db4995866",
+    "NBR_Regulation_No_17_2012.md": "e5a113a2693a2f28987f7086e647718a04b901e32229f7eeae54534b2e29c57e"
+  },
+  "results": [
+    {
+      "retriever": "tfidf",
+      "configuration": {
+        "lowercase": true,
+        "strip_accents": "unicode",
+        "ngram_range": [
+          1,
+          2
+        ],
+        "max_features": 20000,
+        "bm25_k1": null,
+        "bm25_b": null,
+        "top_k": 5,
+        "visible_chars_per_chunk": 900
+      },
+      "index": {
+        "chunks": 52,
+        "vocabulary": 6783,
+        "average_analyzer_features_per_chunk": 559.6538461538462,
+        "build_ms": 171.33239999998295
+      },
+      "latency": {
+        "samples": 6500,
+        "median_ms": 0.2275,
+        "p95_ms": 0.2896
+      },
+      "aggregate": {
+        "answerable_cases": 12,
+        "expected_source_coverage_at_k": 1.0,
+        "mean_expected_keyword_coverage_top_1": 0.7374999999999999,
+        "mean_expected_keyword_coverage_top_k_full_chunks": 0.8708333333333332,
+        "mean_expected_keyword_coverage_top_k_visible_prefixes": 0.6361111111111112,
+        "all_expected_keywords_visible_at_k_cases": 1
+      },
+      "cases": [
+        {
+          "case_id": "q_income_weights",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 6,
+            "score": 0.5
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 0.20602606271783422,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.18509366252559453,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.053890301306368994,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 181-186",
+              "score": 0.053684953584461834,
+              "visible_prefix": "### Article 15 of Chapter III was amended by Point 8,\n### Article I of REGULATION no. 5 of 23 September 2016, published in the OFFICIAL GAZETTE no. 755 of 28 September 2016 ) (2) Lenders shall determine the previous year's income on the basis of documents certifying income declared to the tax authorities and/or documents attesting to income credited to accounts opened with the lending institution.\n(As of September 28, 2016, paragraph (2) of\n### Article 15 of Chapter III was amended by Point 8,\n### Article I of REGULATION no. 5 of 23 September 2016, published in the OFFICIAL GAZETTE no. 755 of 28 September 2016 ) (3) In cases where there are no legal obligations to declare income to tax authorities, lenders determine the income of the previous year based on other supporting documents. (4) By exception to the provisions of paragraph (1), lenders may also take into account income exceeding "
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 130-143",
+              "score": 0.04166603597071192,
+              "visible_prefix": "### Article I of\nREGULATION No. 5 of September 23, 2016, published in the Official Gazette of Romania No. 755 of September 28, 2016)\n## Page 7\n### Article 12\n(1) For the purpose of this regulation, lenders establish within their own regulations, in accordance with their risk profile and strategy, at least the following:\na) the organization of lending activities for natural persons, including the methodology for assessing a client's capacity to repay the credit and the loan-approval authority, as well as, where applicable, the collateral requirements for each type of credit, the method for valuing the collateral, and the maximum permitted ratio of the financing amount to the collateral value;\n(As of February 18, 2022, letter a) of paragraph (1),\n### Article 12 of Chapter III was amended by Point 5,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the Official Gazette o"
+            }
+          ]
+        },
+        {
+          "case_id": "q_dti_formula",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.18160687888583704,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 0.16843257568909592,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 168-181",
+              "score": 0.140101227369765,
+              "visible_prefix": "## Page 8\nrevolving credit facility, the amount taken into account by the lender may not be less than 3% of the credit facility ceiling granted and is established by the lender in its own regulations. (3) The total debt-to-income ratio, calculated pursuant to this article, is not affected by the impact mentioned in Article 7.\n(As of November 9, 2018,\n### Article 13 of Chapter III was amended by Point 11,\n### Article I of REGULATION no. 6 of October 31, 2018, published in the Official Gazette of Romania no. 950 of November 9, 2018 )\n### Article 14\n(1) When granting a loan, lenders must ensure that from the documents and information they have, it results that over the entire loan term, the total debt-to-income ratio of the applicant is likely to fall within the maximum allowed level applicable to them. (2) The provisions of paragraph (1) shall apply, accordingly, to loans for which the rep"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 1-2",
+              "score": 0.13682549506811448,
+              "visible_prefix": "NOVATECH BANK ROMANIA S.A.  \n \nCORPORATE AND METHODOLOGICAL \nMANUAL  \nFOR LENDING TO INDIVIDUALS  \nExtended Methodological Rules, Risk Management Policies, Standard Operating Procedures \n(SOPs), and Prudential Compliance Guidelines  \n \n[Purpose: Evaluation and Indexing in Complex RAG Systems - Dissertation Project]\nCHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio leve"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 227-233",
+              "score": 0.1286769642015131,
+              "visible_prefix": "(1) does not apply in the case of loans whose value exceeds the equivalent in lei of the sum of 250,000 euros. (3) Lenders may use the exception provided for in paragraph\n(1) only for categories of debtors for which lenders can demonstrate, on the basis of historical data from their own lending portfolios, that the debtors' income is sufficient to support adequate management of non-repayment risk for the consumer credit portfolio and the real estate investment loan portfolio, respectively; for the purposes of this paragraph, sufficient income may not be lower than the economy-wide average net wage. (3^1) Loans granted to repay debts arising from loans contracted with the same lender shall not be included in the quarterly volumes of loans granted by that lender when determining the maximum 15% limit under paragraph (1).\n(As of February 18, 2022,\n### Article 20 of Chapter III was supplemen"
+            }
+          ]
+        },
+        {
+          "case_id": "q_pep_aml",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 1,
+            "total": 4,
+            "score": 0.25
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 4,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 10-11",
+              "score": 0.19968956087154394,
+              "visible_prefix": "Annex B: Extended Standard Operating Procedures (SOP) Guide for MANUAL \nREVIEW  \nSOP Retail -Risk -01: Document Assessment in Hybrid Cases  \nThis section sets out the methodological steps a s econd -line senior analyst must follow when \nreviewing a complex Group 1 application. The analyst compares 12 months of bank statements with \nthe turnover reported to ANAF. If the amounts reported for tax purposes differ from those actually \nreceived by more t han 10%, the prudential principle applies, and the lower amount is used to \ncalculate repayment capacity.  \nThe analyst must check the Trade Register and the court portal to determine whether the applicant's \nemployer is subject to insolvency, judicial reorgan ization, or bankruptcy proceedings. If the employer \nhas a high insolvency risk, the application is automatically REJECTED, regardless of the applicant's \ncurrent creditworthiness.  \nSOP"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.1787811349872609,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 0.1727412515872372,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 2-3",
+              "score": 0.15643605410723138,
+              "visible_prefix": "CHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio level.  \nThis document serves as the single authoritative source for all departments involved in the loan \nlifecycle: the Retail Ne twork Directorate, Risk Analysis Directorate, Anti -Fraud Department, \nCollateral Valuation Service, Compliance Department, and Workout/Debt Recovery Division.  \n1.2. Macroprudential Alignm"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.08082269826911295,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            }
+          ]
+        },
+        {
+          "case_id": "q_product_limits",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 2,
+            "total": 4,
+            "score": 0.5
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 2,
+            "total": 4,
+            "score": 0.5
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 1,
+            "total": 4,
+            "score": 0.25
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 0.13739108845522852,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.13159755949533303,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.10305419013495519,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 105-106",
+              "score": 0.09854040415090168,
+              "visible_prefix": "### Article 11^3\n(1) For the purpose of applying articles 11^1 and 11^2, lenders establish, periodically review, document, and retain, on paper or in electronic format, in accordance with internal archiving standards, the procedures and categories of information that form the basis for assessing the clients' repayment capacity. (2) Lenders establish, in a proportional manner, limited to the purpose for which they are necessary and in a way that allows the identification and prevention of distortions or errors on the part of consumers, lenders, or, as the case may be, credit intermediaries, the information that will be requested from clients for the purpose of assessing the repayment capacity. (3) In the event of credit approval, lenders retain the information that forms the basis for approval for at least the duration of the credit. (4) In applying paragraph (3), lenders maintain a recor"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 106-107",
+              "score": 0.09748930234213787,
+              "visible_prefix": "(1) For the purpose of applying articles 11^1 and 11^2, lenders establish, periodically review, document, and retain, on paper or in electronic format, in accordance with internal archiving standards, the procedures and categories of information that form the basis for assessing the clients' repayment capacity. (2) Lenders establish, in a proportional manner, limited to the purpose for which they are necessary and in a way that allows the identification and prevention of distortions or errors on the part of consumers, lenders, or, as the case may be, credit intermediaries, the information that will be requested from clients for the purpose of assessing the repayment capacity. (3) In the event of credit approval, lenders retain the information that forms the basis for approval for at least the duration of the credit. (4) In applying paragraph (3), lenders maintain a record with the histor"
+            }
+          ]
+        },
+        {
+          "case_id": "q_currency_interest_stress",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.15047478030793957,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 0.14094719220510216,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.12482868916276192,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 193-199",
+              "score": 0.10063549215084347,
+              "visible_prefix": "### Article 18\n(1) The value of a real estate investment loan may not exceed 85% of the mortgage collateral value for loans granted in lei. (2) For loans denominated in a foreign currency or indexed to the exchange rate of a foreign currency, where the debtor obtains eligible income denominated in or indexed to the credit currency, the value of a real estate investment loan is limited to 80% of the mortgage collateral value. (3) For a real estate investment loan granted to a natural person not naturally hedged against foreign-exchange risk, the financing amount may not exceed 75% of the mortgage collateral value for loans denominated in EUR or indexed to the EUR exchange rate, and 60% for loans denominated in other foreign currencies or indexed to their exchange rates. (3^1) The limits provided for in paragraphs (1)-(3) apply only if loan applicants declare on their own responsibility th"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 0.08376223609355563,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            }
+          ]
+        },
+        {
+          "case_id": "q_income_exclusions",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 0.11988184839681298,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.10313401545177317,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.08176082653190074,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 13-24",
+              "score": 0.05969606578115917,
+              "visible_prefix": "a) Romanian credit institutions that are legal persons, and branches of foreign credit institutions;\nb) Romanian non-bank financial institutions that are legal persons, and branches of foreign financial institutions, registered in the General Register;\nc) Romanian payment institutions that are legal persons; and\nd) Romanian electronic money issuers that are legal persons.\n(As of November 9, 2018, paragraph (1) of\n### Article 1 of Chapter I was amended by Point 1,\n### Article I of REGULATION no. 6 of October 31, 2018, published in the OFFICIAL GAZETTE no. 950 of November 9, 2018 ) (2) The provisions of Article 6(2) do not apply to the following categories of lenders:\na) Romanian non-bank financial institutions that are legal persons, and branches of foreign financial institutions, registered only in the General Register;\nb) Romanian payment institutions that are legal persons and Romanian"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 24-27",
+              "score": 0.0581865251911744,
+              "visible_prefix": "### Article I of REGULATION no. 6 of October 31, 2018, published in the OFFICIAL GAZETTE no. 950 of November 9, 2018 ) (3) Article 2 and the relevant provisions of Article 24 apply to Romanian credit institutions and Romanian financial institutions that are legal persons and are referred to in Article 89 of Government Emergency Ordinance no. 99/2006 on credit institutions and capital adequacy, approved with amendments and additions by Law no. 227/2007, with subsequent amendments and additions, for lending activities carried out in other member states.\n## Page 2\n### Article 2\n(1) Institutions referred to in Article 1(3) that conduct foreign-currency lending activities in other member states for debtors exposed to foreign-exchange risk and domiciled or having their registered office in those member states must comply, in respect of those activities, with the relevant requirements imposed b"
+            }
+          ]
+        },
+        {
+          "case_id": "q_fico_bands",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 1,
+            "total": 6,
+            "score": 0.16666666666666666
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 0.15226182142767392,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.14430111956306785,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.06680634103376402,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 2-3",
+              "score": 0.06674072763718834,
+              "visible_prefix": "CHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio level.  \nThis document serves as the single authoritative source for all departments involved in the loan \nlifecycle: the Retail Ne twork Directorate, Risk Analysis Directorate, Anti -Fraud Department, \nCollateral Valuation Service, Compliance Department, and Workout/Debt Recovery Division.  \n1.2. Macroprudential Alignm"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.051612749903769496,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            }
+          ]
+        },
+        {
+          "case_id": "q_non_eu_conditions",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 5,
+            "score": 0.6
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.15979225288386512,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 0.10758193955347607,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.08868327450373532,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 268-273",
+              "score": 0.054663708776783025,
+              "visible_prefix": "### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) This regulation transposes Article 7(2) and (3), Article 18(1)-\n(3), (5)(a), and (6), and Article 20(1) and (3), paragraph 1, second and third sentences, of Directive 2014/17/EU of the European Parliament and of the Council of February 4, 2014 on credit agreements for consumers relating to residential immovable property and amending Directives 2008/48/EC and 2013/36/EU and Regulation (EU) No. 1093/2010, published in the Official Journal of the European Union, L 60 of February 28, 2014, and Article 8 of Directive 2008/48/EC of the European Parliament and of the Council of April 23, 2008 on credit agreements for consumers and repealing Council Directive 87/102/EEC, published in the Official Journal of the European Union, L 133 of May 22, 2008, in relation to the lenders "
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 0.051692749571098436,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            }
+          ]
+        },
+        {
+          "case_id": "q_active_delay_bands",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.148991347322453,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.13343662593528044,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 0.12033059060235025,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.11863681503334407,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 90-99",
+              "score": 0.09263983134245837,
+              "visible_prefix": "update the information available to them regarding the client and reassess the client’s repayment capacity, applying the provisions of paragraph\n(1). (3) By derogation from paragraph (2), reassessment of the client’s repayment capacity is not necessary where lenders assessed repayment capacity before the request for a total amount of credit that includes the increase requested by the client after conclusion of the credit agreement, provided that the information held about the client remains relevant and is no more than 30 days old on the date the credit is granted. (4) On the basis of sufficient information, lenders shall assess collateral and personal guarantees in accordance with Article 12(1)(a).\n(As of February 18, 2022,\n### Article 11^1 of Chapter III was supplemented by Point 2,\n### Article I of REGULATION no. 3 of 11 February 2022, published in the OFFICIAL GAZETTE no. 166 of 18 F"
+            }
+          ]
+        },
+        {
+          "case_id": "q_historical_delay_exception",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 4,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 0.15618352499207797,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.14275423335230542,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.13126250134326156,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.11915135358500198,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 10-11",
+              "score": 0.11520283564082355,
+              "visible_prefix": "Annex B: Extended Standard Operating Procedures (SOP) Guide for MANUAL \nREVIEW  \nSOP Retail -Risk -01: Document Assessment in Hybrid Cases  \nThis section sets out the methodological steps a s econd -line senior analyst must follow when \nreviewing a complex Group 1 application. The analyst compares 12 months of bank statements with \nthe turnover reported to ANAF. If the amounts reported for tax purposes differ from those actually \nreceived by more t han 10%, the prudential principle applies, and the lower amount is used to \ncalculate repayment capacity.  \nThe analyst must check the Trade Register and the court portal to determine whether the applicant's \nemployer is subject to insolvency, judicial reorgan ization, or bankruptcy proceedings. If the employer \nhas a high insolvency risk, the application is automatically REJECTED, regardless of the applicant's \ncurrent creditworthiness.  \nSOP"
+            }
+          ]
+        },
+        {
+          "case_id": "q_life_insurance_age",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 3,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 3,
+            "total": 3,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 2,
+            "total": 3,
+            "score": 0.6666666666666666
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 0.14765730833681448,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 0.14140337706960998,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 84-90",
+              "score": 0.12080275554862474,
+              "visible_prefix": "### Article 11\n(1) Lenders must ensure that third parties involved in the preliminary analysis of the client’s repayment capacity, such as credit intermediaries, apply the same procedures as lenders for this purpose. (2) Lenders monitor the quality of the loan portfolio related to clients attracted by each third party referred to in paragraph (1), compared to that of the loan portfolio related to clients directly attracted by lenders. (3) The analysis carried out in accordance with paragraph (2) forms the basis of the lender’s decision to continue the business relationship with each of the third parties referred to in paragraph (1).\nChapter III Provisions on lending to natural persons\n### Article 11^1\n(1) Before concluding a credit agreement, lenders carry out, based on appropriate and sufficient information, a rigorous assessment of the client’s repayment capacity in accordance with the"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 90-99",
+              "score": 0.11915437056331771,
+              "visible_prefix": "update the information available to them regarding the client and reassess the client’s repayment capacity, applying the provisions of paragraph\n(1). (3) By derogation from paragraph (2), reassessment of the client’s repayment capacity is not necessary where lenders assessed repayment capacity before the request for a total amount of credit that includes the increase requested by the client after conclusion of the credit agreement, provided that the information held about the client remains relevant and is no more than 30 days old on the date the credit is granted. (4) On the basis of sufficient information, lenders shall assess collateral and personal guarantees in accordance with Article 12(1)(a).\n(As of February 18, 2022,\n### Article 11^1 of Chapter III was supplemented by Point 2,\n### Article I of REGULATION no. 3 of 11 February 2022, published in the OFFICIAL GAZETTE no. 166 of 18 F"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.11465008796728085,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            }
+          ]
+        },
+        {
+          "case_id": "q_it_tenure_exception",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 2,
+            "total": 5,
+            "score": 0.4
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 2,
+            "total": 5,
+            "score": 0.4
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 56-62",
+              "score": 0.1027085904221147,
+              "visible_prefix": "f) operations carried out exclusively for the purpose of converting loans granted to natural persons in foreign currency, or indexed to the exchange rate of a foreign currency, into loans in the national currency or in the currency in which the debtor's sources for repaying the loan are denominated or indexed.\n(As of March 9, 2015, letter f) of paragraph (1) of Article 4 was introduced by the sole article of REGULATION no. 2 of February 27, 2015, published in the OFFICIAL GAZETTE no. 163 of March 9, 2015.)\ng) operations involving the assumption of loans by third parties in the event of the debtor's death or division of property.\n(As of September 28, 2016, paragraph (1) of\n### Article 4 of Chapter I was supplemented by Point 2,\n### Article I of REGULATION no. 5 of 23 September 2016, published in the OFFICIAL GAZETTE no. 755 of 28 September 2016 ) (2) Lenders shall establish in their own l"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 0.09790906620724885,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 105-106",
+              "score": 0.08693197681210699,
+              "visible_prefix": "### Article 11^3\n(1) For the purpose of applying articles 11^1 and 11^2, lenders establish, periodically review, document, and retain, on paper or in electronic format, in accordance with internal archiving standards, the procedures and categories of information that form the basis for assessing the clients' repayment capacity. (2) Lenders establish, in a proportional manner, limited to the purpose for which they are necessary and in a way that allows the identification and prevention of distortions or errors on the part of consumers, lenders, or, as the case may be, credit intermediaries, the information that will be requested from clients for the purpose of assessing the repayment capacity. (3) In the event of credit approval, lenders retain the information that forms the basis for approval for at least the duration of the credit. (4) In applying paragraph (3), lenders maintain a recor"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 106-107",
+              "score": 0.08600469871888247,
+              "visible_prefix": "(1) For the purpose of applying articles 11^1 and 11^2, lenders establish, periodically review, document, and retain, on paper or in electronic format, in accordance with internal archiving standards, the procedures and categories of information that form the basis for assessing the clients' repayment capacity. (2) Lenders establish, in a proportional manner, limited to the purpose for which they are necessary and in a way that allows the identification and prevention of distortions or errors on the part of consumers, lenders, or, as the case may be, credit intermediaries, the information that will be requested from clients for the purpose of assessing the repayment capacity. (3) In the event of credit approval, lenders retain the information that forms the basis for approval for at least the duration of the credit. (4) In applying paragraph (3), lenders maintain a record with the histor"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 233-239",
+              "score": 0.08294624224853563,
+              "visible_prefix": "### Article 20 of Chapter III was supplemented by Point 12,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) (4) Lenders maintain appropriate records to demonstrate compliance with the requirements set out in this article. (5) Lenders report quarterly to the National Bank of Romania’s Supervision Directorate the volume of loans granted under this article through the form provided in the annex to this regulation, signed by the institution’s management. The reporting form is submitted to the National Bank of Romania within 25 days of the end of the quarter for which the reporting is prepared.\n(As of February 18, 2022, paragraph (5) of\n### Article 20 of Chapter III was amended by Point 13,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) (6) If the "
+            }
+          ]
+        },
+        {
+          "case_id": "q_missing_policy",
+          "expect_missing": true,
+          "expected_source_coverage_at_k": null,
+          "expected_keyword_coverage_top_1": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 49-56",
+              "score": 0.13244470369376662,
+              "visible_prefix": "(1) Exceptions may be made to the application of the provisions of Chapter III, or, as applicable, Chapter IV:\na) loans granted to natural persons for the purpose of financing studies or covering medical or funeral expenses;\nb) loans secured throughout their term by a collateral deposit placed with the lending institution, to the extent of the amounts effectively covered by that collateral;\nc) operations carried out exclusively for the purpose of restructuring, with the same lender and owing to the debtor's financial difficulties, loans granted to natural persons that are outstanding at the time of restructuring, in order to adapt the repayment terms to the debtor's new circumstances;\nd) loans repaid from subsidies to which the debtor is entitled under applicable legislation, within the limit of such subsidies.\ne) operations carried out exclusively for the purpose of restructuring loans "
+            },
+            {
+              "rank": 2,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 227-233",
+              "score": 0.1151309430508673,
+              "visible_prefix": "(1) does not apply in the case of loans whose value exceeds the equivalent in lei of the sum of 250,000 euros. (3) Lenders may use the exception provided for in paragraph\n(1) only for categories of debtors for which lenders can demonstrate, on the basis of historical data from their own lending portfolios, that the debtors' income is sufficient to support adequate management of non-repayment risk for the consumer credit portfolio and the real estate investment loan portfolio, respectively; for the purposes of this paragraph, sufficient income may not be lower than the economy-wide average net wage. (3^1) Loans granted to repay debts arising from loans contracted with the same lender shall not be included in the quarterly volumes of loans granted by that lender when determining the maximum 15% limit under paragraph (1).\n(As of February 18, 2022,\n### Article 20 of Chapter III was supplemen"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 273-275",
+              "score": 0.09739529051370838,
+              "visible_prefix": "(As of October 25, 2022, the header of the form in the annex was supplemented by Point 2,\n### Article VIII of REGULATION no. 11 of 10 October 2022, published in the OFFICIAL GAZETTE no. 1036 of 25 October 2022 ) Reporting date: FORM for reporting loans granted in compliance with the provisions of Article 20 of the regulation - RON***) Volume of consumer loans*) granted in compliance with the provisions of Article 20 paragraph (1) letter a) of the regulation Quarter n**) Total volume of consumer loans*) granted Quarter n-1 Quarter n-2 Quarter n-3 Quarter n-4\n## Page 13"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 27-29",
+              "score": 0.09223136012807892,
+              "visible_prefix": "(1) Institutions referred to in Article 1(3) that conduct foreign-currency lending activities in other member states for debtors exposed to foreign-exchange risk and domiciled or having their registered office in those member states must comply, in respect of those activities, with the relevant requirements imposed by the competent authorities of the member states concerned, as communicated by the National Bank of Romania. (2) For the purpose of applying paragraph (1), the National Bank of Romania publishes on its website the requirements communicated by the competent authorities of the respective member states.\n### Article 3\nFor the purposes of this regulation, the following terms and expressions have the meanings set out below:\na) real estate investment loan - any loan granted to a natural person who cumulatively meets the following conditions: (i) is secured by a mortgage on real esta"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 1-2",
+              "score": 0.08619880020119805,
+              "visible_prefix": "NOVATECH BANK ROMANIA S.A.  \n \nCORPORATE AND METHODOLOGICAL \nMANUAL  \nFOR LENDING TO INDIVIDUALS  \nExtended Methodological Rules, Risk Management Policies, Standard Operating Procedures \n(SOPs), and Prudential Compliance Guidelines  \n \n[Purpose: Evaluation and Indexing in Complex RAG Systems - Dissertation Project]\nCHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio leve"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "retriever": "bm25",
+      "configuration": {
+        "lowercase": true,
+        "strip_accents": "unicode",
+        "ngram_range": [
+          1,
+          2
+        ],
+        "max_features": 20000,
+        "bm25_k1": 1.2,
+        "bm25_b": 0.75,
+        "top_k": 5,
+        "visible_chars_per_chunk": 900
+      },
+      "index": {
+        "chunks": 52,
+        "vocabulary": 6783,
+        "average_analyzer_features_per_chunk": 559.6538461538462,
+        "build_ms": 167.48310000002675
+      },
+      "latency": {
+        "samples": 6500,
+        "median_ms": 0.12764999999999999,
+        "p95_ms": 0.1654
+      },
+      "aggregate": {
+        "answerable_cases": 12,
+        "expected_source_coverage_at_k": 1.0,
+        "mean_expected_keyword_coverage_top_1": 0.7708333333333334,
+        "mean_expected_keyword_coverage_top_k_full_chunks": 0.8708333333333332,
+        "mean_expected_keyword_coverage_top_k_visible_prefixes": 0.6222222222222222,
+        "all_expected_keywords_visible_at_k_cases": 1
+      },
+      "cases": [
+        {
+          "case_id": "q_income_weights",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 2,
+            "total": 6,
+            "score": 0.3333333333333333
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 33.98784162676646,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 31.46135935936877,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 130-143",
+              "score": 6.321866207347956,
+              "visible_prefix": "### Article I of\nREGULATION No. 5 of September 23, 2016, published in the Official Gazette of Romania No. 755 of September 28, 2016)\n## Page 7\n### Article 12\n(1) For the purpose of this regulation, lenders establish within their own regulations, in accordance with their risk profile and strategy, at least the following:\na) the organization of lending activities for natural persons, including the methodology for assessing a client's capacity to repay the credit and the loan-approval authority, as well as, where applicable, the collateral requirements for each type of credit, the method for valuing the collateral, and the maximum permitted ratio of the financing amount to the collateral value;\n(As of February 18, 2022, letter a) of paragraph (1),\n### Article 12 of Chapter III was amended by Point 5,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the Official Gazette o"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 186-193",
+              "score": 5.594056631169183,
+              "visible_prefix": "### Article 16\n(1) When granting consumer credit denominated in foreign currency or indexed to the exchange rate of a foreign currency, the applicant must provide collateral and/or personal guarantees amounting to at least 133% of the credit value. (2) For the purposes of this regulation, insurance policies covering the risk of non-payment shall be treated as personal guarantees. (3) Overdraft facilities, as well as loans granted through credit cards, may be exempted from the collateral requirement where their value does not exceed three times net monthly income and does not exceed the limit established in the lender's internal regulations.\n### Article 17\n(1) The term of consumer loans may not exceed 5 years. (2) The provisions of paragraph (1) do not apply to consumer loans for real estate purposes, within the meaning of Article 3 letter a) point\n(ii), granted in lei and for which the d"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 62-72",
+              "score": 5.456631011918059,
+              "visible_prefix": "### Article 5\n(1) Articles 16-19 shall not apply to loans granted to natural persons exclusively to repay debts arising from loans contracted before the entry into force of National Bank of Romania Regulation no. 5/2020 amending National Bank of Romania Regulation no. 17/2012 on certain lending conditions, with subsequent amendments and additions, and National Bank of Romania Regulation no. 6/2018 amending and supplementing National Bank of Romania Regulation no. 17/2012 on certain lending conditions, and only to the extent of those debts. (2) Lenders shall establish in their own lending rules the collateral requirements, maximum debt-to-income ratio, and maximum consumer-credit term for the loans referred to in paragraph (1), in accordance with Article 12.\n(As of July 8, 2020,\n### Article 5 of Chapter I was amended by\n### Article I of\nREGULATION no. 5 of 3 July 2020, published in the OF"
+            }
+          ]
+        },
+        {
+          "case_id": "q_dti_formula",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 21.36976928372874,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 20.447718488251304,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 168-181",
+              "score": 16.295372303991858,
+              "visible_prefix": "## Page 8\nrevolving credit facility, the amount taken into account by the lender may not be less than 3% of the credit facility ceiling granted and is established by the lender in its own regulations. (3) The total debt-to-income ratio, calculated pursuant to this article, is not affected by the impact mentioned in Article 7.\n(As of November 9, 2018,\n### Article 13 of Chapter III was amended by Point 11,\n### Article I of REGULATION no. 6 of October 31, 2018, published in the Official Gazette of Romania no. 950 of November 9, 2018 )\n### Article 14\n(1) When granting a loan, lenders must ensure that from the documents and information they have, it results that over the entire loan term, the total debt-to-income ratio of the applicant is likely to fall within the maximum allowed level applicable to them. (2) The provisions of paragraph (1) shall apply, accordingly, to loans for which the rep"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 1-2",
+              "score": 16.112686496661357,
+              "visible_prefix": "NOVATECH BANK ROMANIA S.A.  \n \nCORPORATE AND METHODOLOGICAL \nMANUAL  \nFOR LENDING TO INDIVIDUALS  \nExtended Methodological Rules, Risk Management Policies, Standard Operating Procedures \n(SOPs), and Prudential Compliance Guidelines  \n \n[Purpose: Evaluation and Indexing in Complex RAG Systems - Dissertation Project]\nCHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio leve"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 227-233",
+              "score": 15.410077873999132,
+              "visible_prefix": "(1) does not apply in the case of loans whose value exceeds the equivalent in lei of the sum of 250,000 euros. (3) Lenders may use the exception provided for in paragraph\n(1) only for categories of debtors for which lenders can demonstrate, on the basis of historical data from their own lending portfolios, that the debtors' income is sufficient to support adequate management of non-repayment risk for the consumer credit portfolio and the real estate investment loan portfolio, respectively; for the purposes of this paragraph, sufficient income may not be lower than the economy-wide average net wage. (3^1) Loans granted to repay debts arising from loans contracted with the same lender shall not be included in the quarterly volumes of loans granted by that lender when determining the maximum 15% limit under paragraph (1).\n(As of February 18, 2022,\n### Article 20 of Chapter III was supplemen"
+            }
+          ]
+        },
+        {
+          "case_id": "q_pep_aml",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 1,
+            "total": 4,
+            "score": 0.25
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 4,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 10-11",
+              "score": 26.953694441926118,
+              "visible_prefix": "Annex B: Extended Standard Operating Procedures (SOP) Guide for MANUAL \nREVIEW  \nSOP Retail -Risk -01: Document Assessment in Hybrid Cases  \nThis section sets out the methodological steps a s econd -line senior analyst must follow when \nreviewing a complex Group 1 application. The analyst compares 12 months of bank statements with \nthe turnover reported to ANAF. If the amounts reported for tax purposes differ from those actually \nreceived by more t han 10%, the prudential principle applies, and the lower amount is used to \ncalculate repayment capacity.  \nThe analyst must check the Trade Register and the court portal to determine whether the applicant's \nemployer is subject to insolvency, judicial reorgan ization, or bankruptcy proceedings. If the employer \nhas a high insolvency risk, the application is automatically REJECTED, regardless of the applicant's \ncurrent creditworthiness.  \nSOP"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 23.052823297240813,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 22.32065245880692,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 2-3",
+              "score": 17.097083257783233,
+              "visible_prefix": "CHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio level.  \nThis document serves as the single authoritative source for all departments involved in the loan \nlifecycle: the Retail Ne twork Directorate, Risk Analysis Directorate, Anti -Fraud Department, \nCollateral Valuation Service, Compliance Department, and Workout/Debt Recovery Division.  \n1.2. Macroprudential Alignm"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 10.840850740537803,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            }
+          ]
+        },
+        {
+          "case_id": "q_product_limits",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 2,
+            "total": 4,
+            "score": 0.5
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 2,
+            "total": 4,
+            "score": 0.5
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 1,
+            "total": 4,
+            "score": 0.25
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 16.153245475955387,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 16.016390966523133,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 62-72",
+              "score": 11.92654670319856,
+              "visible_prefix": "### Article 5\n(1) Articles 16-19 shall not apply to loans granted to natural persons exclusively to repay debts arising from loans contracted before the entry into force of National Bank of Romania Regulation no. 5/2020 amending National Bank of Romania Regulation no. 17/2012 on certain lending conditions, with subsequent amendments and additions, and National Bank of Romania Regulation no. 6/2018 amending and supplementing National Bank of Romania Regulation no. 17/2012 on certain lending conditions, and only to the extent of those debts. (2) Lenders shall establish in their own lending rules the collateral requirements, maximum debt-to-income ratio, and maximum consumer-credit term for the loans referred to in paragraph (1), in accordance with Article 12.\n(As of July 8, 2020,\n### Article 5 of Chapter I was amended by\n### Article I of\nREGULATION no. 5 of 3 July 2020, published in the OF"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 10.837386295494394,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 29-36",
+              "score": 9.449421355313937,
+              "visible_prefix": "b) consumer credit - a credit granted to a natural person, other than the credit provided for in letter (a);\nc) credit - the amount recorded in balance-sheet or off-balance-sheet accounts, made available or that the lending institution has undertaken to make available to a natural person or non-financial entity, in exchange for the obligation of the debtor concerned to repay that amount and to pay interest or other expenses related to it; finance-lease financing is treated as credit;\nd) person not naturally hedged against foreign-exchange risk - a natural person who does not obtain eligible income for repaying the credit, or a non-financial entity that does not have sources for repaying the credit, denominated in or indexed to the currency in which the credit is requested or granted;\ne) non-financial entities - legal persons, natural persons acting for purposes related to their commercia"
+            }
+          ]
+        },
+        {
+          "case_id": "q_currency_interest_stress",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 20.238988023597557,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 18.286234178043156,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 10.964742389937005,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 193-199",
+              "score": 10.758952567572829,
+              "visible_prefix": "### Article 18\n(1) The value of a real estate investment loan may not exceed 85% of the mortgage collateral value for loans granted in lei. (2) For loans denominated in a foreign currency or indexed to the exchange rate of a foreign currency, where the debtor obtains eligible income denominated in or indexed to the credit currency, the value of a real estate investment loan is limited to 80% of the mortgage collateral value. (3) For a real estate investment loan granted to a natural person not naturally hedged against foreign-exchange risk, the financing amount may not exceed 75% of the mortgage collateral value for loans denominated in EUR or indexed to the EUR exchange rate, and 60% for loans denominated in other foreign currencies or indexed to their exchange rates. (3^1) The limits provided for in paragraphs (1)-(3) apply only if loan applicants declare on their own responsibility th"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 10.086525681219912,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            }
+          ]
+        },
+        {
+          "case_id": "q_income_exclusions",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 14.039082853051376,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 12.380088240059862,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 275-278",
+              "score": 9.810788158213736,
+              "visible_prefix": "## Page 13\nVolume of loans*) for real estate investments granted in compliance with the provisions of Article 20 paragraph (1) letter b) of the regulation Quarter n**) Total volume of loans*) for real estate investments granted Quarter n-1 Quarter n-2 Quarter n-3 Quarter n-4 *) Loans granted in the respective quarter, but which have been repaid and are no longer reflected in the balance at the end of the reference quarter, shall be taken into account, without including interest, penalties or other costs charged by the lender. The calculation of this indicator includes the full value of the financing commitments assumed by the creditor in the reference quarter, regardless of the date of actual drawing/utilization of the relevant amounts. **) n - represents the quarter for which the report is prepared. ***) In the case of loans granted in foreign currency or indexed to the exchange rate of"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 6.71931630194221,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 24-27",
+              "score": 6.213294387102508,
+              "visible_prefix": "### Article I of REGULATION no. 6 of October 31, 2018, published in the OFFICIAL GAZETTE no. 950 of November 9, 2018 ) (3) Article 2 and the relevant provisions of Article 24 apply to Romanian credit institutions and Romanian financial institutions that are legal persons and are referred to in Article 89 of Government Emergency Ordinance no. 99/2006 on credit institutions and capital adequacy, approved with amendments and additions by Law no. 227/2007, with subsequent amendments and additions, for lending activities carried out in other member states.\n## Page 2\n### Article 2\n(1) Institutions referred to in Article 1(3) that conduct foreign-currency lending activities in other member states for debtors exposed to foreign-exchange risk and domiciled or having their registered office in those member states must comply, in respect of those activities, with the relevant requirements imposed b"
+            }
+          ]
+        },
+        {
+          "case_id": "q_fico_bands",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 6,
+            "total": 6,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 1,
+            "total": 6,
+            "score": 0.16666666666666666
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 28.10221281950401,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 24.053748921260343,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 2-3",
+              "score": 9.071431641841437,
+              "visible_prefix": "CHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio level.  \nThis document serves as the single authoritative source for all departments involved in the loan \nlifecycle: the Retail Ne twork Directorate, Risk Analysis Directorate, Anti -Fraud Department, \nCollateral Valuation Service, Compliance Department, and Workout/Debt Recovery Division.  \n1.2. Macroprudential Alignm"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 7.098487046900849,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 5.8209842317407015,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            }
+          ]
+        },
+        {
+          "case_id": "q_non_eu_conditions",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 5,
+            "score": 0.6
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 23.71140112205212,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 16.260332947874684,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 12.922151541579332,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 6-7",
+              "score": 9.491180791023654,
+              "visible_prefix": "Copyright / Intellectual \nProperty Income  70% Assignment agreements, 12 -\nmonth history of recurring \nreceipts.  \nPer Diem Allowances for \nSeafarers / Aircrew  60% Valid seafar er employment / \nflight contract, bank \nstatements in RON/foreign \ncurrency.  \nManagement / Mandate \nAgreements  85% Contract valid for at least 36 \nmonths, 6 -month receipt \nhistory.  \n \n5.3. Filters for the Complete Exclusion of Unstable Income Sources  \nThe Bank applies a highly conservative approach. The following sources receive a 0% weight and \ncannot be used for co -financing: income from meal vouchers, holiday vouchers, social assistance or \ntemporary benefits, life annuities not registered for tax purposes, spo rts-betting winnings, \nspeculative crypto -asset trading, or short -term equity trading (Day Trading).  \nCHAPTER 6. INTERNAL CREDIT SCORING MODEL AND \nSCORECARDS  \n6.1. Scorecard Algorithm Structu"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 268-273",
+              "score": 6.502468343664246,
+              "visible_prefix": "### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) This regulation transposes Article 7(2) and (3), Article 18(1)-\n(3), (5)(a), and (6), and Article 20(1) and (3), paragraph 1, second and third sentences, of Directive 2014/17/EU of the European Parliament and of the Council of February 4, 2014 on credit agreements for consumers relating to residential immovable property and amending Directives 2008/48/EC and 2013/36/EU and Regulation (EU) No. 1093/2010, published in the Official Journal of the European Union, L 60 of February 28, 2014, and Article 8 of Directive 2008/48/EC of the European Parliament and of the Council of April 23, 2008 on credit agreements for consumers and repealing Council Directive 87/102/EEC, published in the Official Journal of the European Union, L 133 of May 22, 2008, in relation to the lenders "
+            }
+          ]
+        },
+        {
+          "case_id": "q_active_delay_bands",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 35.42767089594001,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 33.47556365153322,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 30.48621663915158,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 7-8",
+              "score": 29.445309603157142,
+              "visible_prefix": "CHAPTER 7. PRUDENTIAL LIMITS AND MAXIMUM DEBT -TO-INCOME \nRATIO (DTI)  \n7.1. Standard Calculation Formula under NBR Rules  \nThe maximum debt -to-income ratio (DTI) is calculated strictly in accordance with the methodology \nimposed by the central bank, by dividing total monthly payment obligations by weighted eligible net \nincome:  \nDTI (%) = [ (Existing Loan Payments + New Loan Payment) / Weighted Eligible Net Income ] \n× 100  \n7.2. Adjustments for Currency Risk and Interest -Rate Shocks  \nIf a client requests a loan in EUR while earning income in RON, the Bank applies a currency stress \ntest that simulates a sudden 15% depreciation of the Romanian leu. In addition, for variable -interest \nloans, a 2 -perce ntage -point increase in the reference index (IRCC) is simulated. If DTI exceeds the \nlegal threshold after these shocks are simulated, the loan is REJECTED.  \nCHAPTER 8. LOAN PRODUCT"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 90-99",
+              "score": 25.363430026018783,
+              "visible_prefix": "update the information available to them regarding the client and reassess the client’s repayment capacity, applying the provisions of paragraph\n(1). (3) By derogation from paragraph (2), reassessment of the client’s repayment capacity is not necessary where lenders assessed repayment capacity before the request for a total amount of credit that includes the increase requested by the client after conclusion of the credit agreement, provided that the information held about the client remains relevant and is no more than 30 days old on the date the credit is granted. (4) On the basis of sufficient information, lenders shall assess collateral and personal guarantees in accordance with Article 12(1)(a).\n(As of February 18, 2022,\n### Article 11^1 of Chapter III was supplemented by Point 2,\n### Article I of REGULATION no. 3 of 11 February 2022, published in the OFFICIAL GAZETTE no. 166 of 18 F"
+            }
+          ]
+        },
+        {
+          "case_id": "q_historical_delay_exception",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 4,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 3,
+            "total": 4,
+            "score": 0.75
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 27.304128961364086,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 21.414002549229444,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 20.96594641991432,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 10-11",
+              "score": 18.308469719044698,
+              "visible_prefix": "Annex B: Extended Standard Operating Procedures (SOP) Guide for MANUAL \nREVIEW  \nSOP Retail -Risk -01: Document Assessment in Hybrid Cases  \nThis section sets out the methodological steps a s econd -line senior analyst must follow when \nreviewing a complex Group 1 application. The analyst compares 12 months of bank statements with \nthe turnover reported to ANAF. If the amounts reported for tax purposes differ from those actually \nreceived by more t han 10%, the prudential principle applies, and the lower amount is used to \ncalculate repayment capacity.  \nThe analyst must check the Trade Register and the court portal to determine whether the applicant's \nemployer is subject to insolvency, judicial reorgan ization, or bankruptcy proceedings. If the employer \nhas a high insolvency risk, the application is automatically REJECTED, regardless of the applicant's \ncurrent creditworthiness.  \nSOP"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 17.42621419643524,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            }
+          ]
+        },
+        {
+          "case_id": "q_life_insurance_age",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 3,
+            "total": 3,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 3,
+            "total": 3,
+            "score": 1.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 2,
+            "total": 3,
+            "score": 0.6666666666666666
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 4-5",
+              "score": 16.03536286847339,
+              "visible_prefix": "loan approval for this category. PEP applications are escalated to the Risk Committee and require \nextremely rigorous do cumentation of the origin of the client's total wealth.  \nCHAPTER 4. ELIGIBILITY CRITERIA AND DETAILED APPLICANT \nPROFILE  \n4.1. Legal Status, Citizenship, and Tax Residence  \nThe Bank grants credit facilities exclusively to individuals of legal age who have full  legal capacity. \nFrom a legal and tax perspective, Romanian citizens and citizens of EU Member States are \naccepted if they hold a personal identification number (CNP) issued by the Romanian authorities, \nhave permanent tax residence in Romania, and can be v erified in the ANAF database.  \nFor non -EU foreign citizens, lending is permitted only if they are married to a Romanian citizen, own \nreal estate in Romania, and have held a local employment contract with the same employer for at \nleast 24 months.  \n4.2"
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 3-4",
+              "score": 15.966283716442852,
+              "visible_prefix": "The key structural performance indicators of the loan portfolio include Cost of Risk (CoR), Probability  \nof Default (PD), Loss Given Default (LGD), and Exposure at Default (EAD). All these parameters are \nrecalculated monthly using advanced statistical models.  \n2.2. Authority Matrix and Escalation Structures  \nThe lending decision process is hierarchical to prev ent the concentration of decision -making power \nand ensure independent dual control under the four -eyes principle:  \n• Level 1: Automated Decision (STP - Straight -Through Processing) - managed entirely by the risk \nengine for fully eligible applications.  \n• Level 2 : Junior Retail Credit Analyst - authority limited to standard, exception -free loans of up to \n50,000 RON.  \n• Level 3: Senior Credit Analyst / Supervisor - approval authority for amounts up to 100,000 RON \nor applications involving minor financial complexities."
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 13.278754434297717,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 4,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 10.154171594400875,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 8.732894970278169,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            }
+          ]
+        },
+        {
+          "case_id": "q_it_tenure_exception",
+          "expect_missing": false,
+          "expected_source_coverage_at_k": 1.0,
+          "expected_keyword_coverage_top_1": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 4,
+            "total": 5,
+            "score": 0.8
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 2,
+            "total": 5,
+            "score": 0.4
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 8-9",
+              "score": 15.418524313980202,
+              "visible_prefix": "9.2. Ancillary Insurance Policies (Unemployment, Life, Disability)  \nInsurance policies protect both the Bank and the client against unforeseen events. In the event of job \nloss, the insurer covers the monthly installments for up to 6 consecutiv e months.  \nCHAPTER 10. LOAN ORIGINATION AND DISBURSEMENT PROCESS \nFLOW  \n10.1. Stages of the Standard Operational Flow  \nThe origination process consists of 4 major stages: Onboarding and KYC; Verification and Risk \n(ANAF/Credit Bureau query); Analysis and Decisi on (STP or MANUAL REVIEW); and Contract \nSigning and Funds Disbursement. All contractual documents are signed electronically using qualified \ndigital certificates.  \nCHAPTER 11. POST -ORIGINATION MONITORING AND IFRS 9 \nPROVISIONING  \n11.1. Early Warning Indicators  (Early Warning Signs - EWS)  \nThe Bank runs early -warning algorithms weekly across active client accounts. Declining accou"
+            },
+            {
+              "rank": 2,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 56-62",
+              "score": 13.113084463307837,
+              "visible_prefix": "f) operations carried out exclusively for the purpose of converting loans granted to natural persons in foreign currency, or indexed to the exchange rate of a foreign currency, into loans in the national currency or in the currency in which the debtor's sources for repaying the loan are denominated or indexed.\n(As of March 9, 2015, letter f) of paragraph (1) of Article 4 was introduced by the sole article of REGULATION no. 2 of February 27, 2015, published in the OFFICIAL GAZETTE no. 163 of March 9, 2015.)\ng) operations involving the assumption of loans by third parties in the event of the debtor's death or division of property.\n(As of September 28, 2016, paragraph (1) of\n### Article 4 of Chapter I was supplemented by Point 2,\n### Article I of REGULATION no. 5 of 23 September 2016, published in the OFFICIAL GAZETTE no. 755 of 28 September 2016 ) (2) Lenders shall establish in their own l"
+            },
+            {
+              "rank": 3,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 9-10",
+              "score": 10.947443955902372,
+              "visible_prefix": "the loan term (without exceeding the legal limit of 5 years from the original date) to reduce the \nmonthly payment.  \n12.3. Enforcement and Outsourcing of Receivables (Day 91+)  \nIf the loan becomes more than 90 days past due and no restructuring agreement is reached, it is \naccelerated and becomes immediately due in full. The case is sent to partner judicial enforcement \nofficers to obtain income garnishment or ders or enforce against movable assets, or the receivable is \nsold to specialist debt -recovery companies.  \nANNEXES AND TEST SCENARIOS FOR EVALUATING THE RAG \nASSISTANT  \nAnnex A: Synthetic Dataset (Complex Validation Cases)  \nTo evaluate the RAG system's performance, the developer will use the following benchmark test \ncases to verify that the LLM correctly extracts rules and exceptions:  \nTest Case 1 (APPROVED with Exception E -3.1): \nApplicant: IT programmer. Tenure with curr"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 233-239",
+              "score": 10.24665691989466,
+              "visible_prefix": "### Article 20 of Chapter III was supplemented by Point 12,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) (4) Lenders maintain appropriate records to demonstrate compliance with the requirements set out in this article. (5) Lenders report quarterly to the National Bank of Romania’s Supervision Directorate the volume of loans granted under this article through the form provided in the annex to this regulation, signed by the institution’s management. The reporting form is submitted to the National Bank of Romania within 25 days of the end of the quarter for which the reporting is prepared.\n(As of February 18, 2022, paragraph (5) of\n### Article 20 of Chapter III was amended by Point 13,\n### Article I of REGULATION no. 3 of February 11, 2022, published in the OFFICIAL GAZETTE no. 166 of February 18, 2022 ) (6) If the "
+            },
+            {
+              "rank": 5,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 5-6",
+              "score": 9.222090549547975,
+              "visible_prefix": "CHAPTER 5. COMPREHENSIVE METHODOLOGY FOR INCOME \nASSESSMENT AND WEIGHTING  \n5.1. Philosophy of Prudential Income Adjustment (Haircut Policy)  \nApplicants' declared income is subject to prudential adjustment coefficients known as 'haircuts'. The \npurpose of these weights is to protect the Bank against the volatility of non -salary income. While a \nfixed salary from the public sector or a multinational company is highly stable, income from self -\nemployment, dividen ds, or rentals may fluctuate dramatically depending on the global economic \nenvironment.  \n5.2. Classification of Income Sources and Weighting Coefficients  \nThe following structured table defines exactly how the IT system (Credit Engine) adjusts income \nbefore running the debt -to-income ratio (DTI) formulas:  \nIncome Source Category  Internal Weight  Documentation and \nValidation Requirements  \nSalary (Permanent \nemployment c"
+            }
+          ]
+        },
+        {
+          "case_id": "q_missing_policy",
+          "expect_missing": true,
+          "expected_source_coverage_at_k": null,
+          "expected_keyword_coverage_top_1": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "expected_keyword_coverage_top_k_full_chunks": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "expected_keyword_coverage_top_k_visible_prefixes": {
+            "found": 0,
+            "total": 1,
+            "score": 0.0
+          },
+          "results": [
+            {
+              "rank": 1,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 49-56",
+              "score": 9.433157353604356,
+              "visible_prefix": "(1) Exceptions may be made to the application of the provisions of Chapter III, or, as applicable, Chapter IV:\na) loans granted to natural persons for the purpose of financing studies or covering medical or funeral expenses;\nb) loans secured throughout their term by a collateral deposit placed with the lending institution, to the extent of the amounts effectively covered by that collateral;\nc) operations carried out exclusively for the purpose of restructuring, with the same lender and owing to the debtor's financial difficulties, loans granted to natural persons that are outstanding at the time of restructuring, in order to adapt the repayment terms to the debtor's new circumstances;\nd) loans repaid from subsidies to which the debtor is entitled under applicable legislation, within the limit of such subsidies.\ne) operations carried out exclusively for the purpose of restructuring loans "
+            },
+            {
+              "rank": 2,
+              "source": "NovaTech_Extended_Credit_Manual_v3.pdf",
+              "location": "paragraphs 1-2",
+              "score": 8.72995774475881,
+              "visible_prefix": "NOVATECH BANK ROMANIA S.A.  \n \nCORPORATE AND METHODOLOGICAL \nMANUAL  \nFOR LENDING TO INDIVIDUALS  \nExtended Methodological Rules, Risk Management Policies, Standard Operating Procedures \n(SOPs), and Prudential Compliance Guidelines  \n \n[Purpose: Evaluation and Indexing in Complex RAG Systems - Dissertation Project]\nCHAPTER 1. INTRODUCTION AND INSTITUTIONAL REGULATORY \nFRAMEWORK  \n1.1. Structural Objectives of the Lending Manual  \nThis manual establishes the comprehensive set of operational rules, int ernal control principles, and \nmacroeconomic and microeconomic analysis criteria governing the activities of NovaTech Bank \nRomania S.A. The business objective is to provide a clear algorithmic and procedural structure \ncapable of ensuring sustainable lending  to individuals while maintaining the non -performing loan \n(NPL) ratio below a critical threshold of 2.1% at aggregate portfolio leve"
+            },
+            {
+              "rank": 3,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 227-233",
+              "score": 8.6297808968473,
+              "visible_prefix": "(1) does not apply in the case of loans whose value exceeds the equivalent in lei of the sum of 250,000 euros. (3) Lenders may use the exception provided for in paragraph\n(1) only for categories of debtors for which lenders can demonstrate, on the basis of historical data from their own lending portfolios, that the debtors' income is sufficient to support adequate management of non-repayment risk for the consumer credit portfolio and the real estate investment loan portfolio, respectively; for the purposes of this paragraph, sufficient income may not be lower than the economy-wide average net wage. (3^1) Loans granted to repay debts arising from loans contracted with the same lender shall not be included in the quarterly volumes of loans granted by that lender when determining the maximum 15% limit under paragraph (1).\n(As of February 18, 2022,\n### Article 20 of Chapter III was supplemen"
+            },
+            {
+              "rank": 4,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 29-36",
+              "score": 8.195349526175441,
+              "visible_prefix": "b) consumer credit - a credit granted to a natural person, other than the credit provided for in letter (a);\nc) credit - the amount recorded in balance-sheet or off-balance-sheet accounts, made available or that the lending institution has undertaken to make available to a natural person or non-financial entity, in exchange for the obligation of the debtor concerned to repay that amount and to pay interest or other expenses related to it; finance-lease financing is treated as credit;\nd) person not naturally hedged against foreign-exchange risk - a natural person who does not obtain eligible income for repaying the credit, or a non-financial entity that does not have sources for repaying the credit, denominated in or indexed to the currency in which the credit is requested or granted;\ne) non-financial entities - legal persons, natural persons acting for purposes related to their commercia"
+            },
+            {
+              "rank": 5,
+              "source": "NBR_Regulation_No_17_2012.md",
+              "location": "paragraphs 193-199",
+              "score": 7.186590674813762,
+              "visible_prefix": "### Article 18\n(1) The value of a real estate investment loan may not exceed 85% of the mortgage collateral value for loans granted in lei. (2) For loans denominated in a foreign currency or indexed to the exchange rate of a foreign currency, where the debtor obtains eligible income denominated in or indexed to the credit currency, the value of a real estate investment loan is limited to 80% of the mortgage collateral value. (3) For a real estate investment loan granted to a natural person not naturally hedged against foreign-exchange risk, the financing amount may not exceed 75% of the mortgage collateral value for loans denominated in EUR or indexed to the EUR exchange rate, and 60% for loans denominated in other foreign currencies or indexed to their exchange rates. (3^1) The limits provided for in paragraphs (1)-(3) apply only if loan applicants declare on their own responsibility th"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

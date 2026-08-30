@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -21,7 +22,13 @@ from .credit_engine import (
     evaluate_client,
 )
 from .llm import optional_llm_summary
-from .rag import RagIndex, format_sources
+from .rag import (
+    DEFAULT_BM25_B,
+    DEFAULT_BM25_K1,
+    DEFAULT_RETRIEVER,
+    RagIndex,
+    format_sources,
+)
 
 
 DEFAULT_PDF = Path("NovaTech_Extended_Credit_Manual_v3.pdf")
@@ -374,8 +381,51 @@ def default_corpus_paths() -> list[Path]:
     return paths
 
 
-def build_default_index() -> RagIndex:
-    return RagIndex.from_paths(default_corpus_paths())
+def _retrieval_float_setting(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number, received {raw!r}.") from exc
+
+
+def build_default_index(
+    retriever: str | None = None,
+    *,
+    bm25_k1: float | None = None,
+    bm25_b: float | None = None,
+) -> RagIndex:
+    """Build the startup index with an explicit or environment-selected backend.
+
+    TF-IDF remains the evidence-backed default. Set ``RAG_RETRIEVER=bm25`` to
+    use the paired BM25 implementation without changing any downstream API.
+    """
+
+    selected_retriever = retriever or os.getenv("RAG_RETRIEVER", DEFAULT_RETRIEVER)
+    if selected_retriever.strip().lower() == "bm25":
+        selected_k1 = (
+            bm25_k1
+            if bm25_k1 is not None
+            else _retrieval_float_setting("RAG_BM25_K1", DEFAULT_BM25_K1)
+        )
+        selected_b = (
+            bm25_b
+            if bm25_b is not None
+            else _retrieval_float_setting("RAG_BM25_B", DEFAULT_BM25_B)
+        )
+    else:
+        # Irrelevant stale BM25 environment settings must not prevent the
+        # evidence-backed TF-IDF route from starting.
+        selected_k1 = DEFAULT_BM25_K1
+        selected_b = DEFAULT_BM25_B
+    return RagIndex.from_paths(
+        default_corpus_paths(),
+        retriever=selected_retriever,
+        bm25_k1=selected_k1,
+        bm25_b=selected_b,
+    )
 
 
 def format_sources_markdown(sources: str) -> str:

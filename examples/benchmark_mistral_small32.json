@@ -2,7 +2,7 @@
   {
     "model": "mistral-small3.2",
     "case_count": 4,
-    "average_score_total": 0.7727272727272727,
+    "average_score_total": 0.9090909090909091,
     "decision_accuracy": 1.0,
     "latency_seconds": 109.69574909994844,
     "cases": [
@@ -101,7 +101,7 @@
         "expected_decision": "MANUAL REVIEW",
         "deterministic_decision": "MANUAL REVIEW",
         "llm_decision": "MANUAL REVIEW",
-        "score_total": 0.7272727272727273,
+        "score_total": 1.0,
         "decision_score": 1.0,
         "metrics": {
           "Decision": 1.0,
@@ -111,11 +111,11 @@
           "Maximum total payment capacity": 1.0,
           "Existing payments": 1.0,
           "Available capacity for the new payment": 1.0,
-          "Analyzed new payment after stress": 0.0,
-          "DTI": 0.0,
+          "Analyzed new payment after stress": 1.0,
+          "DTI": 1.0,
           "Age at maturity": 1.0,
-          "Maximum recommended amount": 0.0,
-          "overall_llm_vs_formulas_score": 0.7272727272727273
+          "Maximum recommended amount": 1.0,
+          "overall_llm_vs_formulas_score": 1.0
         },
         "latency_seconds": 26.626966599957086,
         "extracted": {
@@ -126,10 +126,10 @@
           "max_monthly_payment": 4800.0,
           "existing_monthly_debts": 500.0,
           "available_payment_capacity": 4300.0,
-          "stressed_monthly_payment": 967.72,
-          "dti_pct": 12.83,
+          "stressed_monthly_payment": 1268.129171737363,
+          "dti_pct": 14.734409764478027,
           "maturity_age": 46.0,
-          "maximum_amount_by_dti": 50000.0
+          "maximum_amount_by_dti": 150000
         },
         "deterministic": {
           "weighted_income": 12000.0,
@@ -146,7 +146,7 @@
         "expected_decision": "REJECTED",
         "deterministic_decision": "REJECTED",
         "llm_decision": "REJECTED",
-        "score_total": 0.7272727272727273,
+        "score_total": 1.0,
         "decision_score": 1.0,
         "metrics": {
           "Decision": 1.0,
@@ -156,11 +156,11 @@
           "Maximum total payment capacity": 1.0,
           "Existing payments": 1.0,
           "Available capacity for the new payment": 1.0,
-          "Analyzed new payment after stress": 0.0,
-          "DTI": 0.0,
+          "Analyzed new payment after stress": 1.0,
+          "DTI": 1.0,
           "Age at maturity": 1.0,
-          "Maximum recommended amount": 0.0,
-          "overall_llm_vs_formulas_score": 0.7272727272727273
+          "Maximum recommended amount": 1.0,
+          "overall_llm_vs_formulas_score": 1.0
         },
         "latency_seconds": 21.823887100093998,
         "extracted": {
@@ -171,10 +171,10 @@
           "max_monthly_payment": 3600.0,
           "existing_monthly_debts": 0.0,
           "available_payment_capacity": 3600.0,
-          "stressed_monthly_payment": 275.84,
-          "dti_pct": 3.06,
+          "stressed_monthly_payment": 968.0156158151277,
+          "dti_pct": 10.755729064612531,
           "maturity_age": 33.0,
-          "maximum_amount_by_dti": 150000.0
+          "maximum_amount_by_dti": 111568.44810716971
         },
         "deterministic": {
           "weighted_income": 9000.0,
