@@ -91,6 +91,18 @@ https://example.trycloudflare.com
 
 The link remains active while the terminal and computer are running.
 
+The defense launcher `..\NovaTech_Defense_10min\Start_NovaTech_Demo.ps1` now starts this tunnel automatically after its configured demo app is ready. Add `-LocalOnly` to that launcher to disable sharing, or `-NoBrowser` to suppress opening the local browser. To share an app that is already running without starting or stopping it:
+
+```powershell
+.\start_public_cloudflare.ps1 -TunnelOnly
+```
+
+Both launchers verify that port 7860 serves NovaTech before exposing it. The tunnel-only mode leaves the existing model settings and app process unchanged; Ctrl+C stops only the tunnel. The standalone public launcher stops only an app process it started itself. The app binds to localhost; remote laptops connect through the HTTPS tunnel URL, not `127.0.0.1`.
+
+The app uses one light palette at the ordinary `/` address, on both local and public URLs. The launcher never adds a theme parameter; old `?__theme=...` bookmarks redirect to the plain URL. After code changes, add `-Restart` to the defense launcher to replace the verified NovaTech process with the updated app; this ends active analyses and sessions. Without this flag, an already-running app keeps serving its old code.
+
+The temporary URL has no sign-in protection. Anyone with the link can use the app and view `/runtime-errors`; use synthetic data, share selectively, and stop the tunnel after the demo.
+
 For local network access only, you can start the server with:
 
 ```powershell
@@ -104,6 +116,14 @@ D:\CondaEnvs\disertatie\python.exe app.py
 ```powershell
 python -m unittest discover tests
 ```
+
+Test the demo/Cloudflare launchers in Windows PowerShell with the bundled Pester 3 module:
+
+```powershell
+Invoke-Pester .\tests\launchers.Tests.ps1
+```
+
+These launcher tests mock processes, sockets, and HTTP calls; they do not start an app or publish a tunnel.
 
 Run the paired, retriever-only comparison without invoking an LLM:
 

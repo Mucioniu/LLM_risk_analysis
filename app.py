@@ -13,7 +13,7 @@ from pathlib import Path
 import gradio as gr
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 
 from credit_assistant.credit_engine import INCOME_WEIGHTS, ClientProfile
 from credit_assistant.service import (
@@ -70,6 +70,18 @@ APP_THEME = gr.themes.Soft(
     button_primary_border_color_dark="#147d78",
     button_primary_text_color="#ffffff",
     button_primary_text_color_dark="#ffffff",
+)
+
+# Keep one light appearance, even when Gradio detects a dark OS preference.
+# Apply this to the theme itself; no URL parameter or browser preference is needed.
+_theme_values = APP_THEME.to_dict()["theme"]
+APP_THEME.set(
+    **{
+        key: _theme_values[name[:-5]]
+        for name in _theme_values
+        if name.endswith("_dark") and name[:-5] in _theme_values
+        for key in (name, name[:-5])
+    }
 )
 
 
@@ -142,6 +154,16 @@ body {
     color: #526475;
     font-size: 1.02rem;
     line-height: 1.65;
+}
+
+/* Keep inline configuration labels readable in both Gradio color modes. */
+#novatech-hero p code {
+    color: #115e59 !important;
+    background: #e6f4f1 !important;
+    border: 1px solid #b9dcd5;
+    border-radius: 5px;
+    padding: 0.12em 0.35em;
+    font-weight: 600;
 }
 
 .tabs {
@@ -674,6 +696,20 @@ def get_runtime_errors_text() -> str:
 
 def create_server() -> FastAPI:
     server = FastAPI()
+
+    @server.middleware("http")
+    async def canonical_app_url(request: Request, call_next):
+        # Old theme-specific bookmarks now lead back to the ordinary app URL.
+        if (
+            request.method in {"GET", "HEAD"}
+            and request.url.path == "/"
+            and "__theme" in request.query_params
+        ):
+            target = request.url.remove_query_params("__theme")
+            location = target.path + (f"?{target.query}" if target.query else "")
+            # Relative redirect preserves the public HTTPS origin behind a tunnel.
+            return RedirectResponse(location, status_code=307)
+        return await call_next(request)
 
     @server.middleware("http")
     async def gradio_predict_compatibility(request: Request, call_next):
